@@ -61,10 +61,10 @@ You can also use [`npm`](https://github.com/isaacs/npm) to download and install 
 
 # TESTS
 
-[expresso](https://github.com/visionmedia/expresso) is required to run unit tests.
+[mocha](https://github.com/visionmedia/mocha) is required to run unit tests.
 
-    npm install -g expresso
-    make test
+    npm install -g mocha
+    nmake /a test
 
 
 # CONTRIBUTORS

@@ -1,19 +1,26 @@
+# nmake build
+# nmake /a test
+# nmake clean
+
+# When using -g installed node-gyp
+#GYP = node-gyp
+# When using node.js-bundled node-gyp
+GYP = node "C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\node-gyp\bin\node-gyp.js"
 
 build:
-	node-gyp build
+	$(GYP) configure
+	$(GYP) build
 
 clean:
-	rm test/tmp/*
-	node-gyp clean
+	$(GYP) clean
+	del /Q test\tmp\*.*
 
-ifndef only
-test: build db
-	@rm -rf ./test/tmp && mkdir -p ./test/tmp
-	@PATH="./node_modules/.bin:${PATH}" && NODE_PATH="./lib:$(NODE_PATH)" expresso -I lib test/*.test.js
-else
-test: build db
-	@rm -rf ./test/tmp && mkdir -p ./test/tmp
-	@PATH="./node_modules/.bin:${PATH}" && NODE_PATH="./lib:$(NODE_PATH)" expresso -I lib test/${only}.test.js
-endif
+test: build
+	del /Q test\tmp\*.*
+	set NODE_PATH=./lib;$(NODE_PATH)
+	mocha -I lib test/init_win32ole.test
+	mocha -I lib test/unicode.test
+	node examples/maze_creator.js
+	node examples/maze_solver.js
 
-.PHONY: build clean test
+.PHONY: build test clean

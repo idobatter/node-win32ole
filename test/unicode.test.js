@@ -1,1 +1,2 @@
-var win32ole = require('../win32ole');
+var win32ole = require('win32ole');
+win32ole.print('unicode.test');
