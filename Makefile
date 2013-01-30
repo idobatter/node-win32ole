@@ -10,6 +10,7 @@ GYP = node "C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\node-gyp
 build:
 	$(GYP) configure
 	$(GYP) build
+	mkdir test\tmp
 
 clean:
 	$(GYP) clean
