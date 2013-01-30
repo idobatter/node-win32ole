@@ -43,6 +43,10 @@ See the [API documentation](https://github.com/idobatter/node-win32ole/wiki) in 
 
 # BUILDING
 
+This project uses VC++ 2008 Express and Python 2.6 or later.
+
+(When using Python 2.5, it needs multiprocessing 2.5 back port.)
+
 Bulding also requires node-gyp to be installed. You can do this with npm:
 
     npm install -g node-gyp
