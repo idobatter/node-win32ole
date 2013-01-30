@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="node-win32ole : Asynchronous, non-blocking win32ole bindings for [node.js](https://github.com/joyent/node) ." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>node-win32ole</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/idobatter/node-win32ole">View on GitHub</a>
+
+          <h1 id="project_title">node-win32ole</h1>
+          <h2 id="project_tagline">Asynchronous, non-blocking win32ole bindings for [node.js](https://github.com/joyent/node) .</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/idobatter/node-win32ole/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/idobatter/node-win32ole/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>NAME</h1>
+
+<p>node-win32ole - Asynchronous, non-blocking win32ole bindings for <a href="https://github.com/joyent/node">node.js</a> .</p>
+
+<h1>USAGE</h1>
+
+<p>Install with <code>npm install node-win32ole</code>.</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">win32ole</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'win32ole'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">xla</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">win32ole</span><span class="p">.</span><span class="nx">Dispatch</span><span class="p">(</span><span class="s1">'Excel.Application'</span><span class="p">);</span>
+
+<span class="nx">xla</span><span class="p">.</span><span class="nx">series</span><span class="p">([</span>
+  <span class="kd">function</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">wb</span> <span class="o">=</span> <span class="nx">xla</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="s1">'test/tmp/test.xls'</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="kd">function</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">wb</span><span class="p">.</span><span class="nx">Books</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="kd">function</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">ws</span> <span class="o">=</span> <span class="nx">book</span><span class="p">.</span><span class="nx">WorkSheets</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="kd">function</span><span class="p">(){</span>
+    <span class="nx">book</span><span class="p">.</span><span class="nx">Save</span><span class="p">();</span>
+    <span class="nx">book</span><span class="p">.</span><span class="nx">Close</span><span class="p">();</span>
+    <span class="nx">xla</span><span class="p">.</span><span class="nx">Quit</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">]);</span>
+</pre></div>
+
+<h1>FEATURES</h1>
+
+<ul>
+<li>So much implements.</li>
+<li>npm</li>
+</ul><h1>API</h1>
+
+<p>See the <a href="https://github.com/idobatter/node-win32ole/wiki">API documentation</a> in the wiki.</p>
+
+<h1>BUILDING</h1>
+
+<p>Bulding also requires node-gyp to be installed. You can do this with npm:</p>
+
+<pre><code>npm install -g node-gyp
+</code></pre>
+
+<p>To obtain and build the bindings:</p>
+
+<pre><code>git clone git://github.com/idobatter/node-win32ole.git
+cd node-win32ole
+node-gyp configure
+node-gyp build
+</code></pre>
+
+<p>You can also use <a href="https://github.com/isaacs/npm"><code>npm</code></a> to download and install them:</p>
+
+<pre><code>npm install node-win32ole
+</code></pre>
+
+<h1>TESTS</h1>
+
+<p><a href="https://github.com/visionmedia/expresso">expresso</a> is required to run unit tests.</p>
+
+<pre><code>npm install -g expresso
+make test
+</code></pre>
+
+<h1>CONTRIBUTORS</h1>
+
+<ul>
+<li><a href="https://github.com/idobatter">idobatter</a></li>
+</ul><h1>ACKNOWLEDGEMENTS</h1>
+
+<p>Inspired <a href="http://www.ruby-doc.org/stdlib/libdoc/win32ole/rdoc/">Win32OLE</a></p>
+
+<h1>LICENSE</h1>
+
+<p><code>node-win32ole</code> is <a href="https://github.com/idobatter/node-win32ole/raw/master/LICENSE">BSD licensed</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">node-win32ole maintained by <a href="https://github.com/idobatter">idobatter</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
