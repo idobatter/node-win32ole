@@ -1,0 +1,30 @@
+{
+  "name": "node-win32ole",
+  "description": "Asynchronous, non-blocking win32ole bindings",
+  "version": "0.0.1",
+  "homepage": "https://github.com/idobatter/node-win32ole/",
+  "author": {
+    "name": "idobatter",
+    "url": "https://github.com/idobatter",
+    "email": "idobatter@gmail.com"
+  },
+  "contributors": [
+    "idobatter <idobatter@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/idobatter/node-win32ole.git"
+  },
+  "devDependencies": {
+    "async": ">= 0.1.22",
+    "expresso": "*"
+  },
+  "engines": {
+    "node": ">= 0.8.18 && < 0.9.0"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "licenses": [{ "type": "BSD" }],
+  "main": "./lib/win32ole"
+}
