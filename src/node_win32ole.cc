@@ -16,6 +16,7 @@ using namespace v8;
 
 Persistent<Object> module_target;
 Persistent<FunctionTemplate> Statement::constructor_template;
+VARIANT Statement::vDisp = {0};
 
 void Statement::Init(Handle<Object> target)
 {
@@ -24,7 +25,7 @@ void Statement::Init(Handle<Object> target)
   constructor_template = Persistent<FunctionTemplate>::New(t);
   constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
   constructor_template->SetClassName(String::NewSymbol("Statement"));
-  NODE_SET_PROTOTYPE_METHOD(constructor_template, "all", All);
+  NODE_SET_PROTOTYPE_METHOD(constructor_template, "Dispatch", Dispatch);
   target->Set(String::NewSymbol("Statement"),
     constructor_template->GetFunction());
 }
@@ -38,10 +39,44 @@ Handle<Value> Statement::New(const Arguments& args)
   return args.This();
 }
 
-Handle<Value> Statement::All(const Arguments& args)
+Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
-  return args.This();
+  boolean result = false;
+  if(!args[0]->IsString()){
+    fprintf(stderr, "error: args[0] is not a string");
+    return scope.Close(Boolean::New(result));
+  }
+  String::Utf8Value s(args[0]);
+  char *u8s = *s;
+  size_t u8len = strlen(u8s);
+  size_t wclen = MultiByteToWideChar(CP_UTF8, 0, u8s, u8len, NULL, 0);
+  wchar_t *wcs = (wchar_t *)malloc((wclen + 1) * sizeof(wchar_t));
+  wclen = MultiByteToWideChar(CP_UTF8, 0, u8s, u8len, wcs, wclen + 1);
+  wcs[wclen] = L'\0';
+#ifdef DEBUG
+  fwprintf(stderr, L"wcs: %s\n", wcs);
+#endif
+  CLSID clsid;
+  HRESULT hr = CLSIDFromProgID(wcs, &clsid);
+  free(wcs);
+  if(FAILED(hr)){
+    fprintf(stderr, "error: CLSIDFromProgID() %s\n", u8s);
+    return scope.Close(Boolean::New(result));
+  }
+  hr = CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER, IID_IDispatch,
+    (void **)&vDisp.pdispVal);
+  if(FAILED(hr)){
+    fprintf(stderr, "GetLastError: %08x\n", GetLastError()); // 000003f0
+    fprintf(stderr, "error: CoCreateInstance %s\n", u8s); // no token
+    fprintf(stderr, "clsid:"); // 00024500-0000-0000-c000-000000000046 (Excel)
+    for(int i = 0; i < sizeof(CLSID); ++i)
+      fprintf(stderr, " %02x", ((unsigned char *)&clsid)[i]);
+    fprintf(stderr, "\n");
+    return scope.Close(Boolean::New(result));
+  }
+  result = true;
+  return scope.Close(Boolean::New(result));
 }
 
 Handle<Value> Statement::Finalize(const Arguments& args)

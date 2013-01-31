@@ -22,8 +22,8 @@ using namespace v8;
 
 Handle<Value> Method_gettimeofday(const Arguments& args)
 {
-  boolean result = false;
   HandleScope scope;
+  boolean result = false;
   if(args.Length() >= 2){
     struct timeval tv;
 #ifdef _WIN32

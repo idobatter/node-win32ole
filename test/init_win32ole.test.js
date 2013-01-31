@@ -17,3 +17,6 @@ var tv = new timeval;
 // console.log(util.inspect(tv.ref(), true, null, true));
 assert.ok(win32ole.gettimeofday(tv.ref(), null));
 console.log(tv.tv_sec + '.' + tv.tv_usec);
+
+var stm = new win32ole.Statement;
+console.log(stm.Dispatch('Excel.Application'));
