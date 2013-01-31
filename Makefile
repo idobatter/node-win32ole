@@ -7,21 +7,34 @@
 # When using node.js-bundled node-gyp
 GYP = node "C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\node-gyp\bin\node-gyp.js"
 
+POBJ = build/Release/obj/node_win32ole
+
+$(POBJ)/node_win32ole.obj : src/$(*B).cc src/$(*B).h
+	$(GYP) rebuild
+
+$(POBJ)/win32ole_gettimeofday.obj : src/$(*B).cc
+	$(GYP) rebuild
+
 build:
 	$(GYP) configure
 	$(GYP) build
-	mkdir test\tmp
+	if exist test\tmp del /Q /S test\tmp\*.*
+	if not exist test\tmp mkdir test\tmp
 
 clean:
 	$(GYP) clean
-	del /Q test\tmp\*.*
+	if exist test\tmp del /Q /S test\tmp\*.*
+	if not exist test\tmp mkdir test\tmp
 
 test: build
-	del /Q test\tmp\*.*
+	if exist test\tmp del /Q /S test\tmp\*.*
+	if not exist test\tmp mkdir test\tmp
 	set NODE_PATH=./lib;$(NODE_PATH)
 	mocha -I lib test/init_win32ole.test
 	mocha -I lib test/unicode.test
 	node examples/maze_creator.js
 	node examples/maze_solver.js
+
+all: build test
 
 .PHONY: build test clean
