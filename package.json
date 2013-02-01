@@ -1,5 +1,5 @@
 {
-  "name": "node-win32ole",
+  "name": "win32ole",
   "description": "Asynchronous, non-blocking win32ole bindings",
   "version": "0.0.4",
   "homepage": "https://github.com/idobatter/node-win32ole/",
