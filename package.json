@@ -1,6 +1,6 @@
 {
   "name": "win32ole",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Asynchronous, non-blocking win32ole bindings",
   "homepage": "https://github.com/idobatter/node-win32ole",
   "author": {
@@ -16,6 +16,8 @@
     "url": "git://github.com/idobatter/node-win32ole.git"
   },
   "dependencies": {
+    "assert": ">= 0.4.9",
+    "async": ">= 0.1.22",
     "ref-struct": ">= 0.0.5",
     "ref": ">= 0.1.3"
   },
