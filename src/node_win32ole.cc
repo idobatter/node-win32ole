@@ -106,6 +106,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   }catch(OLE32coreException e){ std::cerr << e.errorMessage("WS"); goto done;
   }catch(char *e){ std::cerr << e; goto done; }
   try{
+    sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
     {
       OCVariant *argchain = new OCVariant((long)2);
       argchain->push(new OCVariant((long)1));
@@ -113,11 +114,45 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
       if(!cells){
         std::cerr << " cells not assigned\n";
       }else{
-        cells->putProp(L"Value", new OCVariant((long)123));
+        cells->putProp(L"Value", new OCVariant("test mbs"));
         delete cells;
       }
     }
-    sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
+    {
+      OCVariant *argchain1 = new OCVariant((long)2);
+      argchain1->push(new OCVariant((long)2));
+      OCVariant *cells0 = sheet->getProp(L"Cells", argchain1);
+      if(!cells0){
+        std::cerr << " cells0 not assigned\n";
+      }else{
+        OCVariant *argchain2 = new OCVariant((long)4);
+        argchain2->push(new OCVariant((long)4));
+        OCVariant *cells1 = sheet->getProp(L"Cells", argchain2);
+        if(!cells1){
+          std::cerr << " cells1 not assigned\n";
+        }else{
+          OCVariant *argchain0 = new OCVariant(*cells1); // need copy
+          argchain0->push(new OCVariant(*cells0)); // need copy
+          OCVariant *rg = sheet->getProp(L"Range", argchain0);
+          if(!rg){
+            std::cerr << " rg not assigned\n";
+          }else{
+            rg->putProp(L"RowHeight", new OCVariant(5.18));
+            rg->putProp(L"ColumnWidth", new OCVariant(0.58));
+            OCVariant *interior = rg->getProp(L"Interior");
+            if(!interior){
+              std::cerr << " rg.Interior not assigned\n";
+            }else{
+              interior->putProp(L"ColorIndex", new OCVariant((long)6));
+              delete interior;
+            }
+            delete rg;
+          }
+          delete cells1;
+        }
+        delete cells0;
+      }
+    }
 #ifdef DEBUG
     book->invoke(L"SaveAs",
       new OCVariant("c:\\prj\\node-win32ole\\test\\tmp\\testfilembs.xls"));
