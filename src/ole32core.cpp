@@ -368,10 +368,16 @@ OCVariant *OCVariant::putProp(LPOLESTR prop, OCVariant *argchain)
   return this;
 }
 
-OCVariant *OCVariant::invoke(LPOLESTR method, OCVariant *argchain)
+OCVariant *OCVariant::invoke(LPOLESTR method, OCVariant *argchain, bool re)
 {
-  AutoWrap(DISPATCH_METHOD, NULL, method, argchain);
-  return this;
+  if(!re){
+    AutoWrap(DISPATCH_METHOD, NULL, method, argchain);
+    return this;
+  }else{
+    OCVariant *r = new OCVariant();
+    AutoWrap(DISPATCH_METHOD, &r->v, method, argchain);
+    return r;
+  }
 }
 
 void OLE32core::checkOLEresult(string msg)

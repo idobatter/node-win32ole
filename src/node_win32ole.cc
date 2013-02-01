@@ -92,20 +92,11 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 #else // ---- testing ----
 
   std::cerr << "-in\n";
-  OCVariant *app, *books, *book, *sheet;
   try{
-    app = oc.connect("Japanese", true);
-    books = app->getProp(L"Workbooks");
-    book = books->invoke(L"Add");
-#ifdef DEBUG
-    // property (GetIDsOfNames) is not same between 'Open'ed and 'Add'ed book
-    sheet = book->invoke(L"Worksheets", new OCVariant((long)1));
-#else
-    sheet = app->getProp(L"ActiveSheet");
-#endif
-  }catch(OLE32coreException e){ std::cerr << e.errorMessage("WS"); goto done;
-  }catch(char *e){ std::cerr << e; goto done; }
-  try{
+    OCVariant *app = oc.connect("Japanese", true);
+    OCVariant *books = app->getProp(L"Workbooks");
+    OCVariant *book = books->invoke(L"Add", NULL, true);
+    OCVariant *sheet = book->getProp(L"Worksheets", new OCVariant((long)1));
     sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
     {
       OCVariant *argchain = new OCVariant((long)2);
@@ -153,24 +144,19 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
         delete cells0;
       }
     }
-#ifdef DEBUG
-    book->invoke(L"SaveAs",
-      new OCVariant("c:\\prj\\node-win32ole\\test\\tmp\\testfilembs.xls"));
-#endif
-  }catch(OLE32coreException e){ std::cerr << e.errorMessage("SA"); goto done;
-  }catch(char *e){ std::cerr << e; goto done; }
-  try{
+    std::string outfile("c:\\prj\\node-win32ole\\test\\tmp\\testfilembs.xls");
+    book->invoke(L"SaveAs", new OCVariant(outfile));
+    std::cerr << "saved to: " << outfile << std::endl;
     app->putProp(L"ScreenUpdating", new OCVariant((long)1));
     books->invoke(L"Close");
     app->invoke(L"Quit");
     delete sheet;
-#ifdef DEBUG
     delete book;
-#endif
     delete books;
     delete app;
-  }catch(OLE32coreException e){ std::cerr << e.errorMessage("D"); goto done;
-  }catch(char *e){ std::cerr << e; goto done; }
+  }catch(OLE32coreException e){ std::cerr << e.errorMessage("all"); goto done;
+  }catch(char *e){ std::cerr << e << "[all]" << std::endl; goto done;
+  }
   std::cerr << "-out\n";
 
 #endif // ---- testing ----

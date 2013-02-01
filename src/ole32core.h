@@ -77,7 +77,7 @@ protected:
 public:
   OCVariant *getProp(LPOLESTR prop, OCVariant *argchain=NULL);
   OCVariant *putProp(LPOLESTR prop, OCVariant *argchain=NULL);
-  OCVariant *invoke(LPOLESTR method, OCVariant *argchain=NULL);
+  OCVariant *invoke(LPOLESTR method, OCVariant *argchain=NULL, bool re=false);
 };
 
 class OLE32core {
