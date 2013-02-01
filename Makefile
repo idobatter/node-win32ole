@@ -12,7 +12,7 @@ POBJ = build/Release/obj/node_win32ole
 $(POBJ)/node_win32ole.obj : src/$(*B).cc src/$(*B).h
 	$(GYP) rebuild
 
-$(POBJ)/win32ole_gettimeofday.obj : src/$(*B).cc
+$(POBJ)/win32ole_gettimeofday.obj : src/$(*B).cc src/node_win32ole.h
 	$(GYP) rebuild
 
 build:
@@ -35,6 +35,4 @@ test: build
 	node examples/maze_creator.js
 	node examples/maze_solver.js
 
-all: build test
-
-.PHONY: build test clean
+all: $(POBJ)/node_win32ole.obj $(POBJ)/win32ole_gettimeofday.obj build test

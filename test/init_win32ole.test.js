@@ -18,5 +18,40 @@ var tv = new timeval;
 assert.ok(win32ole.gettimeofday(tv.ref(), null));
 console.log(tv.tv_sec + '.' + tv.tv_usec);
 
-var stm = new win32ole.Statement;
-console.log(stm.Dispatch('Excel.Application'));
+/*
+var xl = win32ole.client.Dispatch('Excel.Application');
+xl.Visible = true;
+var book = xl.Workbooks.Add();
+var sheet = book.Worksheets(1);
+sheet.Name = 'sheetnameA utf8';
+sheet.Cells(1, 2).Value = 'test utf8';
+var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
+rg.RowHeight = 5.18;
+rg.ColumnWidth = 0.58;
+rg.Interior.ColorIndex = 6; // Yellow
+book.SaveAs('testfileutf8.xls');
+xl.ScreenUpdating = true;
+xl.Workbooks.Close();
+xl.Quit();
+*/
+
+var st = new win32ole.Statement;
+var xl = st.Dispatch('Excel.Application');
+console.log(xl);
+/*
+xl.set('Visible', true);
+var book = xl.get('Workbooks').call('Add', []);
+var sheet = book.call('Worksheets', [1]);
+sheet.set('Name', 'sheetnameA utf8');
+sheet.call('Cells', [1, 2]).set('Value', 'test utf8');
+var rg = sheet.call('Range',
+  [sheet.call('Cells', [2, 2]), sheet.call('Cells', [4, 4])]);
+rg.set('RowHeight', 5.18);
+rg.set('ColumnWidth', 0.58);
+rg.get('Interior').set('ColorIndex', 6); // Yellow
+book.call('SaveAs', ['testfileutf8.xls']);
+xl.set('ScreenUpdating', true);
+xl.get('Workbooks').call('Close', []);
+xl.call('Quit', []);
+*/
+st.Finalize(); // must be called now

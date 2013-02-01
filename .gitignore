@@ -5,6 +5,7 @@ Debug
 build
 out
 .deps
+.ref
 test/tmp
 *.dylib
 *.so

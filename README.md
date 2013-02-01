@@ -7,32 +7,54 @@ node-win32ole - Asynchronous, non-blocking win32ole bindings for [node.js](https
 
 Install with `npm install node-win32ole`.
 
+It works (expected) as...
+
 ``` js
 var win32ole = require('win32ole');
-var xla = new win32ole.Dispatch('Excel.Application');
+var xl = win32ole.client.Dispatch('Excel.Application');
+xl.Visible = true;
+var book = xl.Workbooks.Add();
+var sheet = book.Worksheets(1);
+sheet.Name = 'sheetnameA utf8';
+sheet.Cells(1, 2).Value = 'test utf8';
+var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
+rg.RowHeight = 5.18;
+rg.ColumnWidth = 0.58;
+rg.Interior.ColorIndex = 6; // Yellow
+book.SaveAs('testfileutf8.xls');
+xl.ScreenUpdating = true;
+xl.Workbooks.Close();
+xl.Quit();
+```
 
-xla.series([
-  function(){
-    var wb = xla.Workbooks.Open('test/tmp/test.xls');
-  },
-  function(){
-    var book = wb.Books(1);
-  },
-  function(){
-    var ws = book.WorkSheets(1);
-  },
-  function(){
-    book.Save();
-    book.Close();
-    xla.Quit();
-  }
-]);
+But now it implements as... (comming soon)
+
+``` js
+var win32ole = require('win32ole');
+var st = new win32ole.Statement;
+var xl = st.Dispatch('Excel.Application');
+xl.set('Visible', true);
+var book = xl.get('Workbooks').call('Add', []);
+var sheet = book.call('Worksheets', [1]);
+sheet.set('Name', 'sheetnameA utf8');
+sheet.call('Cells', [1, 2]).set('Value', 'test utf8');
+var rg = sheet.call('Range',
+  [sheet.call('Cells', [2, 2]), sheet.call('Cells', [4, 4])]);
+rg.set('RowHeight', 5.18);
+rg.set('ColumnWidth', 0.58);
+rg.get('Interior').set('ColorIndex', 6); // Yellow
+book.call('SaveAs', ['testfileutf8.xls']);
+xl.set('ScreenUpdating', true);
+xl.get('Workbooks').call('Close', []);
+xl.call('Quit', []);
+st.Finalize(); // must be called now
 ```
 
 
 # FEATURES
 
 * So much implements.
+* Implement accessors getter, setter and caller.
 * npm
 
 

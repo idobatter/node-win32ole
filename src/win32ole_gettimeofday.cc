@@ -10,13 +10,7 @@
 #include <sys/timeb.h>
 #endif
 
-#define XASSERT(e) do{ \
-  if(!(e)){ \
-    fprintf(stderr, "ERROR: file %s (%d): ", __FILE__, __LINE__); \
-    fprintf(stderr, "%s\n", #e); \
-    goto XASSERTSKIP; \
-  } \
-}while(0)
+#include "node_win32ole.h"
 
 using namespace v8;
 
@@ -34,12 +28,13 @@ Handle<Value> Method_gettimeofday(const Arguments& args)
 #else
     gettimeofday(&tv, NULL); // no &tz
 #endif
-    XASSERT(args[0]->IsObject());
+    BEVERIFY(done, args[0]->IsObject());
     v8::Handle<v8::Object> buf = args[0]->ToObject();
-    XASSERT(node::Buffer::Length(buf) == sizeof(struct timeval));
+    BEVERIFY(done, node::Buffer::Length(buf) == sizeof(struct timeval));
     memcpy(node::Buffer::Data(buf), &tv, sizeof(struct timeval));
     result = true;
-XASSERTSKIP:;
+done:
+    ;
   }
   return scope.Close(Boolean::New(result));
 }
