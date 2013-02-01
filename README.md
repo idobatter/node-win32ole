@@ -5,7 +5,7 @@ node-win32ole - Asynchronous, non-blocking win32ole bindings for [node.js](https
 
 # USAGE
 
-Install with `npm install node-win32ole`.
+Install with `npm install win32ole`.
 
 It works (expected) as...
 
