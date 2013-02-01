@@ -2,15 +2,11 @@
   win32ole_gettimeofday.cc
 */
 
-#include <node_buffer.h>
-#include <node.h>
-#include <v8.h>
+#include "node_win32ole.h"
 
 #ifdef _WIN32
 #include <sys/timeb.h>
 #endif
-
-#include "node_win32ole.h"
 
 using namespace v8;
 

@@ -9,10 +9,13 @@ GYP = node "C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\node-gyp
 
 POBJ = build/Release/obj/node_win32ole
 
-$(POBJ)/node_win32ole.obj : src/$(*B).cc src/$(*B).h
+$(POBJ)/node_win32ole.obj : src/$(*B).cc src/$(*B).h src/ole32core.h
 	$(GYP) rebuild
 
-$(POBJ)/win32ole_gettimeofday.obj : src/$(*B).cc src/node_win32ole.h
+$(POBJ)/win32ole_gettimeofday.obj : src/$(*B).cc src/node_win32ole.h src/ole32core.h
+	$(GYP) rebuild
+
+$(POBJ)/ole32core.obj : src/$(*B).cpp src/$(*B).h
 	$(GYP) rebuild
 
 build:
@@ -35,4 +38,4 @@ test: build
 	node examples/maze_creator.js
 	node examples/maze_solver.js
 
-all: $(POBJ)/node_win32ole.obj $(POBJ)/win32ole_gettimeofday.obj build test
+all: $(POBJ)/node_win32ole.obj $(POBJ)/win32ole_gettimeofday.obj $(POBJ)/ole32core.obj build test

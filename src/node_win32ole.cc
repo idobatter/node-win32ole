@@ -6,57 +6,13 @@
   $ node test/init_win32ole.test.js
 */
 
-#include <node_buffer.h>
-#include <node.h>
-#include <v8.h>
-
 #include "node_win32ole.h"
 
 using namespace v8;
 
-wchar_t *u8s2wcs(char *u8s)
-{
-  size_t u8len = strlen(u8s);
-  size_t wclen = MultiByteToWideChar(CP_UTF8, 0, u8s, u8len, NULL, 0);
-  wchar_t *wcs = (wchar_t *)malloc((wclen + 1) * sizeof(wchar_t));
-  wclen = MultiByteToWideChar(CP_UTF8, 0, u8s, u8len, wcs, wclen + 1); // + 1
-  wcs[wclen] = L'\0';
-  return wcs; // ucs2 *** must be free later ***
-}
-
-char *wcs2mbs(wchar_t *wcs)
-{
-  size_t mblen = WideCharToMultiByte(GetACP(), 0,
-    (LPCWSTR)wcs, -1, NULL, 0, NULL, NULL);
-  char *mbs = (char *)malloc((mblen + 1));
-  mblen = WideCharToMultiByte(GetACP(), 0,
-    (LPCWSTR)wcs, -1, mbs, mblen, NULL, NULL); // not + 1
-  mbs[mblen] = '\0';
-  return mbs; // cp932 *** must be free later ***
-}
-
-BOOL chkerr(BOOL b, char *m, int n, char *f, char *e)
-{
-  if(b) return b;
-  DWORD code = GetLastError();
-  WCHAR *buf;
-  FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER
-    | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-    NULL, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-    (LPWSTR)&buf, 0, NULL);
-  fprintf(stderr, "ASSERT in %08x module %s(%d) @%s: %s\n", code, m, n, f, e);
-  // fwprintf(stderr, L"error: %s", buf); // Some wchars can't see on console.
-  char *mbs = wcs2mbs(buf);
-  if(!mbs) MessageBoxW(NULL, buf, L"error", MB_ICONEXCLAMATION | MB_OK);
-  else fprintf(stderr, "error: %s", mbs);
-  free(mbs);
-  LocalFree(buf);
-  return b;
-}
-
 Persistent<Object> module_target;
 Persistent<FunctionTemplate> Statement::constructor_template;
-VARIANT Statement::vDisp = {0};
+OLE32core Statement::oc;
 
 void Statement::Init(Handle<Object> target)
 {
@@ -84,6 +40,9 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   boolean result = false;
+
+#if(0) // ---- testing ----
+
   if(!args[0]->IsString()){
     fprintf(stderr, "error: args[0] is not a string");
     return scope.Close(Boolean::New(result));
@@ -129,6 +88,58 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
     IID_IDispatch, (void **)&vDisp.pdispVal);
   BEVERIFY(done, !FAILED(hr));
 #endif
+
+#else // ---- testing ----
+
+  std::cerr << "-in\n";
+  OCVariant *app, *books, *book, *sheet;
+  try{
+    app = oc.connect("Japanese", true);
+    books = app->getProp(L"Workbooks");
+    book = books->invoke(L"Add");
+#ifdef DEBUG
+    // property (GetIDsOfNames) is not same between 'Open'ed and 'Add'ed book
+    sheet = book->invoke(L"Worksheets", new OCVariant((long)1));
+#else
+    sheet = app->getProp(L"ActiveSheet");
+#endif
+  }catch(OLE32coreException e){ std::cerr << e.errorMessage("WS"); goto done;
+  }catch(char *e){ std::cerr << e; goto done; }
+  try{
+    {
+      OCVariant *argchain = new OCVariant((long)2);
+      argchain->push(new OCVariant((long)1));
+      OCVariant *cells = sheet->getProp(L"Cells", argchain);
+      if(!cells){
+        std::cerr << " cells not assigned\n";
+      }else{
+        cells->putProp(L"Value", new OCVariant((long)123));
+        delete cells;
+      }
+    }
+    sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
+#ifdef DEBUG
+    book->invoke(L"SaveAs",
+      new OCVariant("c:\\prj\\node-win32ole\\test\\tmp\\testfilembs.xls"));
+#endif
+  }catch(OLE32coreException e){ std::cerr << e.errorMessage("SA"); goto done;
+  }catch(char *e){ std::cerr << e; goto done; }
+  try{
+    app->putProp(L"ScreenUpdating", new OCVariant((long)1));
+    books->invoke(L"Close");
+    app->invoke(L"Quit");
+    delete sheet;
+#ifdef DEBUG
+    delete book;
+#endif
+    delete books;
+    delete app;
+  }catch(OLE32coreException e){ std::cerr << e.errorMessage("D"); goto done;
+  }catch(char *e){ std::cerr << e; goto done; }
+  std::cerr << "-out\n";
+
+#endif // ---- testing ----
+
   result = true;
 done:
   return scope.Close(Boolean::New(result));
@@ -137,9 +148,13 @@ done:
 Handle<Value> Statement::Finalize(const Arguments& args)
 {
   HandleScope scope;
+#if(0) // ---- testing ----
   if(vDisp.vt == VT_DISPATCH && vDisp.pdispVal)
     VariantClear(&vDisp); // vDisp.pdispVal->Release();
   CoUninitialize();
+#else // ---- testing ----
+  oc.disconnect();
+#endif // ---- testing ----
   return args.This();
 }
 
