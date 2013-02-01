@@ -81,7 +81,7 @@ To obtain and build the bindings:
 
 You can also use [`npm`](https://github.com/isaacs/npm) to download and install them:
 
-    npm install node-win32ole
+    npm install win32ole
 
 
 # TESTS
