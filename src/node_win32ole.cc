@@ -9,6 +9,9 @@
 #include "node_win32ole.h"
 
 using namespace v8;
+using namespace ole32core;
+
+namespace node_win32ole {
 
 Persistent<Object> module_target;
 Persistent<FunctionTemplate> Statement::constructor_template;
@@ -211,6 +214,12 @@ Handle<Value> Method_print(const Arguments& args)
   return scope.Close(Boolean::New(true));
 }
 
+} // namespace node_win32ole
+
+using namespace node_win32ole;
+
+namespace {
+
 void init(Handle<Object> target)
 {
   module_target = Persistent<Object>::New(target);
@@ -228,5 +237,7 @@ void init(Handle<Object> target)
   target->Set(String::NewSymbol("gettimeofday"),
     FunctionTemplate::New(Method_gettimeofday)->GetFunction());
 }
+
+} // namespace
 
 NODE_MODULE(node_win32ole, init)

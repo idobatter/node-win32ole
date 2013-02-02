@@ -9,6 +9,9 @@
 #endif
 
 using namespace v8;
+using namespace ole32core;
+
+namespace node_win32ole {
 
 Handle<Value> Method_gettimeofday(const Arguments& args)
 {
@@ -34,3 +37,5 @@ done:
   }
   return scope.Close(Boolean::New(result));
 }
+
+} // namespace node_win32ole

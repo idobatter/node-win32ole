@@ -7,6 +7,8 @@
 
 using namespace std;
 
+namespace ole32core {
+
 BOOL chkerr(BOOL b, char *m, int n, char *f, char *e)
 {
   if(b) return b;
@@ -420,3 +422,5 @@ void OLE32core::disconnect()
   setlocale(LC_ALL, oldlocale.c_str());
 #endif
 }
+
+} // namespace OLE32core

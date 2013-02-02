@@ -8,6 +8,9 @@
 #include "ole32core.h"
 
 using namespace v8;
+using namespace ole32core;
+
+namespace node_win32ole {
 
 Handle<Value> Method_version(const Arguments& args);
 Handle<Value> Method_print(const Arguments& args);
@@ -29,5 +32,7 @@ protected:
   bool finalized;
   static OLE32core oc;
 };
+
+} // namespace node_win32ole
 
 #endif // __NODE_WIN32OLE_H__

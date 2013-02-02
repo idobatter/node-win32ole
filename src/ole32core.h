@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <cstring>
 
+namespace ole32core {
+
 #define BASSERT(x) chkerr((BOOL)(x), __FILE__, __LINE__, __FUNCTION__, #x)
 #define BVERIFY(x) BASSERT(x)
 #if defined(_DEBUG) || defined(DEBUG)
@@ -91,5 +93,7 @@ public:
   OCVariant *connect(std::string locale, int visible=false);
   void disconnect(void);
 };
+
+} // namespace OLE32core
 
 #endif // __OLE32CORE_H__
