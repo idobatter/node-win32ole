@@ -3,6 +3,7 @@
 */
 
 #include "node_win32ole.h"
+#include "ole32core.h"
 
 #ifdef _WIN32
 #include <sys/timeb.h>

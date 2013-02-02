@@ -94,6 +94,6 @@ public:
   void disconnect(void);
 };
 
-} // namespace OLE32core
+} // namespace ole32core
 
 #endif // __OLE32CORE_H__

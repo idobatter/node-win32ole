@@ -423,4 +423,4 @@ void OLE32core::disconnect()
 #endif
 }
 
-} // namespace OLE32core
+} // namespace ole32core
