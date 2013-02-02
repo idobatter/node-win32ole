@@ -322,8 +322,8 @@ HRESULT OCVariant::AutoWrap(int autoType, VARIANT *pvResult,
     ptName, -1, szName, sizeof(szName), NULL, NULL);
   // Get DISPID for name passed...
   DISPID dispID;
-  hr = v.pdispVal->GetIDsOfNames(IID_NULL, &ptName, 1, LOCALE_USER_DEFAULT,
-    &dispID);
+  hr = v.pdispVal->GetIDsOfNames(IID_NULL, &ptName, 1,
+    LOCALE_USER_DEFAULT, &dispID); // or _SYSTEM_ ?
   if(FAILED(hr)){
     ostringstream oss;
     oss << hr << " [" << szName << "] ";
@@ -342,8 +342,8 @@ HRESULT OCVariant::AutoWrap(int autoType, VARIANT *pvResult,
     dp.rgdispidNamedArgs = &dispidNamed;
   }
   // Make the call!
-  hr = v.pdispVal->Invoke(dispID, IID_NULL, LOCALE_SYSTEM_DEFAULT,
-    autoType, &dp, pvResult, NULL, NULL);
+  hr = v.pdispVal->Invoke(dispID, IID_NULL,
+    LOCALE_USER_DEFAULT, autoType, &dp, pvResult, NULL, NULL); // or _SYSTEM_ ?
   delete [] pArgs;
   if(FAILED(hr)){
     ostringstream oss;
@@ -358,8 +358,10 @@ HRESULT OCVariant::AutoWrap(int autoType, VARIANT *pvResult,
 OCVariant *OCVariant::getProp(LPOLESTR prop, OCVariant *argchain)
 {
   OCVariant *r = new OCVariant();
-  AutoWrap(DISPATCH_PROPERTYGET, &r->v, prop, argchain);
-  return r;
+  AutoWrap(DISPATCH_PROPERTYGET, &r->v, prop, argchain); // distinguish METHOD
+  return r; // may be called with DISPATCH_PROPERTYGET|DISPATCH_METHOD
+  // 'METHOD' may be called only with DISPATCH_PROPERTYGET
+  // but 'PROPERTY' must not be called only with DISPATCH_METHOD
 }
 
 OCVariant *OCVariant::putProp(LPOLESTR prop, OCVariant *argchain)
@@ -375,8 +377,10 @@ OCVariant *OCVariant::invoke(LPOLESTR method, OCVariant *argchain, bool re)
     return this;
   }else{
     OCVariant *r = new OCVariant();
-    AutoWrap(DISPATCH_METHOD, &r->v, method, argchain);
-    return r;
+    AutoWrap(DISPATCH_METHOD, &r->v, method, argchain); // distinguish PROPERTY
+    return r; // may be called with DISPATCH_PROPERTYGET|DISPATCH_METHOD
+    // 'METHOD' may be called only with DISPATCH_PROPERTYGET
+    // but 'PROPERTY' must not be called only with DISPATCH_METHOD
   }
 }
 
