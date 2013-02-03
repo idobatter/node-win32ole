@@ -12,9 +12,9 @@ public:
   static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
   static Handle<Value> New(const Arguments& args);
-  static Handle<Value> Get(const Arguments& args);
-  static Handle<Value> Set(const Arguments& args);
-  static Handle<Value> Call(const Arguments& args);
+  static Handle<Value> OLEGet(const Arguments& args);
+  static Handle<Value> OLESet(const Arguments& args);
+  static Handle<Value> OLECall(const Arguments& args);
   static Handle<Value> Finalize(const Arguments& args);
 public:
   V8Variant() : node::ObjectWrap(), finalized(false) {}

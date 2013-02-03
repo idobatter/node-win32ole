@@ -4,7 +4,7 @@ win32ole.print('init_win32ole.test');
 console.log(util.inspect(win32ole.verbose(), true, null, true));
 var assert = require('assert');
 var path = require('path');
-var cwd = path.join(__dirname, '..');
+var cwd = path.join(win32ole.MODULEDIRNAME, '..');
 assert.equal(__dirname, path.join(cwd, 'test'));
 assert.equal(__filename, path.join(cwd, 'test/init_win32ole.test.js'));
 assert.equal(require.resolve('win32ole'), path.join(cwd, 'lib/win32ole.js'));

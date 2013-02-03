@@ -20,9 +20,9 @@ void V8Variant::Init(Handle<Object> target)
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
   NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "get", Get);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "set", Set);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "call", Call);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "call", OLECall);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
 }
@@ -46,23 +46,31 @@ Handle<Value> V8Variant::New(const Arguments& args)
   return args.This();
 }
 
-Handle<Value> V8Variant::Get(const Arguments& args)
+Handle<Value> V8Variant::OLEGet(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
+  OCVariant *ocv = getThisInternalField<OCVariant>(args.This());
+  if(!ocv)
+    return ThrowException(Exception::TypeError(
+      String::New("Can't access to V8Variant object (null OCVariant)")));
   DISPFUNCOUT();
   return args.This();
 }
 
-Handle<Value> V8Variant::Set(const Arguments& args)
+Handle<Value> V8Variant::OLESet(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
+  OCVariant *ocv = getThisInternalField<OCVariant>(args.This());
+  if(!ocv)
+    return ThrowException(Exception::TypeError(
+      String::New("Can't access to V8Variant object (null OCVariant)")));
   DISPFUNCOUT();
   return args.This();
 }
 
-Handle<Value> V8Variant::Call(const Arguments& args)
+Handle<Value> V8Variant::OLECall(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();

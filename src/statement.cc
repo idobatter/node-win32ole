@@ -160,7 +160,18 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
         delete cells0;
       }
     }
-    std::string outfile("c:\\prj\\node-win32ole\\test\\tmp\\testfilembs.xls");
+
+Handle<Value> v = module_target->Get(String::NewSymbol("MODULEDIRNAME"));
+BEVERIFY(done, !v.IsEmpty());
+BEVERIFY(done, !v->IsUndefined());
+BEVERIFY(done, !v->IsObject());
+BEVERIFY(done, v->IsString());
+String::Utf8Value *s = new String::Utf8Value(v);
+BEVERIFY(done, s);
+std::cerr << **s << std::endl;
+std::string outfile(std::string(**s) + "\\..\\test\\tmp\\testfilembs.xls");
+delete s;
+
     book->invoke(L"SaveAs", new OCVariant(outfile));
     std::cerr << "saved to: " << outfile << std::endl;
     app->putProp(L"ScreenUpdating", new OCVariant((long)1));

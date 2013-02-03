@@ -56,6 +56,9 @@ void init(Handle<Object> target)
   target->Set(String::NewSymbol("VERSION"),
     String::New("0.0.0 (will be set later)"),
     static_cast<PropertyAttribute>(DontDelete));
+  target->Set(String::NewSymbol("MODULEDIRNAME"),
+    String::New("/tmp"),
+    static_cast<PropertyAttribute>(DontDelete));
   target->Set(String::NewSymbol("SOURCE_TIMESTAMP"),
     String::NewSymbol(__FILE__ " " __DATE__ " " __TIME__),
     static_cast<PropertyAttribute>(ReadOnly | DontDelete));
