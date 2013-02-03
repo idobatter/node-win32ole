@@ -3,6 +3,7 @@
 */
 
 #include "statement.h"
+#include "ole32core.h"
 
 using namespace v8;
 using namespace ole32core;
@@ -10,7 +11,6 @@ using namespace ole32core;
 namespace node_win32ole {
 
 Persistent<FunctionTemplate> Statement::clazz;
-OLE32core Statement::oc;
 
 void Statement::Init(Handle<Object> target)
 {
@@ -27,31 +27,47 @@ void Statement::Init(Handle<Object> target)
 Handle<Value> Statement::New(const Arguments& args)
 {
   HandleScope scope;
+  DISPFUNCIN();
   if(!args.IsConstructCall())
     return ThrowException(Exception::TypeError(
       String::New("Use the new operator to create new Statement objects")));
+  OLE32core *oc = new OLE32core();
+  if(!oc)
+    return ThrowException(Exception::TypeError(
+      String::New("Can't create new Statement object (null OLE32core)")));
+  Local<Object> thisObject = args.This();
+  thisObject->SetInternalField(0, External::New(oc));
+  Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
+  objectDisposer.MakeWeak(oc, Dispose);
+  DISPFUNCOUT();
   return args.This();
 }
 
 Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
+  DISPFUNCIN();
   boolean result = false;
+  BEVERIFY(done, args.Length() >= 2);
+  BEVERIFY(done, args[0]->IsString());
+  BEVERIFY(done, args[1]->IsString());
 
-#if(0) // ---- testing ----
+  String::Utf8Value *u8s_locale = new String::Utf8Value(args[1]);
+  BEVERIFY(done, u8s_locale);
+  char cstr_locale[256];
+  strncpy(cstr_locale, **u8s_locale, sizeof(cstr_locale));
+  delete u8s_locale;
 
-  if(!args[0]->IsString()){
-    fprintf(stderr, "error: args[0] is not a string");
-    return scope.Close(Boolean::New(result));
-  }
-  String::Utf8Value s(args[0]);
-  wchar_t *wcs = u8s2wcs(*s);
+  String::Utf8Value *u8s = new String::Utf8Value(args[0]); // must create here
+  BEVERIFY(done, u8s);
+  wchar_t *wcs = u8s2wcs(**u8s);
+  delete u8s;
   BEVERIFY(done, wcs);
 #ifdef DEBUG
   char *mbs = wcs2mbs(wcs);
   if(!mbs) free(wcs);
   BEVERIFY(done, mbs);
-  fprintf(stderr, "ProgID: %s\n", mbs); // Excel.Application
+  fprintf(stderr, "ProgID: %s\n", mbs);
   free(mbs);
 #endif
   CLSID clsid;
@@ -64,33 +80,36 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
     fprintf(stderr, " %02x", ((unsigned char *)&clsid)[i]);
   fprintf(stderr, "\n");
 #endif
-  // When this function is not called first (and on the same instance),
+  OLE32core *oc = getThisInternalField<OLE32core>(args.This());
+  if(!oc)
+    return ThrowException(Exception::TypeError(
+      String::New("Can't access to Statement object (null OLE32core)")));
+  BEVERIFY(done, oc->connect(cstr_locale));
+  // When 'CoInitialize(NULL)' is not called first (and on the same instance),
   // next functions will return many errors.
-  CoInitialize(NULL);
   // (old style) GetActiveObject() returns 0x000036b7
   //   The requested lookup key was not found in any active activation context.
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
-#ifdef DEBUG // old style (needs pre executed)
-  IUnknown *pUnk;
-  hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
-  BEVERIFY(done, !FAILED(hr));
-  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&vDisp.pdispVal);
-  BEVERIFY(done, !FAILED(hr));
-  pUnk->Release();
-#else
-  // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
-  vDisp.vt = VT_DISPATCH;
-  hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
-    IID_IDispatch, (void **)&vDisp.pdispVal);
-  BEVERIFY(done, !FAILED(hr));
-#endif
-
-#else // ---- testing ----
-
-  std::cerr << "-in\n";
   try{
-    OCVariant *app = oc.connect("Japanese", true);
+    OCVariant *app = new OCVariant();
+    app->v.vt = VT_DISPATCH;
+#ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
+    IUnknown *pUnk;
+    hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
+    if(FAILED(hr)) delete app;
+    BEVERIFY(done, !FAILED(hr));
+    hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
+    pUnk->Release();
+#else
+    // C -> C++ change types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
+    hr = CoCreateInstance(clsid, NULL,
+      CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
+      IID_IDispatch, (void **)&app->v.pdispVal);
+#endif
+    if(FAILED(hr)) delete app;
+    BEVERIFY(done, !FAILED(hr));
+    app->putProp(L"Visible", new OCVariant((long)1));
     OCVariant *books = app->getProp(L"Workbooks");
     OCVariant *book = books->invoke(L"Add", NULL, true);
     OCVariant *sheet = book->getProp(L"Worksheets", new OCVariant((long)1));
@@ -154,26 +173,38 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   }catch(OLE32coreException e){ std::cerr << e.errorMessage("all"); goto done;
   }catch(char *e){ std::cerr << e << "[all]" << std::endl; goto done;
   }
-  std::cerr << "-out\n";
-
-#endif // ---- testing ----
-
   result = true;
 done:
+  DISPFUNCOUT();
   return scope.Close(Boolean::New(result));
 }
 
 Handle<Value> Statement::Finalize(const Arguments& args)
 {
   HandleScope scope;
-#if(0) // ---- testing ----
-  if(vDisp.vt == VT_DISPATCH && vDisp.pdispVal)
-    VariantClear(&vDisp); // vDisp.pdispVal->Release();
-  CoUninitialize();
-#else // ---- testing ----
-  oc.disconnect();
-#endif // ---- testing ----
+  DISPFUNCIN();
+  Local<Object> thisObject = args.This();
+#if(1) // now GC will call Disposer automatically
+  OLE32core *oc = getThisInternalField<OLE32core>(thisObject);
+  if(oc){ oc->disconnect(); delete oc; }
+#endif
+  thisObject->SetInternalField(0, External::New(NULL));
+#if(0) // to force GC (shold not use at here ?)
+  // v8::internal::Heap::CollectAllGarbage(); // obsolete
+  while(!v8::V8::IdleNotification());
+#endif
+  DISPFUNCOUT();
   return args.This();
+}
+
+void Statement::Dispose(Persistent<Value> handle, void *param)
+{
+  DISPFUNCIN();
+  OLE32core *oc = static_cast<OLE32core *>(param);
+  if(oc){ oc->disconnect(); delete oc; }
+  // thisObject->SetInternalField(0, External::New(NULL));
+  handle.Dispose();
+  DISPFUNCOUT();
 }
 
 void Statement::Finalize()

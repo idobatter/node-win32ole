@@ -92,14 +92,14 @@ public:
 
 class OLE32core {
 protected:
+  bool finalized;
   std::string oldlocale;
-  CLSID clsid;
 public:
-  OLE32core() {}
-  virtual ~OLE32core() {}
+  OLE32core() : finalized(true) {}
+  virtual ~OLE32core() { if(!finalized) disconnect(); }
   void checkOLEresult(std::string msg);
-  OCVariant *connect(std::string locale, int visible=false);
-  void disconnect(void);
+  bool connect(std::string locale);
+  bool disconnect(void);
 };
 
 } // namespace ole32core

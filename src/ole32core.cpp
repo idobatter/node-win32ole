@@ -391,36 +391,27 @@ void OLE32core::checkOLEresult(string msg)
   throw OLE32coreException(msg + "() failed\n");
 }
 
-OCVariant *OLE32core::connect(string locale, int visible)
+bool OLE32core::connect(string locale)
 {
+  if(!finalized) checkOLEresult("called twice ? connect");
+  finalized = false;
   oldlocale = setlocale(LC_ALL, NULL);
   setlocale(LC_ALL, locale.c_str());
   CoInitialize(NULL); // Initialize COM for this thread...
-  // Get CLSID for our server...
-  if(FAILED(CLSIDFromProgID(L"Excel.Application", &clsid))){
-    checkOLEresult("CLSIDFromProgID");
-  }
-  // Start server and get IDispatch... (app = CreateObject("..."))
-  OCVariant *app = new OCVariant();
-  app->v.vt = VT_DISPATCH;
-  if(FAILED(CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER,
-    IID_IDispatch, (void **)&app->v.pdispVal))){
-    checkOLEresult("Excel is not registered ? CoCreateInstance");
-  }
-  if(visible){ // Make it visible (app.Visible = 1)
-    app->putProp(L"Visible", new OCVariant((long)1));
-  }
-  return app;
+  return true;
 }
 
-void OLE32core::disconnect()
+bool OLE32core::disconnect()
 {
+  if(finalized) checkOLEresult("called twice ? disconnect");
+  finalized = true;
   CoUninitialize(); // Uninitialize COM for this thread...
 #ifdef DEBUG
   setlocale(LC_ALL, "C");
 #else
   setlocale(LC_ALL, oldlocale.c_str());
 #endif
+  return true;
 }
 
 } // namespace ole32core

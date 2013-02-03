@@ -34,7 +34,7 @@ Handle<Value> V8Variant::New(const Arguments& args)
   if(!args.IsConstructCall())
     return ThrowException(Exception::TypeError(
       String::New("Use the new operator to create new V8Variant objects")));
-  OCVariant *ocv = new OCVariant;
+  OCVariant *ocv = new OCVariant();
   if(!ocv)
     return ThrowException(Exception::TypeError(
       String::New("Can't create new V8Variant object (null OCVariant)")));
