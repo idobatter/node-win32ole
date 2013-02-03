@@ -48,6 +48,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
+  OCVariant app;
   boolean result = false;
   BEVERIFY(done, args.Length() >= 2);
   BEVERIFY(done, args[0]->IsString());
@@ -92,21 +93,18 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   //   The requested lookup key was not found in any active activation context.
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
-  OCVariant *app = new OCVariant();
-  app->v.vt = VT_DISPATCH;
+  app.v.vt = VT_DISPATCH;
 #ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
   IUnknown *pUnk;
   hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
-  if(FAILED(hr)) delete app;
   BEVERIFY(done, !FAILED(hr));
-  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
+  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app.v.pdispVal);
   pUnk->Release();
 #else
   // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
   hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
-    IID_IDispatch, (void **)&app->v.pdispVal);
+    IID_IDispatch, (void **)&app.v.pdispVal);
 #endif
-  if(FAILED(hr)) delete app;
   BEVERIFY(done, !FAILED(hr));
   Handle<Object> vApp = V8Variant::CreateUndefined();
   BEVERIFY(done, !vApp.IsEmpty());
@@ -116,13 +114,12 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   if(!ocv)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to V8Variant object (null OCVariant)")));
-  *ocv = *app; // copy internal values
-  delete app;
+  *ocv = app; // copy internal values
   return scope.Close(vApp);
 
   try{
-    app->putProp(L"Visible", new OCVariant((long)1));
-    OCVariant *books = app->getProp(L"Workbooks");
+    app.putProp(L"Visible", new OCVariant((long)1));
+    OCVariant *books = app.getProp(L"Workbooks");
     OCVariant *book = books->invoke(L"Add", NULL, true);
     OCVariant *sheet = book->getProp(L"Worksheets", new OCVariant((long)1));
     sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
@@ -186,16 +183,15 @@ delete s;
 
     book->invoke(L"SaveAs", new OCVariant(outfile));
     std::cerr << "saved to: " << outfile << std::endl;
-    app->putProp(L"ScreenUpdating", new OCVariant((long)1));
+    app.putProp(L"ScreenUpdating", new OCVariant((long)1));
     books->invoke(L"Close");
-    app->invoke(L"Quit");
+    app.invoke(L"Quit");
     delete sheet;
     delete book;
     delete books;
   }catch(OLE32coreException e){ std::cerr << e.errorMessage("all"); goto done;
   }catch(char *e){ std::cerr << e << "[all]" << std::endl; goto done;
   }
-  delete app;
   result = true;
 done:
   DISPFUNCOUT();
