@@ -258,16 +258,17 @@ OCVariant::~OCVariant()
   fprintf(stderr, "--destruction-- %08lx %08lx\n", &v, v.vt);
 #endif
   // bug ? comment (see old ole32core.cpp project)
-  if((v.vt == VT_DISPATCH) && v.pdispVal){
+  if((v.vt == VT_DISPATCH) && v.pdispVal){ // app
     v.pdispVal->Release();
-    VariantClear(&v);
+    VariantClear(&v); // need it
     v.pdispVal = NULL;
   }
   if((v.vt == VT_BSTR) && v.bstrVal){
     ::SysFreeString(v.bstrVal);
-    VariantClear(&v);
+    VariantClear(&v); // need it
     v.bstrVal = NULL;
   }
+  VariantClear(&v); // need it
 }
 
 OCVariant *OCVariant::push(OCVariant *p)

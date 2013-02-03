@@ -48,7 +48,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  OCVariant app;
+  OCVariant app; // must create here (before first BEVERIFY)
   boolean result = false;
   BEVERIFY(done, args.Length() >= 2);
   BEVERIFY(done, args[0]->IsString());
