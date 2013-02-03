@@ -4,6 +4,7 @@
 
 #include "statement.h"
 #include "ole32core.h"
+#include "v8variant.h"
 
 using namespace v8;
 using namespace ole32core;
@@ -80,7 +81,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
     fprintf(stderr, " %02x", ((unsigned char *)&clsid)[i]);
   fprintf(stderr, "\n");
 #endif
-  OLE32core *oc = getThisInternalField<OLE32core>(args.This());
+  OLE32core *oc = castedInternalField<OLE32core>(args.This());
   if(!oc)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to Statement object (null OLE32core)")));
@@ -91,24 +92,34 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   //   The requested lookup key was not found in any active activation context.
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
-  try{
-    OCVariant *app = new OCVariant();
-    app->v.vt = VT_DISPATCH;
+  OCVariant *app = new OCVariant();
+  app->v.vt = VT_DISPATCH;
 #ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
-    IUnknown *pUnk;
-    hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
-    if(FAILED(hr)) delete app;
-    BEVERIFY(done, !FAILED(hr));
-    hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
-    pUnk->Release();
+  IUnknown *pUnk;
+  hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
+  if(FAILED(hr)) delete app;
+  BEVERIFY(done, !FAILED(hr));
+  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
+  pUnk->Release();
 #else
-    // C -> C++ change types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
-    hr = CoCreateInstance(clsid, NULL,
-      CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
-      IID_IDispatch, (void **)&app->v.pdispVal);
+  // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
+  hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
+    IID_IDispatch, (void **)&app->v.pdispVal);
 #endif
-    if(FAILED(hr)) delete app;
-    BEVERIFY(done, !FAILED(hr));
+  if(FAILED(hr)) delete app;
+  BEVERIFY(done, !FAILED(hr));
+  Handle<Object> vApp = V8Variant::CreateUndefined();
+  BEVERIFY(done, !vApp.IsEmpty());
+  BEVERIFY(done, !vApp->IsUndefined());
+  BEVERIFY(done, vApp->IsObject());
+  OCVariant *ocv = castedInternalField<OCVariant>(vApp);
+  if(!ocv)
+    return ThrowException(Exception::TypeError(
+      String::New("Can't access to V8Variant object (null OCVariant)")));
+  *ocv = *app; // copy internal values
+  return scope.Close(vApp);
+
+  try{
     app->putProp(L"Visible", new OCVariant((long)1));
     OCVariant *books = app->getProp(L"Workbooks");
     OCVariant *book = books->invoke(L"Add", NULL, true);
@@ -180,10 +191,10 @@ delete s;
     delete sheet;
     delete book;
     delete books;
-    delete app;
   }catch(OLE32coreException e){ std::cerr << e.errorMessage("all"); goto done;
   }catch(char *e){ std::cerr << e << "[all]" << std::endl; goto done;
   }
+  delete app;
   result = true;
 done:
   DISPFUNCOUT();
@@ -196,7 +207,7 @@ Handle<Value> Statement::Finalize(const Arguments& args)
   DISPFUNCIN();
   Local<Object> thisObject = args.This();
 #if(1) // now GC will call Disposer automatically
-  OLE32core *oc = getThisInternalField<OLE32core>(thisObject);
+  OLE32core *oc = castedInternalField<OLE32core>(thisObject);
   if(oc){ oc->disconnect(); delete oc; }
 #endif
   thisObject->SetInternalField(0, External::New(NULL));

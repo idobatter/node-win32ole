@@ -66,4 +66,5 @@ xl.call('Quit', []);
 */
 st.Finalize(); // must be called now
 v = null;
+xl = null;
 win32ole = null;

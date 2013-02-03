@@ -9,10 +9,10 @@ using namespace v8;
 
 namespace node_win32ole {
 
-template <class T> T *getThisInternalField(Handle<Object> thisObject)
+template <class T> T *castedInternalField(Handle<Object> object)
 {
   return static_cast<T *>(
-    Local<External>::Cast(thisObject->GetInternalField(0))->Value());
+    Local<External>::Cast(object->GetInternalField(0))->Value());
 }
 
 extern Persistent<Object> module_target;

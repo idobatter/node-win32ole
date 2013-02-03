@@ -11,6 +11,7 @@ class V8Variant : public node::ObjectWrap {
 public:
   static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
+  static Handle<Object> CreateUndefined(void);
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> OLEGet(const Arguments& args);
   static Handle<Value> OLESet(const Arguments& args);

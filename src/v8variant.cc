@@ -27,6 +27,25 @@ void V8Variant::Init(Handle<Object> target)
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
 }
 
+Handle<Object> V8Variant::CreateUndefined(void)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+#if(0)
+  const size_t argc = 1;
+  Handle<Value> argv[argc] = {args[0]};
+  // Class {}
+  //   static Persistent<Function> V8Variant::constructor_func;
+  // Init()
+  //   constructor_func = Persistent<Function>::New(clazz->GetFunction());
+  Local<Object> instance = constructor->NewInstance(argc, argv);
+#else
+  Local<Object> instance = clazz->GetFunction()->NewInstance(0, NULL);
+#endif
+  DISPFUNCOUT();
+  return scope.Close(instance);
+}
+
 Handle<Value> V8Variant::New(const Arguments& args)
 {
   HandleScope scope;
@@ -50,7 +69,7 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  OCVariant *ocv = getThisInternalField<OCVariant>(args.This());
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   if(!ocv)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to V8Variant object (null OCVariant)")));
@@ -62,7 +81,7 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  OCVariant *ocv = getThisInternalField<OCVariant>(args.This());
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   if(!ocv)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to V8Variant object (null OCVariant)")));
@@ -74,7 +93,7 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  OCVariant *ocv = getThisInternalField<OCVariant>(args.This());
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   if(!ocv)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to V8Variant object (null OCVariant)")));
@@ -88,7 +107,7 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
   DISPFUNCIN();
   Local<Object> thisObject = args.This();
 #if(0) // now GC will call Disposer automatically
-  OCVariant *ocv = getThisInternalField<OCVariant>(thisObject);
+  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   if(ocv) delete ocv;
 #endif
   thisObject->SetInternalField(0, External::New(NULL));
