@@ -16,6 +16,14 @@
 
 namespace ole32core {
 
+#ifdef DEBUG
+#define DISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0);
+#define DISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0);
+#else
+#define DISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0);
+#define DISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0);
+#endif
+
 #define BASSERT(x) chkerr((BOOL)(x), __FILE__, __LINE__, __FUNCTION__, #x)
 #define BVERIFY(x) BASSERT(x)
 #if defined(_DEBUG) || defined(DEBUG)
@@ -30,24 +38,24 @@ extern BOOL chkerr(BOOL b, char *m, int n, char *f, char *e);
 #define DEVERIFY(y, x) if(!DVERIFY(x)){ goto y; }
 
 extern wchar_t *u8s2wcs(char *u8s); // UTF8 -> UCS2 (allocate wcs, must free)
-extern char *wcs2mbs(wchar_t *wcs); // UCS2 -> CP932 (allocate mbs, must free)
+extern char *wcs2mbs(wchar_t *wcs); // UCS2 -> locale (allocate mbs, must free)
 
 // obsoleted functions
 
 // (without free when use _malloca)
-extern std::string SJIS2UTF8(std::string sjis);
+extern std::string MBCS2UTF8(std::string mbs);
 // (without free when use _malloca)
-extern std::string UTF82SJIS(std::string utf8);
+extern std::string UTF82MBCS(std::string utf8);
 
-// SjiftJIS -> Unicode (allocate wcs, must free)
-extern WCHAR *SJIS2WCS(std::string sjis);
-// Unicode -> ShiftJIS (not free wcs, without free when use _malloca)
-extern std::string WCS2SJIS(WCHAR *wbuf);
+// locale mbs -> Unicode (allocate wcs, must free)
+extern WCHAR *MBCS2WCS(std::string mbs);
+// Unicode -> locale mbs (not free wcs, without free when use _malloca)
+extern std::string WCS2MBCS(WCHAR *wbuf);
 
 // (allocate bstr, must free)
-extern BSTR SJIS2BSTR(std::string str);
+extern BSTR MBCS2BSTR(std::string str);
 // (not free bstr)
-extern std::string BSTR2SJIS(BSTR bstr);
+extern std::string BSTR2MBCS(BSTR bstr);
 
 class OLE32coreException {
 protected:

@@ -46,24 +46,24 @@ char *wcs2mbs(wchar_t *wcs)
   mblen = WideCharToMultiByte(GetACP(), 0,
     (LPCWSTR)wcs, -1, mbs, mblen, NULL, NULL); // not + 1
   mbs[mblen] = '\0';
-  return mbs; // cp932 *** must be free later ***
+  return mbs; // locale mbs *** must be free later ***
 }
 
 // obsoleted functions
 
-// ShiftJIS -> Unicode -> UTF-8 (without free when use _malloca)
-string SJIS2UTF8(string sjis)
+// locale mbs -> Unicode -> UTF-8 (without free when use _malloca)
+string MBCS2UTF8(string mbs)
 {
-  if(sjis == "") return "";
-  int wlen = MultiByteToWideChar(CP_ACP, 0, sjis.c_str(), -1, NULL, 0);
+  if(mbs == "") return "";
+  int wlen = MultiByteToWideChar(CP_ACP, 0, mbs.c_str(), -1, NULL, 0);
   WCHAR *wbuf = (WCHAR *)_malloca((wlen + 1) * sizeof(WCHAR));
   if(wbuf == NULL){
-    throw "_malloca failed for SJIS to UNICODE";
+    throw "_malloca failed for MBCS to UNICODE";
     return "";
   }
   *wbuf = L'\0';
-  if(MultiByteToWideChar(CP_ACP, 0, sjis.c_str(), -1, wbuf, wlen) <= 0){
-    throw "can't convert SJIS to UNICODE";
+  if(MultiByteToWideChar(CP_ACP, 0, mbs.c_str(), -1, wbuf, wlen) <= 0){
+    throw "can't convert MBCS to UNICODE";
     return "";
   }
   int ulen = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, NULL, 0, NULL, NULL);
@@ -81,8 +81,8 @@ string SJIS2UTF8(string sjis)
   return ubuf;
 }
 
-// UTF8 -> Unicode -> ShiftJIS (without free when use _malloca)
-string UTF82SJIS(string utf8)
+// UTF8 -> Unicode -> locale mbs (without free when use _malloca)
+string UTF82MBCS(string utf8)
 {
   if(utf8 == "") return "";
   int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, NULL, 0);
@@ -99,61 +99,61 @@ string UTF82SJIS(string utf8)
   int slen = WideCharToMultiByte(CP_ACP, 0, wbuf, -1, NULL, 0, NULL, NULL);
   char *sbuf = (char *)_malloca((slen + 1) * sizeof(char));
   if(sbuf == NULL){
-    throw "_malloca failed for UNICODE to SJIS";
+    throw "_malloca failed for UNICODE to MBCS";
     return "";
   }
   *sbuf = '\0';
   if(WideCharToMultiByte(CP_ACP, 0, wbuf, -1, sbuf, slen, NULL, NULL) <= 0){
-    throw "can't convert UNICODE to SJIS";
+    throw "can't convert UNICODE to MBCS";
     return "";
   }
   sbuf[slen] = '\0';
   return sbuf;
 }
 
-// SjiftJIS -> Unicode (allocate wcs, must free)
-WCHAR *SJIS2WCS(string sjis)
+// locale mbs -> Unicode (allocate wcs, must free)
+WCHAR *MBCS2WCS(string mbs)
 {
-  if(sjis == ""){
-    throw "assigned empty string for SJIS to UNICODE";
+  if(mbs == ""){
+    throw "assigned empty string for MBCS to UNICODE";
     return NULL;
   }
-  int wlen = MultiByteToWideChar(CP_ACP, 0, sjis.c_str(), -1, NULL, 0);
+  int wlen = MultiByteToWideChar(CP_ACP, 0, mbs.c_str(), -1, NULL, 0);
   WCHAR *wbuf = new WCHAR[wlen + 1];
   if(wbuf == NULL){
-    throw "_malloca failed for SJIS to UNICODE";
+    throw "_malloca failed for MBCS to UNICODE";
     return NULL;
   }
   *wbuf = L'\0';
-  if(MultiByteToWideChar(CP_ACP, 0, sjis.c_str(), -1, wbuf, wlen) <= 0){
+  if(MultiByteToWideChar(CP_ACP, 0, mbs.c_str(), -1, wbuf, wlen) <= 0){
     delete [] wbuf;
-    throw "can't convert SJIS to UNICODE";
+    throw "can't convert MBCS to UNICODE";
     return NULL;
   }
   return wbuf;
 }
 
-// Unicode -> ShiftJIS (not free wcs, without free when use _malloca)
-string WCS2SJIS(WCHAR *wbuf)
+// Unicode -> locale mbs (not free wcs, without free when use _malloca)
+string WCS2MBCS(WCHAR *wbuf)
 {
   if(wbuf == NULL || wbuf[0] == L'\0') return "";
   int slen = WideCharToMultiByte(CP_ACP, 0, wbuf, -1, NULL, 0, NULL, NULL);
   char *sbuf = (char *)_malloca((slen + 1) * sizeof(char));
   if(sbuf == NULL){
-    throw "_malloca failed for UNICODE to SJIS";
+    throw "_malloca failed for UNICODE to MBCS";
     return "";
   }
   *sbuf = '\0';
   if(WideCharToMultiByte(CP_ACP, 0, wbuf, -1, sbuf, slen, NULL, NULL) <= 0){
-    throw "can't convert UNICODE to SJIS";
+    throw "can't convert UNICODE to MBCS";
     return "";
   }
   sbuf[slen] = '\0';
   return sbuf;
 }
 
-// ShiftJIS -> BSTR (allocate bstr, must free)
-BSTR SJIS2BSTR(string str)
+// locale mbs -> BSTR (allocate bstr, must free)
+BSTR MBCS2BSTR(string str)
 {
   BSTR bstr;
   size_t len = str.length();
@@ -165,9 +165,9 @@ BSTR SJIS2BSTR(string str)
   return bstr;
 }
 
-// bug ? comment (see old SJIS2UTF8.cpp project)
-// BSTR -> ShiftJIS (not free bstr)
-string BSTR2SJIS(BSTR bstr)
+// bug ? comment (see old project)
+// BSTR -> locale mbs (not free bstr)
+string BSTR2MBCS(BSTR bstr)
 {
   string str;
   int len = ::SysStringLen(bstr) * 2;
@@ -239,7 +239,7 @@ OCVariant::OCVariant(string str) : next(NULL)
 {
   VariantInit(&v);
   v.vt = VT_BSTR;
-  v.bstrVal = SJIS2BSTR(str);
+  v.bstrVal = MBCS2BSTR(str);
 #ifdef DEBUG
   fprintf(stderr, "--construction-- %08lx %08lx\n", &v, v.vt);
 #endif

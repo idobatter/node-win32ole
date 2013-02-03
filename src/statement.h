@@ -11,7 +11,7 @@ namespace node_win32ole {
 
 class Statement : public node::ObjectWrap {
 public:
-  static Persistent<FunctionTemplate> constructor_template;
+  static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> Dispatch(const Arguments& args);

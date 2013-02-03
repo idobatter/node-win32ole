@@ -41,8 +41,13 @@ xl.Quit();
 */
 
 var st = new win32ole.Statement;
-var xl = st.Dispatch('Excel.Application');
+var xl = st.Dispatch('Excel.Application', 'C');
 console.log(xl);
+
+var v = new win32ole.V8Variant;
+v.set(v.get('abc', []), []);
+v.call('test', []);
+v.Finalize();
 /*
 xl.set('Visible', true);
 var book = xl.get('Workbooks').call('Add', []);
@@ -60,3 +65,5 @@ xl.get('Workbooks').call('Close', []);
 xl.call('Quit', []);
 */
 st.Finalize(); // must be called now
+v = null;
+win32ole = null;

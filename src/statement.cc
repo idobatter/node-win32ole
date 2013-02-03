@@ -9,20 +9,19 @@ using namespace ole32core;
 
 namespace node_win32ole {
 
-Persistent<FunctionTemplate> Statement::constructor_template;
+Persistent<FunctionTemplate> Statement::clazz;
 OLE32core Statement::oc;
 
 void Statement::Init(Handle<Object> target)
 {
   HandleScope scope;
   Local<FunctionTemplate> t = FunctionTemplate::New(New);
-  constructor_template = Persistent<FunctionTemplate>::New(t);
-  constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
-  constructor_template->SetClassName(String::NewSymbol("Statement"));
-  NODE_SET_PROTOTYPE_METHOD(constructor_template, "Dispatch", Dispatch);
-  NODE_SET_PROTOTYPE_METHOD(constructor_template, "Finalize", Finalize);
-  target->Set(String::NewSymbol("Statement"),
-    constructor_template->GetFunction());
+  clazz = Persistent<FunctionTemplate>::New(t);
+  clazz->InstanceTemplate()->SetInternalFieldCount(1);
+  clazz->SetClassName(String::NewSymbol("Statement"));
+  NODE_SET_PROTOTYPE_METHOD(clazz, "Dispatch", Dispatch);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
+  target->Set(String::NewSymbol("Statement"), clazz->GetFunction());
 }
 
 Handle<Value> Statement::New(const Arguments& args)
