@@ -47,7 +47,7 @@ console.log(xl);
 var v = new win32ole.V8Variant;
 v.set(v.get('abc', []), []);
 v.call('test', []);
-v.Finalize();
+v.Finalize(); v = null;
 /*
 xl.set('Visible', true);
 var book = xl.get('Workbooks').call('Add', []);
@@ -64,7 +64,6 @@ xl.set('ScreenUpdating', true);
 xl.get('Workbooks').call('Close', []);
 xl.call('Quit', []);
 */
-st.Finalize(); // must be called now
-v = null;
-xl = null;
+xl.Finalize(); xl = null;
+st.Finalize(); st = null; // must be called now
 win32ole = null;

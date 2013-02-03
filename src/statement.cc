@@ -117,6 +117,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to V8Variant object (null OCVariant)")));
   *ocv = *app; // copy internal values
+  delete app;
   return scope.Close(vApp);
 
   try{
