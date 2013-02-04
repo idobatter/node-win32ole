@@ -49,6 +49,8 @@ var st = new win32ole.Statement;
 var xl = st.Dispatch('Excel.Application', 'C'); // convert utf8 -> locale mbs
 xl.set('Visible', true);
 var book = xl.get('Workbooks').call('Add');
+
+/*
 var sheet = book.call('Worksheets', [1]);
 sheet.set('Name', 'sheetnameA utf8');
 sheet.call('Cells', [1, 2]).set('Value', 'test utf8');
@@ -57,6 +59,19 @@ var rg = sheet.call('Range',
 rg.set('RowHeight', 5.18);
 rg.set('ColumnWidth', 0.58);
 rg.get('Interior').set('ColorIndex', 6); // Yellow
+*/
+
+/* test start */
+var sheet = book.get('Worksheets', [1]);
+sheet.set('Name', 'sheetnameA utf8');
+sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
+var rg = sheet.get('Range',
+  [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
+rg.set('RowHeight', 5.18);
+rg.set('ColumnWidth', 0.58);
+rg.get('Interior').set('ColorIndex', 6); // Yellow
+/* test end */
+
 book.call('SaveAs', [testfile]);
 xl.set('ScreenUpdating', true);
 xl.get('Workbooks').call('Close');

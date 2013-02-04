@@ -165,8 +165,37 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   CHECK_OCV("OLEGet", ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS("OLEGet", args, 1, av0, av1);
+  OCVariant *argchain = NULL;
+  Array *a = Array::Cast(*av1);
+  for(size_t i = 0; i < a->Length(); ++i){
+    char num[256];
+    sprintf(num, "%d", a->Length() - 1 - i); // *** check length ***
+    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(num)));
+    if(!o)
+      return ThrowException(Exception::TypeError(
+        String::New("OLEGet can't access to argument i (null OCVariant)")));
+    if(!i) argchain = o;
+    else argchain->push(o);
+  }
+  Handle<Object> vResult = V8Variant::CreateUndefined();
+  String::Utf8Value u8s(av0);
+  wchar_t *wcs = u8s2wcs(*u8s);
+  if(!wcs && argchain) delete argchain;
+  BEVERIFY(done, wcs);
+  try{
+    OCVariant *rv = ocv->getProp(wcs, argchain); // argchain will be deleted
+    if(rv){
+      OCVariant *o = castedInternalField<OCVariant>(vResult);
+      CHECK_OCV("OLEGet(result)", o);
+      *o = *rv; // copy and don't delete rv
+    }
+  }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
+  }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
+  }
+  free(wcs); // *** it may leak when error ***
+done:
   DISPFUNCOUT();
-  return args.This();
+  return scope.Close(vResult);
 }
 
 Handle<Value> V8Variant::OLESet(const Arguments& args)
@@ -177,12 +206,12 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   CHECK_OCV("OLESet", ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS("OLESet", args, 2, av0, av1);
-  OCVariant *a1 = CreateOCVariant(args[1]); // will be deleted automatically
+  OCVariant *a1 = CreateOCVariant(av1); // will be deleted automatically
   if(!a1)
     return ThrowException(Exception::TypeError(
       String::New("the second argument is not valid (null OCVariant)")));
   bool result = false;
-  String::Utf8Value u8s(args[0]);
+  String::Utf8Value u8s(av0);
   wchar_t *wcs = u8s2wcs(*u8s);
   BEVERIFY(done, wcs);
   try{
@@ -205,8 +234,37 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   CHECK_OCV("OLECall", ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS("OLECall", args, 1, av0, av1);
+  OCVariant *argchain = NULL;
+  Array *a = Array::Cast(*av1);
+  for(size_t i = 0; i < a->Length(); ++i){
+    char num[256];
+    sprintf(num, "%d", a->Length() - 1 - i); // *** check length ***
+    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(num)));
+    if(!o)
+      return ThrowException(Exception::TypeError(
+        String::New("OLECall can't access to argument i (null OCVariant)")));
+    if(!i) argchain = o;
+    else argchain->push(o);
+  }
+  Handle<Object> vResult = V8Variant::CreateUndefined();
+  String::Utf8Value u8s(av0);
+  wchar_t *wcs = u8s2wcs(*u8s);
+  if(!wcs && argchain) delete argchain;
+  BEVERIFY(done, wcs);
+  try{
+    OCVariant *rv = ocv->invoke(wcs, argchain, true); // argchain will be deleted
+    if(rv){
+      OCVariant *o = castedInternalField<OCVariant>(vResult);
+      CHECK_OCV("OLECall(result)", o);
+      *o = *rv; // copy and don't delete rv
+    }
+  }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
+  }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
+  }
+  free(wcs); // *** it may leak when error ***
+done:
   DISPFUNCOUT();
-  return args.This();
+  return scope.Close(vResult);
 }
 
 Handle<Value> V8Variant::Finalize(const Arguments& args)
