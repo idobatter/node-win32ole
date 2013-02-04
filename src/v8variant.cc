@@ -15,13 +15,22 @@ namespace node_win32ole {
         String::New( s " can't access to V8Variant (null OCVariant)"))); \
   }while(0)
 
-#define CHECK_OLE_ARGS(s, args, n) do{ \
+#define CHECK_OLE_ARGS(s, args, n, av0, av1) do{ \
     if(args.Length() < n) \
       return ThrowException(Exception::TypeError( \
         String::New( s " takes exactly " #n " argument(s)"))); \
     if(!args[0]->IsString()) \
       return ThrowException(Exception::TypeError( \
         String::New( s " the first argument is not a Symbol"))); \
+    if(n == 1) \
+      if(args.Length() >= 2) \
+        if(!args[1]->IsArray()) \
+          return ThrowException(Exception::TypeError( \
+            String::New( s " the second argument is not an Array"))); \
+        else av1 = args[1]; /* Array */ \
+      else av1 = Array::New(0); /* change none to Array[] */ \
+    else av1 = args[1]; /* may not be Array */ \
+    av0 = args[0]; \
   }while(0)
 
 Persistent<FunctionTemplate> V8Variant::clazz;
@@ -154,7 +163,8 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV("OLEGet", ocv);
-  CHECK_OLE_ARGS("OLEGet", args, 1);
+  Handle<Value> av0, av1;
+  CHECK_OLE_ARGS("OLEGet", args, 1, av0, av1);
   DISPFUNCOUT();
   return args.This();
 }
@@ -165,7 +175,8 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV("OLESet", ocv);
-  CHECK_OLE_ARGS("OLESet", args, 2);
+  Handle<Value> av0, av1;
+  CHECK_OLE_ARGS("OLESet", args, 2, av0, av1);
   OCVariant *a1 = CreateOCVariant(args[1]); // will be deleted automatically
   if(!a1)
     return ThrowException(Exception::TypeError(
@@ -192,7 +203,8 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV("OLECall", ocv);
-  CHECK_OLE_ARGS("OLECall", args, 1);
+  Handle<Value> av0, av1;
+  CHECK_OLE_ARGS("OLECall", args, 1, av0, av1);
   DISPFUNCOUT();
   return args.This();
 }
