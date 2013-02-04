@@ -26,12 +26,69 @@ void V8Variant::Init(Handle<Object> target)
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
 }
 
+std::string V8Variant::CreateStdStringMBCSfromUTF8(Handle<Value> v)
+{
+  String::Utf8Value u8s(v);
+  wchar_t * wcs = u8s2wcs(*u8s);
+  if(!wcs){
+    std::cerr << "[Can't allocate string (wcs)]" << std::endl;
+    return std::string("'!ERROR'");
+  }
+  char *mbs = wcs2mbs(wcs);
+  if(!mbs){
+    free(wcs);
+    std::cerr << "[Can't allocate string (mbs)]" << std::endl;
+    return std::string("'!ERROR'");
+  }
+  std::string s(mbs);
+  free(mbs);
+  free(wcs);
+  return s;
+}
+
 OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
 {
-  if(!v->IsBoolean() && !v->IsInt32()) return NULL;
-  OCVariant *a = new OCVariant((long)(v->IsBoolean() ?
-    (v->BooleanValue() ? 1 : 0) : v->Int32Value()));
-  return a;
+  BEVERIFY(done, !v.IsEmpty());
+  BEVERIFY(done, !v->IsUndefined());
+  BEVERIFY(done, !v->IsNull());
+  BEVERIFY(done, !v->IsExternal());
+  BEVERIFY(done, !v->IsNativeError());
+  BEVERIFY(done, !v->IsFunction());
+  if(v->IsBoolean()){
+    return new OCVariant((long)(v->BooleanValue() ? 1 : 0));
+  }else if(v->IsArray()){
+    std::cerr << "[Array (not implemented now)]" << std::endl; return NULL;
+  }else if(v->IsInt32()){
+    return new OCVariant((long)v->Int32Value());
+  }else if(v->IsNumber()){
+    return new OCVariant((double)v->NumberValue()); // double
+  }else if(v->IsNumberObject()){
+    std::cerr << "[NumberObject (bug?)]" << std::endl;
+    return new OCVariant((double)v->NumberValue()); // double
+  }else if(v->IsDate()){
+    std::cerr << "[Date (bug?)]" << std::endl;
+    return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
+  }else if(v->IsRegExp()){
+    std::cerr << "[RegExp (bug?)]" << std::endl;
+    return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
+  }else if(v->IsString()){
+    return new OCVariant(CreateStdStringMBCSfromUTF8(v));
+  }else if(v->IsStringObject()){
+    std::cerr << "[StringObject (bug?)]" << std::endl;
+    return new OCVariant(CreateStdStringMBCSfromUTF8(v));
+  }else if(v->IsObject()){
+    std::cerr << "[Object (test)]" << std::endl;
+    OCVariant *ocv = castedInternalField<OCVariant>(v->ToObject());
+    if(!ocv){
+      std::cerr << "[Object may not be valid (null OCVariant)]" << std::endl;
+      return NULL;
+    }
+    return new OCVariant(*ocv);
+  }else{
+    std::cerr << "[unknown type (not implemented now)]" << std::endl;
+  }
+done:
+  return NULL;
 }
 
 Handle<Object> V8Variant::CreateUndefined(void)
@@ -101,7 +158,7 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   OCVariant *a1 = CreateOCVariant(args[1]); // will be deleted automatically
   if(!a1)
     return ThrowException(Exception::TypeError(
-      String::New("the second argument is not valid")));
+      String::New("the second argument is not valid (null OCVariant)")));
   bool result = false;
   String::Utf8Value u8s(args[0]);
   wchar_t *wcs = u8s2wcs(*u8s);

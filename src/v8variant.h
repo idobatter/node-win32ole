@@ -13,6 +13,7 @@ class V8Variant : public node::ObjectWrap {
 public:
   static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
+  static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v);
   static OCVariant *CreateOCVariant(Handle<Value> v);
   static Handle<Object> CreateUndefined(void);
   static Handle<Value> New(const Arguments& args);
