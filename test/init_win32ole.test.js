@@ -41,15 +41,16 @@ xl.Quit();
 */
 
 var st = new win32ole.Statement;
-var xl = st.Dispatch('Excel.Application', 'C');
+var xl = st.Dispatch('Excel.Application', 'C'); // convert utf8 -> locale mbs
 console.log(xl);
-
-var v = new win32ole.V8Variant;
-v.set(v.get('abc', []), []);
-v.call('test', []);
-v.Finalize(); v = null;
-/*
 xl.set('Visible', true);
+
+// var v = new win32ole.V8Variant;
+// v.set(v.get('abc', []), []);
+// v.call('test', []);
+// v.Finalize(); v = null;
+
+/*
 var book = xl.get('Workbooks').call('Add', []);
 var sheet = book.call('Worksheets', [1]);
 sheet.set('Name', 'sheetnameA utf8');
