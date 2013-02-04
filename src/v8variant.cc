@@ -9,6 +9,21 @@ using namespace ole32core;
 
 namespace node_win32ole {
 
+#define CHECK_OCV(s, ocv) do{ \
+    if(!ocv) \
+      return ThrowException(Exception::TypeError( \
+        String::New( s " can't access to V8Variant (null OCVariant)"))); \
+  }while(0)
+
+#define CHECK_OLE_ARGS(s, args, n) do{ \
+    if(args.Length() < n) \
+      return ThrowException(Exception::TypeError( \
+        String::New( s " takes exactly " #n " argument(s)"))); \
+    if(!args[0]->IsString()) \
+      return ThrowException(Exception::TypeError( \
+        String::New( s " the first argument is not a Symbol"))); \
+  }while(0)
+
 Persistent<FunctionTemplate> V8Variant::clazz;
 
 void V8Variant::Init(Handle<Object> target)
@@ -124,9 +139,7 @@ Handle<Value> V8Variant::New(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("Use the new operator to create new V8Variant objects")));
   OCVariant *ocv = new OCVariant();
-  if(!ocv)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't create new V8Variant object (null OCVariant)")));
+  CHECK_OCV("New", ocv);
   Local<Object> thisObject = args.This();
   thisObject->SetInternalField(0, External::New(ocv));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
@@ -140,9 +153,8 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  if(!ocv)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't access to V8Variant object (null OCVariant)")));
+  CHECK_OCV("OLEGet", ocv);
+  CHECK_OLE_ARGS("OLEGet", args, 1);
   DISPFUNCOUT();
   return args.This();
 }
@@ -152,15 +164,8 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  if(!ocv)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't access to V8Variant object (null OCVariant)")));
-  if(args.Length() < 2)
-    return ThrowException(Exception::TypeError(
-      String::New("it takes 2 arguments")));
-  if(!args[0]->IsString())
-    return ThrowException(Exception::TypeError(
-      String::New("the first argument is not a Symbol")));
+  CHECK_OCV("OLESet", ocv);
+  CHECK_OLE_ARGS("OLESet", args, 2);
   OCVariant *a1 = CreateOCVariant(args[1]); // will be deleted automatically
   if(!a1)
     return ThrowException(Exception::TypeError(
@@ -186,9 +191,8 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  if(!ocv)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't access to V8Variant object (null OCVariant)")));
+  CHECK_OCV("OLECall", ocv);
+  CHECK_OLE_ARGS("OLECall", args, 1);
   DISPFUNCOUT();
   return args.This();
 }
