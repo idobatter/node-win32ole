@@ -72,6 +72,7 @@ rg.set('ColumnWidth', 0.58);
 rg.get('Interior').set('ColorIndex', 6); // Yellow
 /* test end */
 
+console.log('saving to: "' + testfile + '" ...');
 book.call('SaveAs', [testfile]);
 xl.set('ScreenUpdating', true);
 xl.get('Workbooks').call('Close');

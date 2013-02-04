@@ -48,7 +48,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  boolean result = false;
+  Handle<Object> vUndef = V8Variant::CreateUndefined();
   BEVERIFY(done, args.Length() >= 2);
   BEVERIFY(done, args[0]->IsString());
   BEVERIFY(done, args[1]->IsString());
@@ -112,86 +112,11 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
     IID_IDispatch, (void **)&app->v.pdispVal);
 #endif
   BEVERIFY(done, !FAILED(hr));
+  DISPFUNCOUT();
   return scope.Close(vApp);
-
-  try{
-    app->putProp(L"Visible", new OCVariant((long)1));
-    OCVariant *books = app->getProp(L"Workbooks");
-    OCVariant *book = books->invoke(L"Add", NULL, true);
-    OCVariant *sheet = book->getProp(L"Worksheets", new OCVariant((long)1));
-    sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
-    {
-      OCVariant *argchain = new OCVariant((long)2);
-      argchain->push(new OCVariant((long)1));
-      OCVariant *cells = sheet->getProp(L"Cells", argchain);
-      if(!cells){
-        std::cerr << " cells not assigned\n";
-      }else{
-        cells->putProp(L"Value", new OCVariant("test mbs"));
-        delete cells;
-      }
-    }
-    {
-      OCVariant *argchain1 = new OCVariant((long)2);
-      argchain1->push(new OCVariant((long)2));
-      OCVariant *cells0 = sheet->getProp(L"Cells", argchain1);
-      if(!cells0){
-        std::cerr << " cells0 not assigned\n";
-      }else{
-        OCVariant *argchain2 = new OCVariant((long)4);
-        argchain2->push(new OCVariant((long)4));
-        OCVariant *cells1 = sheet->getProp(L"Cells", argchain2);
-        if(!cells1){
-          std::cerr << " cells1 not assigned\n";
-        }else{
-          OCVariant *argchain0 = new OCVariant(*cells1); // need copy
-          argchain0->push(new OCVariant(*cells0)); // need copy
-          OCVariant *rg = sheet->getProp(L"Range", argchain0);
-          if(!rg){
-            std::cerr << " rg not assigned\n";
-          }else{
-            rg->putProp(L"RowHeight", new OCVariant(5.18));
-            rg->putProp(L"ColumnWidth", new OCVariant(0.58));
-            OCVariant *interior = rg->getProp(L"Interior");
-            if(!interior){
-              std::cerr << " rg.Interior not assigned\n";
-            }else{
-              interior->putProp(L"ColorIndex", new OCVariant((long)6));
-              delete interior;
-            }
-            delete rg;
-          }
-          delete cells1;
-        }
-        delete cells0;
-      }
-    }
-
-Handle<Value> v = module_target->Get(String::NewSymbol("MODULEDIRNAME"));
-BEVERIFY(done, !v.IsEmpty());
-BEVERIFY(done, !v->IsUndefined());
-BEVERIFY(done, !v->IsObject());
-BEVERIFY(done, v->IsString());
-String::Utf8Value s(v);
-std::cerr << *s << std::endl;
-std::string outfile(std::string(*s) + "\\..\\test\\tmp\\testfilembs.xls");
-
-    book->invoke(L"SaveAs", new OCVariant(outfile));
-    std::cerr << "saved to: " << outfile << std::endl;
-    app->putProp(L"ScreenUpdating", new OCVariant((long)1));
-    books->invoke(L"Close");
-    app->invoke(L"Quit");
-    delete sheet;
-    delete book;
-    delete books;
-  }catch(OLE32coreException e){ std::cerr << e.errorMessage("all"); goto done;
-  }catch(char *e){ std::cerr << e << "[all]" << std::endl; goto done;
-  }
-  // app will be deleted in the destructor of xApp
-  result = true;
 done:
   DISPFUNCOUT();
-  return scope.Close(Boolean::New(result));
+  return scope.Close(vUndef);
 }
 
 Handle<Value> Statement::Finalize(const Arguments& args)
