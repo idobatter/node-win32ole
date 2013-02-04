@@ -190,63 +190,64 @@ string OLE32coreException::errorMessage(char *m)
 
 OCVariant::OCVariant() : next(NULL)
 {
+  DISPFUNCIN();
   VariantInit(&v);
-#ifdef DEBUG
-  fprintf(stderr, "--construction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
 }
 
 OCVariant::OCVariant(const OCVariant &s) : next(NULL)
 {
+  DISPFUNCIN();
   VariantInit(&v); // It will be free before copy.
   VariantCopy(&v, (VARIANT *)&s.v);
-#ifdef DEBUG
-  fprintf(stderr, "--copy construction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--copy construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
 }
 
 OCVariant::OCVariant(long lVal) : next(NULL)
 {
+  DISPFUNCIN();
   VariantInit(&v);
   v.vt = VT_I4;
   v.lVal = lVal;
-#ifdef DEBUG
-  fprintf(stderr, "--construction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
 }
 
 OCVariant::OCVariant(double dblVal) : next(NULL)
 {
+  DISPFUNCIN();
   VariantInit(&v);
   v.vt = VT_R8;
   v.dblVal = dblVal;
-#ifdef DEBUG
-  fprintf(stderr, "--construction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
 }
 
 OCVariant::OCVariant(BSTR bstrVal) : next(NULL)
 {
+  DISPFUNCIN();
   VariantInit(&v);
   v.vt = VT_BSTR;
   v.bstrVal = bstrVal;
-#ifdef DEBUG
-  fprintf(stderr, "--construction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
 }
 
 OCVariant::OCVariant(string str) : next(NULL)
 {
+  DISPFUNCIN();
   VariantInit(&v);
   v.vt = VT_BSTR;
   v.bstrVal = MBCS2BSTR(str);
-#ifdef DEBUG
-  fprintf(stderr, "--construction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
 }
 
 OCVariant::~OCVariant()
 {
+  DISPFUNCIN();
   // bug ? comment (see old ole32core.cpp project)
   for(OCVariant *p = next, *q = NULL; p; p = q){
     q = p->next;
@@ -254,9 +255,7 @@ OCVariant::~OCVariant()
   }
   // The first node (== self) only be reversed.
   // 1, n, ..., 5, 4, 3, 2
-#ifdef DEBUG
-  fprintf(stderr, "--destruction-- %08lx %08lx\n", &v, v.vt);
-#endif
+  DISPFUNCDAT("--destruction-- %08lx %08lx\n", &v, v.vt);
   // bug ? comment (see old ole32core.cpp project)
   if((v.vt == VT_DISPATCH) && v.pdispVal){ // app
     v.pdispVal->Release();
@@ -269,6 +268,7 @@ OCVariant::~OCVariant()
     v.bstrVal = NULL;
   }
   VariantClear(&v); // need it
+  DISPFUNCOUT();
 }
 
 OCVariant *OCVariant::push(OCVariant *p)

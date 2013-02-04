@@ -48,7 +48,6 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  OCVariant app; // must create here (before first BEVERIFY)
   boolean result = false;
   BEVERIFY(done, args.Length() >= 2);
   BEVERIFY(done, args[0]->IsString());
@@ -87,39 +86,38 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("Can't access to Statement object (null OLE32core)")));
   BEVERIFY(done, oc->connect(cstr_locale));
+  Handle<Object> vApp = V8Variant::CreateUndefined();
+  BEVERIFY(done, !vApp.IsEmpty());
+  BEVERIFY(done, !vApp->IsUndefined());
+  BEVERIFY(done, vApp->IsObject());
+  OCVariant *app = castedInternalField<OCVariant>(vApp);
+  if(!app)
+    return ThrowException(Exception::TypeError(
+      String::New("Can't access to V8Variant object (null OCVariant)")));
+  app->v.vt = VT_DISPATCH;
   // When 'CoInitialize(NULL)' is not called first (and on the same instance),
   // next functions will return many errors.
   // (old style) GetActiveObject() returns 0x000036b7
   //   The requested lookup key was not found in any active activation context.
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
-  app.v.vt = VT_DISPATCH;
 #ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
   IUnknown *pUnk;
   hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
   BEVERIFY(done, !FAILED(hr));
-  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app.v.pdispVal);
+  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
   pUnk->Release();
 #else
   // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
   hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
-    IID_IDispatch, (void **)&app.v.pdispVal);
+    IID_IDispatch, (void **)&app->v.pdispVal);
 #endif
   BEVERIFY(done, !FAILED(hr));
-  Handle<Object> vApp = V8Variant::CreateUndefined();
-  BEVERIFY(done, !vApp.IsEmpty());
-  BEVERIFY(done, !vApp->IsUndefined());
-  BEVERIFY(done, vApp->IsObject());
-  OCVariant *ocv = castedInternalField<OCVariant>(vApp);
-  if(!ocv)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't access to V8Variant object (null OCVariant)")));
-  *ocv = app; // copy internal values
   return scope.Close(vApp);
 
   try{
-    app.putProp(L"Visible", new OCVariant((long)1));
-    OCVariant *books = app.getProp(L"Workbooks");
+    app->putProp(L"Visible", new OCVariant((long)1));
+    OCVariant *books = app->getProp(L"Workbooks");
     OCVariant *book = books->invoke(L"Add", NULL, true);
     OCVariant *sheet = book->getProp(L"Worksheets", new OCVariant((long)1));
     sheet->putProp(L"Name", new OCVariant("sheetnameA mbs"));
@@ -183,15 +181,16 @@ delete s;
 
     book->invoke(L"SaveAs", new OCVariant(outfile));
     std::cerr << "saved to: " << outfile << std::endl;
-    app.putProp(L"ScreenUpdating", new OCVariant((long)1));
+    app->putProp(L"ScreenUpdating", new OCVariant((long)1));
     books->invoke(L"Close");
-    app.invoke(L"Quit");
+    app->invoke(L"Quit");
     delete sheet;
     delete book;
     delete books;
   }catch(OLE32coreException e){ std::cerr << e.errorMessage("all"); goto done;
   }catch(char *e){ std::cerr << e << "[all]" << std::endl; goto done;
   }
+  // app will be deleted in the destructor of xApp
   result = true;
 done:
   DISPFUNCOUT();

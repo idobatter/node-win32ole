@@ -23,6 +23,11 @@ var tv = new timeval;
 assert.ok(win32ole.gettimeofday(tv.ref(), null));
 console.log(tv.tv_sec + '.' + tv.tv_usec);
 
+var fs = require('fs');
+var tmpdir = path.join(cwd, 'test/tmp');
+if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
+var testfile = path.join(tmpdir, 'testfileutf8.xls');
+
 /*
 var xl = win32ole.client.Dispatch('Excel.Application');
 xl.Visible = true;
@@ -34,7 +39,7 @@ var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
 rg.RowHeight = 5.18;
 rg.ColumnWidth = 0.58;
 rg.Interior.ColorIndex = 6; // Yellow
-book.SaveAs('testfileutf8.xls');
+book.SaveAs(testfile);
 xl.ScreenUpdating = true;
 xl.Workbooks.Close();
 xl.Quit();
@@ -60,7 +65,7 @@ var rg = sheet.call('Range',
 rg.set('RowHeight', 5.18);
 rg.set('ColumnWidth', 0.58);
 rg.get('Interior').set('ColorIndex', 6); // Yellow
-book.call('SaveAs', ['testfileutf8.xls']);
+book.call('SaveAs', [testfile]);
 xl.set('ScreenUpdating', true);
 xl.get('Workbooks').call('Close', []);
 xl.call('Quit', []);
