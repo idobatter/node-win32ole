@@ -3,7 +3,6 @@
 */
 
 #include "statement.h"
-#include "ole32core.h"
 #include "v8variant.h"
 
 using namespace v8;
@@ -20,6 +19,7 @@ void Statement::Init(Handle<Object> target)
   clazz = Persistent<FunctionTemplate>::New(t);
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("Statement"));
+//  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Dispatch", Dispatch);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
   target->Set(String::NewSymbol("Statement"), clazz->GetFunction());

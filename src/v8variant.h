@@ -2,8 +2,10 @@
 #define __V8VARIANT_H__
 
 #include "node_win32ole.h"
+#include "ole32core.h"
 
 using namespace v8;
+using namespace ole32core;
 
 namespace node_win32ole {
 
@@ -11,6 +13,7 @@ class V8Variant : public node::ObjectWrap {
 public:
   static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
+  static OCVariant *CreateOCVariant(Handle<Value> v);
   static Handle<Object> CreateUndefined(void);
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> OLEGet(const Arguments& args);

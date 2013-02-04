@@ -7,8 +7,8 @@
 */
 
 #include "node_win32ole.h"
-#include "v8variant.h"
 #include "statement.h"
+#include "v8variant.h"
 
 using namespace v8;
 

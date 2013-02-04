@@ -3,7 +3,6 @@
 */
 
 #include "v8variant.h"
-#include "ole32core.h"
 
 using namespace v8;
 using namespace ole32core;
@@ -19,12 +18,20 @@ void V8Variant::Init(Handle<Object> target)
   clazz = Persistent<FunctionTemplate>::New(t);
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
-  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
+//  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "call", OLECall);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
+}
+
+OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
+{
+  if(!v->IsBoolean() && !v->IsInt32()) return NULL;
+  OCVariant *a = new OCVariant((long)(v->IsBoolean() ?
+    (v->BooleanValue() ? 1 : 0) : v->Int32Value()));
+  return a;
 }
 
 Handle<Object> V8Variant::CreateUndefined(void)
@@ -90,20 +97,17 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
       String::New("it takes 2 arguments")));
   if(!args[0]->IsString())
     return ThrowException(Exception::TypeError(
-      String::New("first argument is not a Symbol")));
-
-  if(!args[1]->IsBoolean() && !args[1]->IsInt32())
+      String::New("the first argument is not a Symbol")));
+  OCVariant *a1 = CreateOCVariant(args[1]); // will be deleted automatically
+  if(!a1)
     return ThrowException(Exception::TypeError(
-      String::New("second argument is not a Boolean nor Int32")));
-  OCVariant *a = new OCVariant((long)(args[1]->IsBoolean() ?
-    (args[1]->BooleanValue() ? 1 : 0) : args[1]->Int32Value()));
-
+      String::New("the second argument is not valid")));
   bool result = false;
   String::Utf8Value u8s(args[0]);
   wchar_t *wcs = u8s2wcs(*u8s);
   BEVERIFY(done, wcs);
   try{
-    ocv->putProp(wcs, a);
+    ocv->putProp(wcs, a1);
   }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
@@ -147,13 +151,13 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-
   OCVariant *p = castedInternalField<OCVariant>(handle->ToObject());
   if(!p) std::cerr << "InternalField has been already deleted" << std::endl;
-
-  OCVariant *ocv = static_cast<OCVariant *>(param);
-  if(ocv) delete ocv;
-  // thisObject->SetInternalField(0, External::New(NULL));
+//  else{
+    OCVariant *ocv = static_cast<OCVariant *>(param);
+    if(ocv) delete ocv;
+//  }
+  handle->ToObject()->SetInternalField(0, External::New(NULL));
   handle.Dispose();
   DISPFUNCOUT();
 }
