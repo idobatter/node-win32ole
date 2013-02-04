@@ -47,15 +47,7 @@ xl.Quit();
 
 var st = new win32ole.Statement;
 var xl = st.Dispatch('Excel.Application', 'C'); // convert utf8 -> locale mbs
-console.log(xl);
 xl.set('Visible', true);
-
-// var v = new win32ole.V8Variant;
-// v.set(v.get('abc', []), []);
-// v.call('test', []);
-// v.Finalize(); v = null;
-
-/*
 var book = xl.get('Workbooks').call('Add', []);
 var sheet = book.call('Worksheets', [1]);
 sheet.set('Name', 'sheetnameA utf8');
@@ -69,7 +61,17 @@ book.call('SaveAs', [testfile]);
 xl.set('ScreenUpdating', true);
 xl.get('Workbooks').call('Close', []);
 xl.call('Quit', []);
-*/
-xl.Finalize(); xl = null;
+
+var testGC = true;
+if(testGC){
+  // force GC test (needless to do on real code)
+  rg.Finalize(); rg = null;
+  sheet.Finalize(); sheet = null;
+  book.Finalize(); book = null;
+  xl.Finalize(); xl = null;
+}
 st.Finalize(); st = null; // must be called now
-win32ole = null;
+if(testGC){
+  // force GC test (needless to do on real code)
+  win32ole = null;
+}
