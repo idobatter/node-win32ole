@@ -13,7 +13,7 @@ It works as... (version 0.1.x)
 
 ``` js
 var win32ole = require('win32ole');
-var xl = win32ole.client.Dispatch('Excel.Application');
+var xl = win32ole.client.Dispatch('Excel.Application', 'C'); // locale
 xl.Visible = true;
 var book = xl.Workbooks.Add();
 var sheet = book.Worksheets(1);
@@ -32,22 +32,33 @@ xl.Quit();
 But now it implements as... (version 0.0.x)
 
 ``` js
-var win32ole = require('win32ole');
-var xl = win32ole.statement.Dispatch('Excel.Application');
-xl.set('Visible', true);
-var book = xl.get('Workbooks').call('Add');
-var sheet = book.get('Worksheets', [1]);
-sheet.set('Name', 'sheetnameA utf8');
-sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
-var rg = sheet.get('Range',
-  [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
-rg.set('RowHeight', 5.18);
-rg.set('ColumnWidth', 0.58);
-rg.get('Interior').set('ColorIndex', 6); // Yellow
-book.call('SaveAs', ['testfileutf8.xls']);
-xl.set('ScreenUpdating', true);
-xl.get('Workbooks').call('Close');
-xl.call('Quit');
+win32ole.statement = new win32ole.Statement;
+try{
+  var win32ole = require('win32ole');
+  var xl = win32ole.statement.Dispatch('Excel.Application', 'C'); // locale
+  xl.set('Visible', true);
+  var book = xl.get('Workbooks').call('Add');
+  var sheet = book.get('Worksheets', [1]);
+  try{
+    sheet.set('Name', 'sheetnameA utf8');
+    sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
+    var rg = sheet.get('Range',
+      [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
+    rg.set('RowHeight', 5.18);
+    rg.set('ColumnWidth', 0.58);
+    rg.get('Interior').set('ColorIndex', 6); // Yellow
+    var result = book.call('SaveAs', ['testfileutf8.xls']);
+    console.log(result);
+  }catch(e){
+    console.log('(exception cached)\n' + e);
+  }
+  xl.set('ScreenUpdating', true);
+  xl.get('Workbooks').call('Close');
+  xl.call('Quit');
+}catch(e){
+  console.log('*** exception cached ***\n' + e);
+}
+win32ole.statement.Finalize(); // must be called (version 0.0.x)
 ```
 
 
