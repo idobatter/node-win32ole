@@ -193,9 +193,11 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
   free(wcs); // *** it may leak when error ***
-done:
   DISPFUNCOUT();
   return scope.Close(vResult);
+done:
+  DISPFUNCOUT();
+  return ThrowException(Exception::TypeError(String::New("OLEGet failed")));
 }
 
 Handle<Value> V8Variant::OLESet(const Arguments& args)
@@ -221,9 +223,11 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   }
   free(wcs);
   result = true;
-done:
   DISPFUNCOUT();
   return scope.Close(Boolean::New(result));
+done:
+  DISPFUNCOUT();
+  return ThrowException(Exception::TypeError(String::New("OLESet failed")));
 }
 
 Handle<Value> V8Variant::OLECall(const Arguments& args)
@@ -262,9 +266,11 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
   free(wcs); // *** it may leak when error ***
-done:
   DISPFUNCOUT();
   return scope.Close(vResult);
+done:
+  DISPFUNCOUT();
+  return ThrowException(Exception::TypeError(String::New("OLECall failed")));
 }
 
 Handle<Value> V8Variant::Finalize(const Arguments& args)

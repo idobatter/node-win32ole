@@ -48,7 +48,6 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  Handle<Object> vUndef = V8Variant::CreateUndefined();
   BEVERIFY(done, args.Length() >= 2);
   BEVERIFY(done, args[0]->IsString());
   BEVERIFY(done, args[1]->IsString());
@@ -116,7 +115,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   return scope.Close(vApp);
 done:
   DISPFUNCOUT();
-  return scope.Close(vUndef);
+  return ThrowException(Exception::TypeError(String::New("Dispatch failed")));
 }
 
 Handle<Value> Statement::Finalize(const Arguments& args)

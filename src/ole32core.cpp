@@ -351,6 +351,8 @@ HRESULT OCVariant::AutoWrap(int autoType, VARIANT *pvResult,
   if(FAILED(hr)){
     ostringstream oss;
     oss << hr << " [" << szName << "] = [" << dispID << "] ";
+    oss << "(It always seems to be appeared at that time you mistake calling ";
+    oss << "'obj.get { ocv->getProp() }' <-> 'obj.call { ocv->invoke() }'.) ";
     oss << "IDispatch::Invoke AutoWrap";
     checkOLEresult(oss.str());
     return hr;
