@@ -1,8 +1,8 @@
 /*
-  statement.cc
+  client.cc
 */
 
-#include "statement.h"
+#include "client.h"
 #include "v8variant.h"
 
 using namespace v8;
@@ -10,32 +10,32 @@ using namespace ole32core;
 
 namespace node_win32ole {
 
-Persistent<FunctionTemplate> Statement::clazz;
+Persistent<FunctionTemplate> Client::clazz;
 
-void Statement::Init(Handle<Object> target)
+void Client::Init(Handle<Object> target)
 {
   HandleScope scope;
   Local<FunctionTemplate> t = FunctionTemplate::New(New);
   clazz = Persistent<FunctionTemplate>::New(t);
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
-  clazz->SetClassName(String::NewSymbol("Statement"));
+  clazz->SetClassName(String::NewSymbol("Client"));
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Dispatch", Dispatch);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
-  target->Set(String::NewSymbol("Statement"), clazz->GetFunction());
+  target->Set(String::NewSymbol("Client"), clazz->GetFunction());
 }
 
-Handle<Value> Statement::New(const Arguments& args)
+Handle<Value> Client::New(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
   if(!args.IsConstructCall())
     return ThrowException(Exception::TypeError(
-      String::New("Use the new operator to create new Statement objects")));
+      String::New("Use the new operator to create new Client objects")));
   OLE32core *oc = new OLE32core();
   if(!oc)
     return ThrowException(Exception::TypeError(
-      String::New("Can't create new Statement object (null OLE32core)")));
+      String::New("Can't create new Client object (null OLE32core)")));
   Local<Object> thisObject = args.This();
   thisObject->SetInternalField(0, External::New(oc));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
@@ -44,7 +44,7 @@ Handle<Value> Statement::New(const Arguments& args)
   return args.This();
 }
 
-Handle<Value> Statement::Dispatch(const Arguments& args)
+Handle<Value> Client::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
@@ -82,7 +82,7 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   OLE32core *oc = castedInternalField<OLE32core>(args.This());
   if(!oc)
     return ThrowException(Exception::TypeError(
-      String::New("Can't access to Statement object (null OLE32core)")));
+      String::New("Can't access to Client object (null OLE32core)")));
   BEVERIFY(done, oc->connect(cstr_locale));
   Handle<Object> vApp = V8Variant::CreateUndefined();
   BEVERIFY(done, !vApp.IsEmpty());
@@ -118,7 +118,7 @@ done:
   return ThrowException(Exception::TypeError(String::New("Dispatch failed")));
 }
 
-Handle<Value> Statement::Finalize(const Arguments& args)
+Handle<Value> Client::Finalize(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
@@ -139,7 +139,7 @@ Handle<Value> Statement::Finalize(const Arguments& args)
   return args.This();
 }
 
-void Statement::Dispose(Persistent<Value> handle, void *param)
+void Client::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
 #if(1)
@@ -159,7 +159,7 @@ void Statement::Dispose(Persistent<Value> handle, void *param)
   DISPFUNCOUT();
 }
 
-void Statement::Finalize()
+void Client::Finalize()
 {
   assert(!finalized);
   finalized = true;

@@ -7,7 +7,7 @@
 */
 
 #include "node_win32ole.h"
-#include "statement.h"
+#include "client.h"
 #include "v8variant.h"
 
 using namespace v8;
@@ -52,7 +52,7 @@ void init(Handle<Object> target)
 {
   module_target = Persistent<Object>::New(target);
   V8Variant::Init(target);
-  Statement::Init(target);
+  Client::Init(target);
   target->Set(String::NewSymbol("VERSION"),
     String::New("0.0.0 (will be set later)"),
     static_cast<PropertyAttribute>(DontDelete));

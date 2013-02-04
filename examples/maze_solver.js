@@ -66,7 +66,7 @@ var dug = function(r, c, direc, solved, branch){
 };
 
 var solver_excel_ole = function(filename){
-  var xl = win32ole.statement.Dispatch('Excel.Application', 'C');
+  var xl = win32ole.client.Dispatch('Excel.Application', 'C');
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Open', [filename]);
   // This code uses variable sheet as global
@@ -88,10 +88,10 @@ var solver_excel_ole = function(filename){
   xl.call('Quit');
 };
 
-win32ole.statement = new win32ole.Statement;
+win32ole.client = new win32ole.Client;
 try{
   solver_excel_ole(mazefile);
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.statement.Finalize(); // must be called (version 0.0.x)
+win32ole.client.Finalize(); // must be called (version 0.0.x)

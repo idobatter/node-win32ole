@@ -48,7 +48,7 @@ xl.Quit();
 
 var test_excel_ole = function(filename){
   // convert utf8 -> locale mbs
-  var xl = win32ole.statement.Dispatch('Excel.Application', 'C');
+  var xl = win32ole.client.Dispatch('Excel.Application', 'C');
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Add');
 //  var sheet = book.call('Worksheets', [1]); // throws exception
@@ -87,13 +87,13 @@ var test_excel_ole = function(filename){
 };
 
 var forceGC = true;
-win32ole.statement = new win32ole.Statement;
+win32ole.client = new win32ole.Client;
 try{
   test_excel_ole(testfile);
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.statement.Finalize(); // must be called (version 0.0.x)
+win32ole.client.Finalize(); // must be called (version 0.0.x)
 if(forceGC){ // force GC test (needless to do on real code)
   win32ole = null;
 }

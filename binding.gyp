@@ -5,7 +5,7 @@
       'sources': [
         'src/node_win32ole.cc',
         'src/win32ole_gettimeofday.cc',
-        'src/statement.cc',
+        'src/client.cc',
         'src/v8variant.cc',
         'src/ole32core.cpp'
       ],

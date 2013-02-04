@@ -32,10 +32,10 @@ xl.Quit();
 But now it implements as... (version 0.0.x)
 
 ``` js
-win32ole.statement = new win32ole.Statement;
+win32ole.client = new win32ole.Client;
 try{
   var win32ole = require('win32ole');
-  var xl = win32ole.statement.Dispatch('Excel.Application', 'C'); // locale
+  var xl = win32ole.client.Dispatch('Excel.Application', 'C'); // locale
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Add');
   var sheet = book.get('Worksheets', [1]);
@@ -58,7 +58,7 @@ try{
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.statement.Finalize(); // must be called (version 0.0.x)
+win32ole.client.Finalize(); // must be called (version 0.0.x)
 ```
 
 
