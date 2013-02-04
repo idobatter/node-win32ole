@@ -61,6 +61,11 @@ test: build
 	mocha -I lib test/unicode.test
 	node examples/maze_creator.js
 	node examples/maze_solver.js
+	node examples/word_sample.js
+	node examples/access_mdb_sample.js
+	node examples/outlook_sample.js
+	node examples/ie_sample.js
+	node examples/typelibrary_sample.js
 
 all: build test
 
