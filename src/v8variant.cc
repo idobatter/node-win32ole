@@ -54,16 +54,22 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
   BEVERIFY(done, !v->IsExternal());
   BEVERIFY(done, !v->IsNativeError());
   BEVERIFY(done, !v->IsFunction());
+// VT_USERDEFINED VT_VARIANT VT_BYREF VT_ARRAY more...
   if(v->IsBoolean()){
+    std::cerr << "[VT_BOOL will be converted to VT_I4 (1/0) now]" << std::endl;
     return new OCVariant((long)(v->BooleanValue() ? 1 : 0));
   }else if(v->IsArray()){
+// VT_BYREF VT_ARRAY VT_SAFEARRAY
     std::cerr << "[Array (not implemented now)]" << std::endl; return NULL;
   }else if(v->IsInt32()){
     return new OCVariant((long)v->Int32Value());
   }else if(v->IsNumber()){
+    std::cerr << "[Number (VT_R8 or VT_I8 bug?)]" << std::endl;
+// if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsNumberObject()){
-    std::cerr << "[NumberObject (bug?)]" << std::endl;
+    std::cerr << "[NumberObject (VT_R8 or VT_I8 bug?)]" << std::endl;
+// if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsDate()){
     std::cerr << "[Date (bug?)]" << std::endl;
