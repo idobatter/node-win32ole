@@ -134,7 +134,7 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   Local<Object> thisObject = args.This();
-#if(0) // now GC will call Disposer automatically
+#if(1) // now GC will call Disposer automatically
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   if(ocv) delete ocv;
 #endif
@@ -150,6 +150,10 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
+
+  OCVariant *p = castedInternalField<OCVariant>(handle->ToObject());
+  if(!p) std::cerr << "InternalField has been already deleted" << std::endl;
+
   OCVariant *ocv = static_cast<OCVariant *>(param);
   if(ocv) delete ocv;
   // thisObject->SetInternalField(0, External::New(NULL));
