@@ -92,21 +92,18 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("first argument is not a Symbol")));
 
-#if(0)
-  if(!args[1]->IsInt32())
+  if(!args[1]->IsBoolean() && !args[1]->IsInt32())
     return ThrowException(Exception::TypeError(
-      String::New("second argument is not a Int32")));
-#endif
-  if(!args[1]->IsBoolean())
-    return ThrowException(Exception::TypeError(
-      String::New("second argument is not a Boolean")));
+      String::New("second argument is not a Boolean nor Int32")));
+  OCVariant *a = new OCVariant((long)(args[1]->IsBoolean() ?
+    (args[1]->BooleanValue() ? 1 : 0) : args[1]->Int32Value()));
 
   bool result = false;
   String::Utf8Value u8s(args[0]);
   wchar_t *wcs = u8s2wcs(*u8s);
   BEVERIFY(done, wcs);
   try{
-    ocv->putProp(wcs, new OCVariant((long)(args[1]->BooleanValue() ? 1 : 0)));
+    ocv->putProp(wcs, a);
   }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }

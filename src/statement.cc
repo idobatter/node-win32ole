@@ -52,17 +52,16 @@ Handle<Value> Statement::Dispatch(const Arguments& args)
   BEVERIFY(done, args.Length() >= 2);
   BEVERIFY(done, args[0]->IsString());
   BEVERIFY(done, args[1]->IsString());
-
-  String::Utf8Value *u8s_locale = new String::Utf8Value(args[1]);
-  BEVERIFY(done, u8s_locale);
   char cstr_locale[256];
-  strncpy(cstr_locale, **u8s_locale, sizeof(cstr_locale));
-  delete u8s_locale;
-
-  String::Utf8Value *u8s = new String::Utf8Value(args[0]); // must create here
-  BEVERIFY(done, u8s);
-  wchar_t *wcs = u8s2wcs(**u8s);
-  delete u8s;
+  {
+    String::Utf8Value u8s_locale(args[1]);
+    strncpy(cstr_locale, *u8s_locale, sizeof(cstr_locale));
+  }
+  wchar_t *wcs;
+  {
+    String::Utf8Value u8s(args[0]); // must create here
+    wcs = u8s2wcs(*u8s);
+  }
   BEVERIFY(done, wcs);
 #ifdef DEBUG
   char *mbs = wcs2mbs(wcs);
@@ -173,11 +172,9 @@ BEVERIFY(done, !v.IsEmpty());
 BEVERIFY(done, !v->IsUndefined());
 BEVERIFY(done, !v->IsObject());
 BEVERIFY(done, v->IsString());
-String::Utf8Value *s = new String::Utf8Value(v);
-BEVERIFY(done, s);
-std::cerr << **s << std::endl;
-std::string outfile(std::string(**s) + "\\..\\test\\tmp\\testfilembs.xls");
-delete s;
+String::Utf8Value s(v);
+std::cerr << *s << std::endl;
+std::string outfile(std::string(*s) + "\\..\\test\\tmp\\testfilembs.xls");
 
     book->invoke(L"SaveAs", new OCVariant(outfile));
     std::cerr << "saved to: " << outfile << std::endl;
