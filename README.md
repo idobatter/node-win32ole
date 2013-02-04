@@ -2,6 +2,8 @@
 
 node-win32ole - Asynchronous, non-blocking win32ole bindings for [node.js](https://github.com/joyent/node) .
 
+win32ole makes accessibility from node.js to Excel, Word, Access, Outlook, InternetExplorer and so on. It does'nt need TypeLibrary.
+
 
 # USAGE
 
@@ -31,8 +33,7 @@ But now it implements as... (version 0.0.x)
 
 ``` js
 var win32ole = require('win32ole');
-var st = new win32ole.Statement;
-var xl = st.Dispatch('Excel.Application');
+var xl = win32ole.statement.Dispatch('Excel.Application');
 xl.set('Visible', true);
 var book = xl.get('Workbooks').call('Add');
 var sheet = book.get('Worksheets', [1]);

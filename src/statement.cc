@@ -122,6 +122,9 @@ Handle<Value> Statement::Finalize(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
+#if(0)
+  std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
+#endif
   Local<Object> thisObject = args.This();
 #if(1) // now GC will call Disposer automatically
   OLE32core *oc = castedInternalField<OLE32core>(thisObject);
@@ -139,9 +142,19 @@ Handle<Value> Statement::Finalize(const Arguments& args)
 void Statement::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-  OLE32core *oc = static_cast<OLE32core *>(param);
-  if(oc){ oc->disconnect(); delete oc; }
-  // thisObject->SetInternalField(0, External::New(NULL));
+#if(1)
+  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
+#endif
+  OLE32core *p = castedInternalField<OLE32core>(handle->ToObject());
+  if(!p){
+    std::cerr << __FUNCTION__;
+    std::cerr << " InternalField has been already deleted" << std::endl;
+  }
+//  else{
+    OLE32core *oc = static_cast<OLE32core *>(param);
+    if(oc){ oc->disconnect(); delete oc; }
+//  }
+  handle->ToObject()->SetInternalField(0, External::New(NULL));
   handle.Dispose();
   DISPFUNCOUT();
 }

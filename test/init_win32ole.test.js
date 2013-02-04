@@ -29,7 +29,8 @@ if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var testfile = path.join(tmpdir, 'testfileutf8.xls');
 
 /*
-var xl = win32ole.client.Dispatch('Excel.Application');
+// convert utf8 -> locale mbs
+var xl = win32ole.client.Dispatch('Excel.Application', 'C');
 xl.Visible = true;
 var book = xl.Workbooks.Add();
 var sheet = book.Worksheets(1);
@@ -45,49 +46,54 @@ xl.Workbooks.Close();
 xl.Quit();
 */
 
-var st = new win32ole.Statement;
-var xl = st.Dispatch('Excel.Application', 'C'); // convert utf8 -> locale mbs
-xl.set('Visible', true);
-var book = xl.get('Workbooks').call('Add');
+var test_excel_ole = function(filename){
+  // convert utf8 -> locale mbs
+  var xl = win32ole.statement.Dispatch('Excel.Application', 'C');
+  xl.set('Visible', true);
+  var book = xl.get('Workbooks').call('Add');
+//  var sheet = book.call('Worksheets', [1]); // throws exception
+  var sheet = book.get('Worksheets', [1]);
+  try{
+    sheet.set('Name', 'sheetnameA utf8');
+    sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
+    var rg = sheet.get('Range',
+      [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
+    rg.set('RowHeight', 5.18);
+    rg.set('ColumnWidth', 0.58);
+    rg.get('Interior').set('ColorIndex', 6); // Yellow
+    console.log('saving to: "' + filename + '" ...');
+    var result = book.call('SaveAs', [filename]);
+    console.log(result);
+  }catch(e){
+    console.log('(exception cached)\n' + e);
+  }
+  xl.set('ScreenUpdating', true);
+  xl.get('Workbooks').call('Close');
+  xl.call('Quit');
 
-/*
-var sheet = book.call('Worksheets', [1]);
-sheet.set('Name', 'sheetnameA utf8');
-sheet.call('Cells', [1, 2]).set('Value', 'test utf8');
-var rg = sheet.call('Range',
-  [sheet.call('Cells', [2, 2]), sheet.call('Cells', [4, 4])]);
-rg.set('RowHeight', 5.18);
-rg.set('ColumnWidth', 0.58);
-rg.get('Interior').set('ColorIndex', 6); // Yellow
-*/
+  if(forceGC){ // force GC test (needless to do on real code)
+    result.Finalize();
+    rg.Finalize();
+    sheet.Finalize();
+    book.Finalize();
+    xl.Finalize();
+  }else{
+    result = null;
+    rg = null;
+    sheet = null;
+    book = null;
+    xl = null;
+  }
+};
 
-/* test start */
-var sheet = book.get('Worksheets', [1]);
-sheet.set('Name', 'sheetnameA utf8');
-sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
-var rg = sheet.get('Range',
-  [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
-rg.set('RowHeight', 5.18);
-rg.set('ColumnWidth', 0.58);
-rg.get('Interior').set('ColorIndex', 6); // Yellow
-/* test end */
-
-console.log('saving to: "' + testfile + '" ...');
-book.call('SaveAs', [testfile]);
-xl.set('ScreenUpdating', true);
-xl.get('Workbooks').call('Close');
-xl.call('Quit');
-
-var testGC = true;
-if(testGC){
-  // force GC test (needless to do on real code)
-  rg.Finalize(); rg = null;
-  sheet.Finalize(); sheet = null;
-  book.Finalize(); book = null;
-  xl.Finalize(); xl = null;
+var forceGC = true;
+win32ole.statement = new win32ole.Statement;
+try{
+  test_excel_ole(testfile);
+}catch(e){
+  console.log('*** exception cached ***\n' + e);
 }
-st.Finalize(); st = null; // must be called now
-if(testGC){
-  // force GC test (needless to do on real code)
+win32ole.statement.Finalize(); // must be called (version 0.0.x)
+if(forceGC){ // force GC test (needless to do on real code)
   win32ole = null;
 }

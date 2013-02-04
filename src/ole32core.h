@@ -21,9 +21,9 @@ namespace ole32core {
 #define DISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
 #define DISPFUNCDAT(p, q, r) do{fprintf(stderr, p. q, r);}while(0)
 #else
-#define DISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
-#define DISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
-#define DISPFUNCDAT(p, q, r) do{fprintf(stderr, p, q, r);}while(0)
+#define DISPFUNCIN() //do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
+#define DISPFUNCOUT() //do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
+#define DISPFUNCDAT(p, q, r) //do{fprintf(stderr, p, q, r);}while(0)
 #endif
 
 #define BASSERT(x) chkerr((BOOL)(x), __FILE__, __LINE__, __FUNCTION__, #x)

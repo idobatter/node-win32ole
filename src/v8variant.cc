@@ -42,6 +42,7 @@ void V8Variant::Init(Handle<Object> target)
   clazz = Persistent<FunctionTemplate>::New(t);
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
@@ -119,6 +120,16 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
   }
 done:
   return NULL;
+}
+
+Handle<Value> V8Variant::OLEInt32(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV("OLEInt32", ocv);
+  DISPFUNCOUT();
+  return scope.Close(Int32::New(ocv->v.lVal));
 }
 
 Handle<Object> V8Variant::CreateUndefined(void)
@@ -277,6 +288,9 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
+#if(0)
+  std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
+#endif
   Local<Object> thisObject = args.This();
 #if(1) // now GC will call Disposer automatically
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
@@ -294,8 +308,14 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
+#if(1)
+  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
+#endif
   OCVariant *p = castedInternalField<OCVariant>(handle->ToObject());
-  if(!p) std::cerr << "InternalField has been already deleted" << std::endl;
+  if(!p){
+    std::cerr << __FUNCTION__;
+    std::cerr << "InternalField has been already deleted" << std::endl;
+  }
 //  else{
     OCVariant *ocv = static_cast<OCVariant *>(param);
     if(ocv) delete ocv;

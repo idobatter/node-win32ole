@@ -15,6 +15,7 @@ public:
   static void Init(Handle<Object> target);
   static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v);
   static OCVariant *CreateOCVariant(Handle<Value> v);
+  static Handle<Value> OLEInt32(const Arguments& args);
   static Handle<Object> CreateUndefined(void);
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> OLEGet(const Arguments& args);
