@@ -14,7 +14,7 @@ var adox_sample = function(filename){
   var dsn = 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' + filename + ';';
   // dsn += ('Locale Identifier=' + CAT_LOCALE_(language));
   var db = win32ole.client.Dispatch('ADOX.Catalog', 'C'); // locale
-  db.call('create', [dsn]);
+  db.call('Create', [dsn]);
   var sql_create_table = 'create table testtbl (id autoincrement primary key,';
   sql_create_table += ' c1 varchar(255), c2 integer, c3 varchar(255));';
   var cn = db.get('ActiveConnection');
@@ -28,6 +28,7 @@ var adox_sample = function(filename){
   */
   cn.call('Close');
   cn = null;
+  // db.call('Close'); // 'Close' 'Disconnect' 'Release' is wrong
   db = null;
 };
 

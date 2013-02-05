@@ -67,6 +67,7 @@ test: build
 	node examples/ie_sample.js
 	node examples/typelibrary_sample.js
 	node examples/uncfinder_sample.js
+	node examples/wsh_sample.js
 
 all: build test
 
