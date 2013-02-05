@@ -66,6 +66,7 @@ test: build
 	node examples/outlook_sample.js
 	node examples/ie_sample.js
 	node examples/typelibrary_sample.js
+	node examples/uncfinder_sample.js
 
 all: build test
 

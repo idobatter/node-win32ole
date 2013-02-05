@@ -43,6 +43,7 @@ void V8Variant::Init(Handle<Object> target)
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
@@ -130,6 +131,19 @@ Handle<Value> V8Variant::OLEInt32(const Arguments& args)
   CHECK_OCV("OLEInt32", ocv);
   DISPFUNCOUT();
   return scope.Close(Int32::New(ocv->v.lVal));
+}
+
+Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV("OLEUtf8", ocv);
+  Handle<Value> result;
+  if(!ocv->v.bstrVal) result = Undefined(); // Null();
+  else result = String::New(MBCS2UTF8(BSTR2MBCS(ocv->v.bstrVal)).c_str());
+  DISPFUNCOUT();
+  return scope.Close(result);
 }
 
 Handle<Object> V8Variant::CreateUndefined(void)
