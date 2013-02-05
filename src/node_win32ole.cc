@@ -37,7 +37,7 @@ Handle<Value> Method_print(const Arguments& args)
   if(args.Length() >= 1){
     String::Utf8Value s(args[0]);
     char *cs = *s;
-    printf("%s\n", cs);
+    printf(cs); // printf("%s\n", cs);
   }
   return scope.Close(Boolean::New(true));
 }

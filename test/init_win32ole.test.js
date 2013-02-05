@@ -1,6 +1,6 @@
 var win32ole = require('win32ole');
 var util = require('util');
-win32ole.print('init_win32ole.test');
+win32ole.print('init_win32ole.test\n');
 console.log(util.inspect(win32ole.verbose(), true, null, true));
 var assert = require('assert');
 var path = require('path');

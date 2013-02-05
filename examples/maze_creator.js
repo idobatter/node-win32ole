@@ -1,5 +1,5 @@
 var win32ole = require('win32ole');
-win32ole.print('maze_creator');
+win32ole.print('maze_creator\n');
 console.log(win32ole.version());
 var path = require('path');
 var cwd = path.join(win32ole.MODULEDIRNAME, '..');

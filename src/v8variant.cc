@@ -43,6 +43,7 @@ void V8Variant::Init(Handle<Object> target)
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toNumber", OLENumber);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
@@ -129,8 +130,41 @@ Handle<Value> V8Variant::OLEInt32(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV("OLEInt32", ocv);
+#if(0)
+  if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEInt32 source type OCVariant is not VT_I4 nor VT_INT")));
+  if(ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEUInt32 source type OCVariant is not VT_UI4 nor VT_UINT")));
+  if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT)
+    std::cerr << "[Int32 (not VT_I4 nor VT_INT bug?)]" << ocv->v.vt << std::endl;
+  if(ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
+    std::cerr << "[UInt32 (not VT_UI4 nor VT_UINT bug?)]" << ocv->v.vt << std::endl;
+  if(ocv->v.vt != VT_I8 && ocv->v.vt != VT_UI8)
+    std::cerr << "[(U)Int64 (not VT_I8 nor VT_UI8 bug?)]" << ocv->v.vt << std::endl;
+#else
+  if(ocv->v.vt != VT_BOOL
+  && ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT
+  && ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEInt32 source type OCVariant is not VT_BOOL nor VT_I4 nor VT_INT nor VT_UI4 nor VT_UINT")));
+#endif
   DISPFUNCOUT();
   return scope.Close(Int32::New(ocv->v.lVal));
+}
+
+Handle<Value> V8Variant::OLENumber(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV("OLENumber", ocv);
+  if(ocv->v.vt != VT_R8)
+    return ThrowException(Exception::TypeError(
+      String::New("OLENumber source type OCVariant is not VT_R8")));
+  DISPFUNCOUT();
+  return scope.Close(Number::New(ocv->v.dblVal));
 }
 
 Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
@@ -139,6 +173,9 @@ Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV("OLEUtf8", ocv);
+  if(ocv->v.vt != VT_BSTR)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEUtf8 source type OCVariant is not VT_BSTR")));
   Handle<Value> result;
   if(!ocv->v.bstrVal) result = Undefined(); // Null();
   else result = String::New(MBCS2UTF8(BSTR2MBCS(ocv->v.bstrVal)).c_str());
