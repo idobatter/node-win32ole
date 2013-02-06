@@ -49,7 +49,7 @@ var ole_automation_sample = function(filename){
   }
   var sql_select = 'select * from testtbl;';
   var rs = cdb.call('OpenRecordset', [sql_select]);
-  while(!rs.get('Eof').toInt32()){ // must use toBoolean
+  while(!rs.get('Eof').toBoolean()){
     win32ole.print('id: ');
     win32ole.print(getRSvalue(rs, 'id').toInt32());
     win32ole.print(', c1: ');

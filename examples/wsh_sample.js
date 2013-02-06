@@ -19,11 +19,24 @@ var wsh_sample = function(filename){
   console.log('sh:');
   console.log(require('util').inspect(sh, true, null, true));
   try{
+    if(fs.existsSync(filename)) fs.unlinkSync(filename);
     win32ole.print('notepad ...');
     // arg1=1: movetop (default), 2: minimize, 3: maximize, 4: no movetop
     //      5: movetop, 6: minimize, 7: minimize
     // arg2=false: Async (default), true: Sync
-    sh.call('run', ['notepad.exe', 4]);
+    sh.call('run', ['notepad.exe', 5]); // , true *** bug: force exit ***
+    win32ole.print('waiting 2 seconds ...');
+    sleep(2000);
+    sh.call('SendKeys', ['Congratulations!']); // must call 'run' option 5
+    sleep(200);
+    sh.call('SendKeys', ['%f']); // ALT-F (File)
+    sleep(500);
+    sh.call('SendKeys', ['a']); // SaveAs
+    sleep(3000);
+    sh.call('SendKeys', [filename + '{ENTER}']);
+    sleep(1000);
+    sh.call('SendKeys', ['%{F4}']); // ALT-F4 (Exit)
+    sleep(100);
     win32ole.print('ok\n');
     win32ole.print('ping ...');
     sh.call('run', ['ping.exe -t 127.0.0.1', 4]);
@@ -40,7 +53,7 @@ var wsh_sample = function(filename){
     sleep(100);
   }
 */
-  while(!stat.get('StdOut').get('AtEndOfStream').toInt32()){ // toBoolean
+  while(!stat.get('StdOut').get('AtEndOfStream').toBoolean()){
     var line = stat.get('StdOut').call('ReadLine').toUtf8();
     if(line.match(/([^\s]*version[^\s]*)[\s]+([^\s]+)[\s]+([^\s]+)/ig))
       console.log(RegExp.$1 + ',' + RegExp.$2 + ',' + RegExp.$3);

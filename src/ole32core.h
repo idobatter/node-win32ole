@@ -75,6 +75,7 @@ public:
 public:
   OCVariant(); // result
   OCVariant(const OCVariant &s); // copy
+  OCVariant(bool c_boolVal); // VT_BOOL
   OCVariant(long lVal); // VT_I4
   OCVariant(double dblVal); // VT_R8
   OCVariant(BSTR bstrVal); // VT_BSTR (previous allocated)

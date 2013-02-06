@@ -42,6 +42,7 @@ void V8Variant::Init(Handle<Object> target)
   clazz = Persistent<FunctionTemplate>::New(t);
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toBoolean", OLEBoolean);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toNumber", OLENumber);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
@@ -83,8 +84,7 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
   BEVERIFY(done, !v->IsFunction());
 // VT_USERDEFINED VT_VARIANT VT_BYREF VT_ARRAY more...
   if(v->IsBoolean()){
-    std::cerr << "[VT_BOOL will be converted to VT_I4 (1/0) now]" << std::endl;
-    return new OCVariant((long)(v->BooleanValue() ? 1 : 0));
+    return new OCVariant((bool)(v->BooleanValue() ? !0 : 0));
   }else if(v->IsArray()){
 // VT_BYREF VT_ARRAY VT_SAFEARRAY
     std::cerr << "[Array (not implemented now)]" << std::endl; return NULL;
@@ -124,6 +124,20 @@ done:
   return NULL;
 }
 
+Handle<Value> V8Variant::OLEBoolean(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV("OLEBoolean", ocv);
+  if(ocv->v.vt != VT_BOOL)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEBoolean source type OCVariant is not VT_BOOL")));
+  bool c_boolVal = ocv->v.boolVal == VARIANT_FALSE ? 0 : !0;
+  DISPFUNCOUT();
+  return scope.Close(Boolean::New(c_boolVal));
+}
+
 Handle<Value> V8Variant::OLEInt32(const Arguments& args)
 {
   HandleScope scope;
@@ -144,11 +158,10 @@ Handle<Value> V8Variant::OLEInt32(const Arguments& args)
   if(ocv->v.vt != VT_I8 && ocv->v.vt != VT_UI8)
     std::cerr << "[(U)Int64 (not VT_I8 nor VT_UI8 bug?)]" << ocv->v.vt << std::endl;
 #else
-  if(ocv->v.vt != VT_BOOL
-  && ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT
+  if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT
   && ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
     return ThrowException(Exception::TypeError(
-      String::New("OLEInt32 source type OCVariant is not VT_BOOL nor VT_I4 nor VT_INT nor VT_UI4 nor VT_UINT")));
+      String::New("OLEInt32 source type OCVariant is not VT_I4 nor VT_INT nor VT_UI4 nor VT_UINT")));
 #endif
   DISPFUNCOUT();
   return scope.Close(Int32::New(ocv->v.lVal));

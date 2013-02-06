@@ -205,6 +205,16 @@ OCVariant::OCVariant(const OCVariant &s) : next(NULL)
   DISPFUNCOUT();
 }
 
+OCVariant::OCVariant(bool c_boolVal) : next(NULL)
+{
+  DISPFUNCIN();
+  VariantInit(&v);
+  v.vt = VT_BOOL;
+  v.boolVal = c_boolVal ? VARIANT_TRUE : VARIANT_FALSE;
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
+}
+
 OCVariant::OCVariant(long lVal) : next(NULL)
 {
   DISPFUNCIN();
