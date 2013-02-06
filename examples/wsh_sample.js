@@ -18,7 +18,9 @@ var wsh_sample = function(filename){
   var sh = win32ole.client.Dispatch('WScript.Shell', '.ACP'); // locale
   console.log('sh:');
   console.log(require('util').inspect(sh, true, null, true));
+
   try{
+
     if(fs.existsSync(filename)) fs.unlinkSync(filename);
     win32ole.print('notepad ...');
     // arg1=1: movetop (default), 2: minimize, 3: maximize, 4: no movetop
@@ -38,9 +40,11 @@ var wsh_sample = function(filename){
     sh.call('SendKeys', ['%{F4}']); // ALT-F4 (Exit)
     sleep(100);
     win32ole.print('ok\n');
+
     win32ole.print('ping ...');
     sh.call('run', ['ping.exe -t 127.0.0.1', 4]);
     win32ole.print('ok\n');
+
   }catch(e){
     console.log('(exception catched)' + e);
   }
@@ -67,6 +71,20 @@ var wsh_sample = function(filename){
   });
 
   shellexec(sh, 'ipconfig.exe', function(line){ console.log(line); });
+
+  win32ole.print('writing to eventlog ...');
+  // 0: EVENTLOG_SUCCESS
+  // 1: EVENTLOG_ERROR_TYPE
+  // 2: EVENTLOG_WARNING_TYPE
+  // 4: EVENTLOG_INFORMATION_TYPE
+  // 8: EVENTLOG_AUDIT_SUCCESS
+  // 16: EVENTLOG_AUDIT_FAILURE
+  sh.call('LogEvent', [4, 'node-win32ole installed']);
+  sh.call('LogEvent', [2, 'node-win32ole warning test']);
+  sh.call('LogEvent', [1, 'node-win32ole error test']);
+  sh.call('LogEvent', [0, 'node-win32ole success']);
+  win32ole.print('ok\n');
+
   console.log('completed');
   sh = null;
 };
