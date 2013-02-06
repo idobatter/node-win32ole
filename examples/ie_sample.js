@@ -1,19 +1,13 @@
 var win32ole = require('win32ole');
 win32ole.print('ie_sample\n');
 
-var sleep = function(milliSeconds){
-  var startTime = new Date().getTime();
-  while(new Date().getTime() < startTime + milliSeconds);
-}
-
 var ie_sample = function(uris){
   var ie = win32ole.client.Dispatch('InternetExplorer.Application', '.ACP');
   ie.set('Visible', true);
   for(var i = 0; i < uris.length; ++i){
     console.log(uris[i]);
     ie.call('Navigate', [uris[i]]);
-    console.log('waiting 15 seconds...');
-    sleep(15000);
+    win32ole.sleep(15000, true, true);
   }
   ie.call('Quit');
 };

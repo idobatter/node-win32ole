@@ -21,6 +21,7 @@ Handle<Value> Method_version(const Arguments& args);
 Handle<Value> Method_printACP(const Arguments& args); // UTF-8 to MBCS (.ACP)
 Handle<Value> Method_print(const Arguments& args); // through (as ASCII)
 Handle<Value> Method_gettimeofday(const Arguments& args);
+Handle<Value> Method_sleep(const Arguments& args); // ms, bool: msg, bool: \n
 
 } // namespace node_win32ole
 

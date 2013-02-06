@@ -81,6 +81,8 @@ void init(Handle<Object> target)
     FunctionTemplate::New(Method_print)->GetFunction());
   target->Set(String::NewSymbol("gettimeofday"),
     FunctionTemplate::New(Method_gettimeofday)->GetFunction());
+  target->Set(String::NewSymbol("sleep"),
+    FunctionTemplate::New(Method_sleep)->GetFunction());
 }
 
 } // namespace

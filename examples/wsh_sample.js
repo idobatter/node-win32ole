@@ -9,11 +9,6 @@ var tmpdir = path.join(cwd, 'test/tmp');
 if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var outfile = path.join(tmpdir, 'wsh_sample.txt');
 
-var sleep = function(milliSeconds){
-  var startTime = new Date().getTime();
-  while(new Date().getTime() < startTime + milliSeconds);
-}
-
 var wsh_sample = function(filename){
   var sh = win32ole.client.Dispatch('WScript.Shell', '.ACP'); // locale
   console.log('sh:');
@@ -27,18 +22,17 @@ var wsh_sample = function(filename){
     //      5: movetop, 6: minimize, 7: minimize
     // arg2=false: Async (default), true: Sync
     sh.call('run', ['notepad.exe', 5]); // , true *** bug: force exit ***
-    win32ole.print('waiting 2 seconds ...');
-    sleep(2000);
+    win32ole.sleep(2000, true, false);
     sh.call('SendKeys', ['Congratulations!']); // must call 'run' option 5
-    sleep(200);
+    win32ole.sleep(200);
     sh.call('SendKeys', ['%f']); // ALT-F (File)
-    sleep(500);
+    win32ole.sleep(500);
     sh.call('SendKeys', ['a']); // SaveAs
-    sleep(3000);
+    win32ole.sleep(3000);
     sh.call('SendKeys', [filename + '{ENTER}']);
-    sleep(1000);
+    win32ole.sleep(1000);
     sh.call('SendKeys', ['%{F4}']); // ALT-F4 (Exit)
-    sleep(100);
+    win32ole.sleep(100);
     win32ole.print('ok\n');
 
     win32ole.print('ping ...');
@@ -52,15 +46,10 @@ var wsh_sample = function(filename){
   var shellexec = function(sh, cmd, callback){
     console.log('sh.Exec(' + cmd + ')');
     var stat = sh.call('Exec', [cmd]);
+//    while(stat.get('Status').toInt32() == 0) win32ole.sleep(100, true, true);
     var so = stat.get('StdOut');
     while(!so.get('AtEndOfStream').toBoolean())
       callback(so.call('ReadLine').toUtf8());
-/*
-    while(stat.get('Status').toInt32() == 0){
-      console.log('waiting ...');
-      sleep(100);
-    }
-*/
     console.log('code = ' + stat.get('ExitCode').toInt32());
   }
 

@@ -79,12 +79,7 @@ try{
 }
 win32ole.client.Finalize(); // must be called (version 0.0.x)
 
-console.log('waiting 2 seconds...');
-var sleep = function(milliSeconds){
-  var startTime = new Date().getTime();
-  while(new Date().getTime() < startTime + milliSeconds);
-}
-sleep(2000);
+win32ole.sleep(2000, true, true);
 
 win32ole.client = new win32ole.Client;
 try{
