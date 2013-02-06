@@ -60,7 +60,7 @@ var dig = function(r, c, direc, count){
 };
 
 var maze_excel_ole = function(filename){
-  var xl = win32ole.client.Dispatch('Excel.Application', 'C');
+  var xl = win32ole.client.Dispatch('Excel.Application', '.ACP'); // locale
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Add');
   // This code uses variable sheet as global

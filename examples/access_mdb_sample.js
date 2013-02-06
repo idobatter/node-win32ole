@@ -13,14 +13,14 @@ var adox_sample = function(filename){
   console.log('creating mdb (by ADOX): "' + filename + '" ...');
   var dsn = 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' + filename + ';';
   // dsn += ('Locale Identifier=' + CAT_LOCALE_(language));
-  var db = win32ole.client.Dispatch('ADOX.Catalog', 'C'); // locale
+  var db = win32ole.client.Dispatch('ADOX.Catalog', '.ACP'); // locale
   db.call('Create', [dsn]);
   var sql_create_table = 'create table testtbl (id autoincrement primary key,';
   sql_create_table += ' c1 varchar(255), c2 integer, c3 varchar(255));';
   var cn = db.get('ActiveConnection');
   cn.call('Execute', [sql_create_table]);
   /* this version can not create OLE instance at the same time
-  var rs = win32ole.client.Dispatch('ADODB.Recordset', 'C');
+  var rs = win32ole.client.Dispatch('ADODB.Recordset', '.ACP'); // locale
   rs.set('ActiveConnection', cn); // supports to set Object ?
   rs.call('Open', ['', , ,]); // supports empty arguments ?
   rs.call('Close');
@@ -34,7 +34,7 @@ var adox_sample = function(filename){
 
 var ole_automation_sample = function(filename){
   console.log('open mdb (by OLE Automation): "' + filename + '" ...');
-  var mdb = win32ole.client.Dispatch('Access.Application', 'C');
+  var mdb = win32ole.client.Dispatch('Access.Application', '.ACP'); // locale
   mdb.set('Visible', true);
   // mdb.call('NewCurrentDatabase', [filename]); // to create new mdb
   mdb.call('OpenCurrentDatabase', [filename]); // to open exists mdb

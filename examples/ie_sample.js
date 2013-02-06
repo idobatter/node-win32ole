@@ -7,7 +7,7 @@ var sleep = function(milliSeconds){
 }
 
 var ie_sample = function(uris){
-  var ie = win32ole.client.Dispatch('InternetExplorer.Application', 'C');
+  var ie = win32ole.client.Dispatch('InternetExplorer.Application', '.ACP');
   ie.set('Visible', true);
   for(var i = 0; i < uris.length; ++i){
     console.log(uris[i]);

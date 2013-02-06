@@ -13,7 +13,7 @@ It works as... (version 0.1.x)
 
 ``` js
 var win32ole = require('win32ole');
-var xl = win32ole.client.Dispatch('Excel.Application', 'C'); // locale
+var xl = win32ole.client.Dispatch('Excel.Application', '.ACP'); // locale
 xl.Visible = true;
 var book = xl.Workbooks.Add();
 var sheet = book.Worksheets(1);
@@ -35,7 +35,7 @@ But now it implements as... (version 0.0.x)
 win32ole.client = new win32ole.Client;
 try{
   var win32ole = require('win32ole');
-  var xl = win32ole.client.Dispatch('Excel.Application', 'C'); // locale
+  var xl = win32ole.client.Dispatch('Excel.Application', '.ACP'); // locale
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Add');
   var sheet = book.get('Worksheets', [1]);

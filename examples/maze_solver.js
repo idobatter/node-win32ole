@@ -66,7 +66,7 @@ var dug = function(r, c, direc, solved, branch){
 };
 
 var solver_excel_ole = function(filename){
-  var xl = win32ole.client.Dispatch('Excel.Application', 'C');
+  var xl = win32ole.client.Dispatch('Excel.Application', '.ACP'); // locale
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Open', [filename]);
   // This code uses variable sheet as global

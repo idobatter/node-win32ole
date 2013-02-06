@@ -31,7 +31,18 @@ Handle<Value> Method_version(const Arguments& args)
 #endif
 }
 
-Handle<Value> Method_print(const Arguments& args)
+Handle<Value> Method_printACP(const Arguments& args) // UTF-8 to MBCS (.ACP)
+{
+  HandleScope scope;
+  if(args.Length() >= 1){
+    String::Utf8Value s(args[0]);
+    char *cs = *s;
+    printf(UTF82MBCS(std::string(cs)).c_str());
+  }
+  return scope.Close(Boolean::New(true));
+}
+
+Handle<Value> Method_print(const Arguments& args) // through (as ASCII)
 {
   HandleScope scope;
   if(args.Length() >= 1){
@@ -64,6 +75,8 @@ void init(Handle<Object> target)
     static_cast<PropertyAttribute>(ReadOnly | DontDelete));
   target->Set(String::NewSymbol("version"),
     FunctionTemplate::New(Method_version)->GetFunction());
+  target->Set(String::NewSymbol("printACP"),
+    FunctionTemplate::New(Method_printACP)->GetFunction());
   target->Set(String::NewSymbol("print"),
     FunctionTemplate::New(Method_print)->GetFunction());
   target->Set(String::NewSymbol("gettimeofday"),

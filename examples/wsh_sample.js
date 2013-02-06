@@ -15,7 +15,7 @@ var sleep = function(milliSeconds){
 }
 
 var wsh_sample = function(filename){
-  var sh = win32ole.client.Dispatch('WScript.Shell', 'C');
+  var sh = win32ole.client.Dispatch('WScript.Shell', '.ACP'); // locale
   console.log('sh:');
   console.log(require('util').inspect(sh, true, null, true));
   try{
@@ -44,21 +44,29 @@ var wsh_sample = function(filename){
   }catch(e){
     console.log('(exception catched)' + e);
   }
-  var cmd = 'reg query "HKLM\\Software\\Microsoft\\Internet Explorer"';
-  console.log('sh.Exec(' + cmd + ')');
-  var stat = sh.call('Exec', [cmd]);
+
+  var shellexec = function(sh, cmd, callback){
+    console.log('sh.Exec(' + cmd + ')');
+    var stat = sh.call('Exec', [cmd]);
+    var so = stat.get('StdOut');
+    while(!so.get('AtEndOfStream').toBoolean())
+      callback(so.call('ReadLine').toUtf8());
 /*
-  while(stat.get('Status').toInt32() == 0){
-    console.log('waiting ...');
-    sleep(100);
-  }
+    while(stat.get('Status').toInt32() == 0){
+      console.log('waiting ...');
+      sleep(100);
+    }
 */
-  while(!stat.get('StdOut').get('AtEndOfStream').toBoolean()){
-    var line = stat.get('StdOut').call('ReadLine').toUtf8();
+    console.log('code = ' + stat.get('ExitCode').toInt32());
+  }
+
+  var cmd = 'reg query "HKLM\\Software\\Microsoft\\Internet Explorer"';
+  shellexec(sh, cmd, function(line){
     if(line.match(/([^\s]*version[^\s]*)[\s]+([^\s]+)[\s]+([^\s]+)/ig))
       console.log(RegExp.$1 + ',' + RegExp.$2 + ',' + RegExp.$3);
-  }
-  console.log('code = ' + stat.get('ExitCode').toInt32());
+  });
+
+  shellexec(sh, 'ipconfig.exe', function(line){ console.log(line); });
   console.log('completed');
   sh = null;
 };

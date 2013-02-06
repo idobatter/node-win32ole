@@ -18,7 +18,8 @@ template <class T> T *castedInternalField(Handle<Object> object)
 extern Persistent<Object> module_target;
 
 Handle<Value> Method_version(const Arguments& args);
-Handle<Value> Method_print(const Arguments& args);
+Handle<Value> Method_printACP(const Arguments& args); // UTF-8 to MBCS (.ACP)
+Handle<Value> Method_print(const Arguments& args); // through (as ASCII)
 Handle<Value> Method_gettimeofday(const Arguments& args);
 
 } // namespace node_win32ole
