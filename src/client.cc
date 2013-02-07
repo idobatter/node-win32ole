@@ -56,6 +56,8 @@ Handle<Value> Client::New(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("May be CoInitialize() is failed.")));
   Local<Object> thisObject = args.This();
+  Client *cl = new Client();
+  cl->Wrap(thisObject);
   thisObject->SetInternalField(0, External::New(oc));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
   objectDisposer.MakeWeak(oc, Dispose);
@@ -134,6 +136,7 @@ Handle<Value> Client::Finalize(const Arguments& args)
   std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
 #endif
   Local<Object> thisObject = args.This();
+// Client *cl = ObjectWrap::Unwrap<Client>(thisObject);
 #if(1) // now GC will call Disposer automatically
   OLE32core *oc = castedInternalField<OLE32core>(thisObject);
   if(oc){

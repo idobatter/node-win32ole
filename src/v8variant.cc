@@ -211,6 +211,10 @@ Handle<Object> V8Variant::CreateUndefined(void)
 #else
   Local<Object> instance = clazz->GetFunction()->NewInstance(0, NULL);
 #endif
+#if(0) // needless to do (instance has been already wrapped in New)
+  V8Variant *v = new V8Variant();
+  v->Wrap(instance);
+#endif
   DISPFUNCOUT();
   return scope.Close(instance);
 }
@@ -225,6 +229,8 @@ Handle<Value> V8Variant::New(const Arguments& args)
   OCVariant *ocv = new OCVariant();
   CHECK_OCV("New", ocv);
   Local<Object> thisObject = args.This();
+  V8Variant *v = new V8Variant();
+  v->Wrap(thisObject);
   thisObject->SetInternalField(0, External::New(ocv));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
   objectDisposer.MakeWeak(ocv, Dispose);
@@ -362,6 +368,7 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
   std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
 #endif
   Local<Object> thisObject = args.This();
+// V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
 #if(1) // now GC will call Disposer automatically
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   if(ocv) delete ocv;
