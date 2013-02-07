@@ -21,9 +21,21 @@ var ole_args_test_client = function(){
   console.log(cl.call('Test', ['aa1', 'bb2', 'cc3']).toUtf8());
   console.log('do 4');
   console.log(cl.call('Test', ['aaa1', 'bbb2', 'ccc3', 'ddd4']).toUtf8());
-  console.log('connection');
+  console.log('quit');
   cl.call('Quit');
   console.log('disconnected');
+
+  cl = null;
+  win32ole.client = null;
+  console.log('a');
+  for(var a = [], i = 0; i < 869461; i++){ a[i] = 'dummydata'; } // GC test
+  console.log('b');
+  for(var b = [], j = 0; j < 2944; j++){ b[j] = 'bbbbbbbb'; } // GC test
+  console.log('c');
+  for(var c = [], k = 0; k < 848; k++){ c[k] = 'cccccccc'; } // GC test
+  console.log('d');
+  for(var d = [], l = 0; l < 358; l++){ d[l] = 'dddddddd'; } // GC test
+  console.log('completed');
 };
 
 try{
@@ -31,4 +43,5 @@ try{
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.client.Finalize(); // must be called (version 0.0.x)
+
+// win32ole.client.Finalize(); // must be called (version 0.0.x)

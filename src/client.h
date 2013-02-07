@@ -2,8 +2,10 @@
 #define __CLIENT_H__
 
 #include "node_win32ole.h"
+#include "ole32core.h"
 
 using namespace v8;
+using namespace ole32core;
 
 namespace node_win32ole {
 
