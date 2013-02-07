@@ -258,14 +258,25 @@ OCVariant::OCVariant(string str) : next(NULL)
 OCVariant::~OCVariant()
 {
   DISPFUNCIN();
-  // bug ? comment (see old ole32core.cpp project)
-  for(OCVariant *p = next, *q = NULL; p; p = q){
-    q = p->next;
-    delete p;
+  DISPFUNCDAT("--destruction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("---(first step in)");
+#if(0) // recursive (use stack)
+  if(next){
+    delete next;
+    next = NULL;
   }
+#else // loop (not use stack)
+  while(next){
+    OCVariant **p; // use scope after for
+    for(p = &next; (*p)->next; p = &(*p)->next){} // find tail
+    delete *p; // delete a tail ( p points &next when all tails are deleted )
+    *p = NULL;
+  }
+#endif
   // The first node (== self) only be reversed.
   // 1, n, ..., 5, 4, 3, 2
-  DISPFUNCDAT("--destruction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("---(first step out)");
+  DISPFUNCDAT("---(second step in)");
   // bug ? comment (see old ole32core.cpp project)
   if((v.vt == VT_DISPATCH) && v.pdispVal){ // app
     v.pdispVal->Release();
@@ -278,6 +289,7 @@ OCVariant::~OCVariant()
     v.bstrVal = NULL;
   }
   VariantClear(&v); // need it
+  DISPFUNCDAT("---(second step out)");
   DISPFUNCOUT();
 }
 

@@ -21,9 +21,11 @@ var wsh_sample = function(filename){
     // arg1=1: movetop (default), 2: minimize, 3: maximize, 4: no movetop
     //      5: movetop, 6: minimize, 7: minimize
     // arg2=false: Async (default), true: Sync
-    sh.call('run', ['notepad.exe', 5]); // , true *** bug: force exit ***
+    sh.call('run', ['notepad.exe', 5, false]); // must be Async (for SendKeys)
     win32ole.sleep(2000, true, false);
     sh.call('SendKeys', ['Congratulations!']); // must call 'run' option 5
+    win32ole.sleep(200);
+    sh.call('SendKeys', ["{ENTER}*** DON'T TOUCH THIS WINDOW ***"]);
     win32ole.sleep(200);
     sh.call('SendKeys', ['%f']); // ALT-F (File)
     win32ole.sleep(500);
@@ -36,7 +38,7 @@ var wsh_sample = function(filename){
     win32ole.print('ok\n');
 
     win32ole.print('ping ...');
-    sh.call('run', ['ping.exe -t 127.0.0.1', 4]);
+    sh.call('run', ['ping.exe 127.0.0.1', 4, true]); // wait for close (Sync)
     win32ole.print('ok\n');
 
   }catch(e){
@@ -62,16 +64,19 @@ var wsh_sample = function(filename){
   shellexec(sh, 'ipconfig.exe', function(line){ console.log(line); });
 
   win32ole.print('writing to eventlog ...');
-  // 0: EVENTLOG_SUCCESS
-  // 1: EVENTLOG_ERROR_TYPE
-  // 2: EVENTLOG_WARNING_TYPE
-  // 4: EVENTLOG_INFORMATION_TYPE
-  // 8: EVENTLOG_AUDIT_SUCCESS
+  var name = 'node-win32ole (' + win32ole.VERSION + ') ';
+  // the first argument value
+  //  0: EVENTLOG_SUCCESS
+  //  1: EVENTLOG_ERROR_TYPE
+  //  2: EVENTLOG_WARNING_TYPE
+  //  4: EVENTLOG_INFORMATION_TYPE
+  //  8: EVENTLOG_AUDIT_SUCCESS
   // 16: EVENTLOG_AUDIT_FAILURE
-  sh.call('LogEvent', [4, 'node-win32ole installed']);
-  sh.call('LogEvent', [2, 'node-win32ole warning test']);
-  sh.call('LogEvent', [1, 'node-win32ole error test']);
-  sh.call('LogEvent', [0, 'node-win32ole success']);
+  // the 3rd argument '.' means 'self computer name' to send LogEvent target
+  sh.call('LogEvent', [4, name + 'installed', '.']);
+  sh.call('LogEvent', [2, name + 'warning test', '.']);
+  sh.call('LogEvent', [1, name + 'error test', '.']);
+  sh.call('LogEvent', [0, name + 'success', '.']);
   win32ole.print('ok\n');
 
   console.log('completed');

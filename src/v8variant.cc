@@ -243,12 +243,15 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   OCVariant *argchain = NULL;
   Array *a = Array::Cast(*av1);
   for(size_t i = 0; i < a->Length(); ++i){
-    char num[256];
-    sprintf(num, "%d", a->Length() - 1 - i); // *** check length ***
-    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(num)));
-    if(!o)
+    std::ostringstream num;
+    num << (i ? (i - 1) : (a->Length() - 1));
+    std::string snum = num.str();
+    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
+    if(!o){
+      std::string msg("OLEGet can't access to argument ");
       return ThrowException(Exception::TypeError(
-        String::New("OLEGet can't access to argument i (null OCVariant)")));
+        String::New((msg + snum + " (null OCVariant)").c_str())));
+    }
     if(!i) argchain = o;
     else argchain->push(o);
   }
@@ -316,12 +319,15 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   OCVariant *argchain = NULL;
   Array *a = Array::Cast(*av1);
   for(size_t i = 0; i < a->Length(); ++i){
-    char num[256];
-    sprintf(num, "%d", a->Length() - 1 - i); // *** check length ***
-    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(num)));
-    if(!o)
+    std::ostringstream num;
+    num << (i ? (i - 1) : (a->Length() - 1));
+    std::string snum = num.str();
+    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
+    if(!o){
+      std::string msg("OLECall can't access to argument ");
       return ThrowException(Exception::TypeError(
-        String::New("OLECall can't access to argument i (null OCVariant)")));
+        String::New((msg + snum + " (null OCVariant)").c_str())));
+    }
     if(!i) argchain = o;
     else argchain->push(o);
   }
