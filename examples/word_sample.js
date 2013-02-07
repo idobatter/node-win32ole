@@ -10,7 +10,7 @@ if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var outfile = path.join(tmpdir, 'word_sample.doc');
 
 var word_sample = function(filename){
-  var wd = win32ole.client.Dispatch('Word.Application', '.ACP'); // locale
+  var wd = win32ole.client.Dispatch('Word.Application');
   wd.set('Visible', true);
   var doc = wd.get('Documents').call('Add');
   var para = doc.get('Content').get('Paragraphs').call('Add');
@@ -26,7 +26,6 @@ var word_sample = function(filename){
   wd.call('Quit');
 };
 
-win32ole.client = new win32ole.Client;
 try{
   word_sample(outfile);
 }catch(e){

@@ -10,7 +10,7 @@ if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var outfile = path.join(tmpdir, 'wsh_sample.txt');
 
 var wsh_sample = function(filename){
-  var sh = win32ole.client.Dispatch('WScript.Shell', '.ACP'); // locale
+  var sh = win32ole.client.Dispatch('WScript.Shell');
   console.log('sh:');
   console.log(require('util').inspect(sh, true, null, true));
 
@@ -22,15 +22,17 @@ var wsh_sample = function(filename){
     //      5: movetop, 6: minimize, 7: minimize
     // arg2=false: Async (default), true: Sync
     sh.call('run', ['notepad.exe', 5, false]); // must be Async (for SendKeys)
-    win32ole.sleep(2000, true, false);
-    sh.call('SendKeys', ['Congratulations!']); // must call 'run' option 5
+    win32ole.sleep(3000, true, false);
+    sh.call('SendKeys', ['Congratulations!{ENTER}']); // 'run' option must be 5
     win32ole.sleep(200);
-    sh.call('SendKeys', ["{ENTER}*** DON'T TOUCH THIS WINDOW ***"]);
-    win32ole.sleep(200);
+    sh.call('SendKeys', ["*** DON'T TOUCH THIS WINDOW ***{ENTER}"]);
+    win32ole.sleep(3000);
+    sh.call('SendKeys', ["Saving filename will be entered automatically."]);
+    win32ole.sleep(3000);
     sh.call('SendKeys', ['%f']); // ALT-F (File)
     win32ole.sleep(500);
     sh.call('SendKeys', ['a']); // SaveAs
-    win32ole.sleep(3000);
+    win32ole.sleep(5000);
     sh.call('SendKeys', [filename + '{ENTER}']);
     win32ole.sleep(1000);
     sh.call('SendKeys', ['%{F4}']); // ALT-F4 (Exit)
@@ -83,7 +85,6 @@ var wsh_sample = function(filename){
   sh = null;
 };
 
-win32ole.client = new win32ole.Client;
 try{
   wsh_sample(outfile);
 }catch(e){

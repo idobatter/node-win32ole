@@ -32,10 +32,29 @@ Handle<Value> Client::New(const Arguments& args)
   if(!args.IsConstructCall())
     return ThrowException(Exception::TypeError(
       String::New("Use the new operator to create new Client objects")));
+  std::string cstr_locale(".ACP"); // default
+  if(args.Length() >= 1){
+    if(!args[0]->IsString())
+      return ThrowException(Exception::TypeError(
+        String::New("Argument 1 is not a String")));
+    String::Utf8Value u8s_locale(args[0]);
+    cstr_locale = std::string(*u8s_locale);
+  }
   OLE32core *oc = new OLE32core();
   if(!oc)
     return ThrowException(Exception::TypeError(
       String::New("Can't create new Client object (null OLE32core)")));
+  bool cnresult = false;
+  try{
+    cnresult = oc->connect(cstr_locale);
+  }catch(OLE32coreException e){
+    std::cerr << e.errorMessage((char *)cstr_locale.c_str());
+  }catch(char *e){
+    std::cerr << e << cstr_locale.c_str() << std::endl;
+  }
+  if(!cnresult)
+    return ThrowException(Exception::TypeError(
+      String::New("May be CoInitialize() is failed.")));
   Local<Object> thisObject = args.This();
   thisObject->SetInternalField(0, External::New(oc));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
@@ -48,14 +67,8 @@ Handle<Value> Client::Dispatch(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  BEVERIFY(done, args.Length() >= 2);
+  BEVERIFY(done, args.Length() >= 1);
   BEVERIFY(done, args[0]->IsString());
-  BEVERIFY(done, args[1]->IsString());
-  char cstr_locale[256];
-  {
-    String::Utf8Value u8s_locale(args[1]);
-    strncpy(cstr_locale, *u8s_locale, sizeof(cstr_locale));
-  }
   wchar_t *wcs;
   {
     String::Utf8Value u8s(args[0]); // must create here
@@ -79,11 +92,6 @@ Handle<Value> Client::Dispatch(const Arguments& args)
     fprintf(stderr, " %02x", ((unsigned char *)&clsid)[i]);
   fprintf(stderr, "\n");
 #endif
-  OLE32core *oc = castedInternalField<OLE32core>(args.This());
-  if(!oc)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't access to Client object (null OLE32core)")));
-  BEVERIFY(done, oc->connect(cstr_locale));
   Handle<Object> vApp = V8Variant::CreateUndefined();
   BEVERIFY(done, !vApp.IsEmpty());
   BEVERIFY(done, !vApp->IsUndefined());
@@ -128,7 +136,13 @@ Handle<Value> Client::Finalize(const Arguments& args)
   Local<Object> thisObject = args.This();
 #if(1) // now GC will call Disposer automatically
   OLE32core *oc = castedInternalField<OLE32core>(thisObject);
-  if(oc){ oc->disconnect(); delete oc; }
+  if(oc){
+    try{
+      delete oc; // will call oc->disconnect();
+    }catch(OLE32coreException e){ std::cerr << e.errorMessage(__FUNCTION__);
+    }catch(char *e){ std::cerr << e << __FUNCTION__ << std::endl;
+    }
+  }
 #endif
   thisObject->SetInternalField(0, External::New(NULL));
 #if(0) // to force GC (shold not use at here ?)
@@ -152,7 +166,13 @@ void Client::Dispose(Persistent<Value> handle, void *param)
   }
 //  else{
     OLE32core *oc = static_cast<OLE32core *>(param);
-    if(oc){ oc->disconnect(); delete oc; }
+    if(oc){
+      try{
+        delete oc; // will call oc->disconnect();
+      }catch(OLE32coreException e){ std::cerr << e.errorMessage(__FUNCTION__);
+      }catch(char *e){ std::cerr << e << __FUNCTION__ << std::endl;
+      }
+    }
 //  }
   handle->ToObject()->SetInternalField(0, External::New(NULL));
   handle.Dispose();

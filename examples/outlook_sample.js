@@ -2,7 +2,7 @@ var win32ole = require('win32ole');
 win32ole.print('outlook_sample\n');
 
 var outlook_sample = function(){
-  var ol = win32ole.client.Dispatch('Outlook.Application', '.ACP'); // locale
+  var ol = win32ole.client.Dispatch('Outlook.Application');
   // ol.set('Visible', true);
   var ns = ol.get('getNameSpace', ['MAPI']);
   var frcv = ns.get('GetDefaultFolder', [6]); // receive mail box tray
@@ -17,7 +17,6 @@ var outlook_sample = function(){
   // ol.call('Quit');
 };
 
-win32ole.client = new win32ole.Client;
 try{
   outlook_sample();
 }catch(e){

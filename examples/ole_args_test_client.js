@@ -11,7 +11,7 @@ win32ole.print('ole_args_test_client\n');
 
 var ole_args_test_client = function(){
   console.log('create connection');
-  var cl = win32ole.client.Dispatch('OLEArgsTester.Server', '.ACP');
+  var cl = win32ole.client.Dispatch('OLEArgsTester.Server');
   console.log('connected');
   console.log('do 1');
   console.log(cl.call('Test', ['a']).toUtf8());
@@ -26,7 +26,6 @@ var ole_args_test_client = function(){
   console.log('disconnected');
 };
 
-win32ole.client = new win32ole.Client;
 try{
   ole_args_test_client();
 }catch(e){

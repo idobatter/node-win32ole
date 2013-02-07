@@ -10,7 +10,7 @@ if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var outfile = path.join(tmpdir, 'uncfinder_sample.txt');
 
 var uncfinder_sample = function(filename){
-  var wnt = win32ole.client.Dispatch('WinNTSystemInfo', '.ACP'); // locale
+  var wnt = win32ole.client.Dispatch('WinNTSystemInfo');
   console.log('ComputerName:');
   console.log(wnt.get('ComputerName').toUtf8());
   console.log('DomainName:');
@@ -21,7 +21,6 @@ var uncfinder_sample = function(filename){
   console.log(wnt.get('UserName').toUtf8());
 };
 
-win32ole.client = new win32ole.Client;
 try{
   uncfinder_sample(outfile);
 }catch(e){

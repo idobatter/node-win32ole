@@ -29,8 +29,7 @@ if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var testfile = path.join(tmpdir, 'testfileutf8.xls');
 
 /*
-// convert utf8 -> locale mbs
-var xl = win32ole.client.Dispatch('Excel.Application', '.ACP'); // locale
+var xl = win32ole.client.Dispatch('Excel.Application');
 xl.Visible = true;
 var book = xl.Workbooks.Add();
 var sheet = book.Worksheets(1);
@@ -47,8 +46,7 @@ xl.Quit();
 */
 
 var test_excel_ole = function(filename){
-  // convert utf8 -> locale mbs
-  var xl = win32ole.client.Dispatch('Excel.Application', '.ACP'); // locale
+  var xl = win32ole.client.Dispatch('Excel.Application');
   xl.set('Visible', true);
   var book = xl.get('Workbooks').call('Add');
 //  var sheet = book.call('Worksheets', [1]); // throws exception
@@ -87,7 +85,6 @@ var test_excel_ole = function(filename){
 };
 
 var forceGC = true;
-win32ole.client = new win32ole.Client;
 try{
   test_excel_ole(testfile);
 }catch(e){
