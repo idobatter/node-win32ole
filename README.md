@@ -59,7 +59,7 @@ try{
 }
 ```
 
-There are 3 ways to make force GC.
+There are 3 ways to make force Garbage Collection for node.js / v8 .
 
 - 1. use huge memory to run GC automatically ( causes abnormal termination )
 - 2. win32ole.force_gc_extension(1);
