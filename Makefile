@@ -8,7 +8,8 @@
 GYP = node "C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\node-gyp\bin\node-gyp.js"
 
 PSRC = src
-HEADS0 = $(PSRC)/node_win32ole.h $(PSRC)/ole32core.h
+HEADS_ = $(PSRC)/node_win32ole.h
+HEADS0 = $(HEADS_) $(PSRC)/ole32core.h
 HEADSA = $(HEADS0) $(PSRC)/v8variant.h $(PSRC)/client.h
 SRCS_ = $(PSRC)/force_gc_extension.cc $(PSRC)/force_gc_internal.cc
 SRCS0 = $(PSRC)/node_win32ole.cc $(PSRC)/win32ole_gettimeofday.cc
@@ -35,10 +36,10 @@ $(POBJ)/node_win32ole.obj : $(PSRC)/$(*B).cc $(PSRC)/$(*B).h $(PSRC)/client.h $(
 $(POBJ)/win32ole_gettimeofday.obj : $(PSRC)/$(*B).cc $(HEADS0)
 	$(GYP) rebuild
 
-$(POBJ)/force_gc_extension.obj : $(PSRC)/$(*B).cc $(HEADS0)
+$(POBJ)/force_gc_extension.obj : $(PSRC)/$(*B).cc $(HEADS_)
 	$(GYP) rebuild
 
-$(POBJ)/force_gc_internal.obj : $(PSRC)/$(*B).cc $(HEADS0)
+$(POBJ)/force_gc_internal.obj : $(PSRC)/$(*B).cc $(HEADS_)
 	$(GYP) rebuild
 
 $(POBJ)/client.obj : $(PSRC)/$(*B).cc $(PSRC)/$(*B).h $(HEADS0) $(PSRC)/v8variant.h
