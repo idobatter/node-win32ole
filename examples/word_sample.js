@@ -19,15 +19,11 @@ var word_sample = function(filename){
     console.log('saving to: "' + filename + '" ...');
     var result = doc.call('SaveAs', [filename]);
     console.log(result); // .toBoolean() is not VT_BOOL
-    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   wd.get('Documents').call('Close');
   wd.call('Quit');
-  para = null;
-  doc = null;
-  wd = null;
 };
 
 try{
@@ -35,4 +31,3 @@ try{
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.client.Finalize(); // must be called (version 0.0.x)

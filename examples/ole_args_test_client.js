@@ -25,16 +25,19 @@ var ole_args_test_client = function(){
   cl.call('Quit');
   console.log('disconnected');
 
-  cl = null;
-  win32ole.client = null;
-  console.log('a');
-  for(var a = [], i = 0; i < 869461; i++){ a[i] = 'dummydata'; } // GC test
-  console.log('b');
-  for(var b = [], j = 0; j < 2944; j++){ b[j] = 'bbbbbbbb'; } // GC test
-  console.log('c');
-  for(var c = [], k = 0; k < 848; k++){ c[k] = 'cccccccc'; } // GC test
-  console.log('d');
-  for(var d = [], l = 0; l < 358; l++){ d[l] = 'dddddddd'; } // GC test
+  // process.on('exit'...) will *NOT* be called when there is not enough memory
+  if(false){ // force GC (disposer will *NOT* be called if GC is not run)
+    // cl = null; // V8Variant.Dispose() will be called when cl is *NOT* null
+    // win32ole.client = null; // Client.Dispose() will be called only if null
+    console.log('a');
+    for(var a = [], i = 0; i < 869461; i++){ a[i] = 'dummydata'; } // GC test
+    console.log('b');
+    for(var b = [], j = 0; j < 2944; j++){ b[j] = 'bbbbbbbb'; } // GC test
+    console.log('c');
+    for(var c = [], k = 0; k < 848; k++){ c[k] = 'cccccccc'; } // GC test
+    console.log('d');
+    for(var d = [], l = 0; l < 358; l++){ d[l] = 'dddddddd'; } // GC test
+  }
   console.log('completed');
 };
 
@@ -43,5 +46,3 @@ try{
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-
-// win32ole.client.Finalize(); // must be called (version 0.0.x)

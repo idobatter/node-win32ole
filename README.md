@@ -48,21 +48,15 @@ try{
     rg.get('Interior').set('ColorIndex', 6); // Yellow
     var result = book.call('SaveAs', ['testfileutf8.xls']);
     console.log(result.toBoolean());
-    rg = null;
-    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.set('ScreenUpdating', true);
   xl.get('Workbooks').call('Close');
   xl.call('Quit');
-  sheet = null;
-  book = null;
-  xl = null;
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.client.Finalize(); // must be called (version 0.0.x)
 ```
 
 

@@ -80,17 +80,12 @@ var solver_excel_ole = function(filename){
     console.log('saving to: "' + filename + '" ...');
     var result = book.call('SaveAs', [filename]);
     console.log(result.toBoolean());
-    rg = null;
-    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.set('ScreenUpdating', true);
   xl.get('Workbooks').call('Close');
   xl.call('Quit');
-  sheet = null;
-  book = null;
-  xl = null;
 };
 
 try{
@@ -98,4 +93,3 @@ try{
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-win32ole.client.Finalize(); // must be called (version 0.0.x)

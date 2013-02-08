@@ -27,7 +27,7 @@ public:
   static Handle<Value> Finalize(const Arguments& args);
 public:
   V8Variant() : node::ObjectWrap(), finalized(false) {}
-  ~V8Variant() { BDISPFUNCIN(); if(!finalized) Finalize(); BDISPFUNCOUT(); }
+  ~V8Variant() { if(!finalized) Finalize(); }
 protected:
   static void Dispose(Persistent<Value> handle, void *param);
   void Finalize();

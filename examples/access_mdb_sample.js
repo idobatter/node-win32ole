@@ -98,5 +98,3 @@ try{
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
-
-win32ole.client.Finalize(); // must be called (version 0.0.x)
