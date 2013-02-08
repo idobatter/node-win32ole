@@ -1,8 +1,8 @@
 # NAME
 
-node-win32ole - Asynchronous, non-blocking win32ole bindings for [node.js](https://github.com/joyent/node) .
+node-win32ole - Asynchronous, non-blocking win32ole bindings for [node.js](https://github.com/joyent/node) powered by v8 engine .
 
-win32ole makes accessibility from node.js to Excel, Word, Access, Outlook, InternetExplorer, WSH ( ActiveXObject ) and so on. It does not need TypeLibrary.
+win32ole makes accessibility from node.js to Excel, Word, Access, Outlook, InternetExplorer, WSH ( ActiveXObject / COM ) and so on. It does not need TypeLibrary.
 
 
 # USAGE
