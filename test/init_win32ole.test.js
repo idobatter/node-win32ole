@@ -77,7 +77,7 @@ try{
   1. use huge memory to run GC automatically ( causes abnormal termination )
   2. win32ole.force_gc_extension(1);
   3. win32ole.force_gc_internal(1);
-   ( [see also examples/ole_args_test_client.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client.js) )
+   ( see also examples/ole_args_test_client.js )
 */
 }catch(e){
   console.log('*** exception cached ***\n' + e);
