@@ -21,9 +21,9 @@ var wsh_sample = function(filename){
     // arg1=1: movetop (default), 2: minimize, 3: maximize, 4: no movetop
     //      5: movetop, 6: minimize, 7: minimize
     // arg2=false: Async (default), true: Sync
-    sh.call('run', ['notepad.exe', 5, false]); // must be Async (for SendKeys)
+    sh.call('run', ['notepad.exe', 1, false]); // must be Async (for SendKeys)
     win32ole.sleep(3000, true, false);
-    sh.call('SendKeys', ['Congratulations!{ENTER}']); // 'run' option must be 5
+    sh.call('SendKeys', ['Congratulations!{ENTER}']); // 'run' option must be 1
     win32ole.sleep(200);
     sh.call('SendKeys', ["*** DON'T TOUCH THIS WINDOW ***{ENTER}"]);
     win32ole.sleep(3000);
