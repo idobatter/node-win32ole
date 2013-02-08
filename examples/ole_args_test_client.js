@@ -26,7 +26,7 @@ var ole_args_test_client = function(){
   console.log('disconnected');
 
   // process.on('exit'...) will *NOT* be called when there is not enough memory
-  if(false){ // force GC (disposer will *NOT* be called if GC is not run)
+  var force_gc = function(){
     // cl = null; // V8Variant.Dispose() will be called when cl is *NOT* null
     // win32ole.client = null; // Client.Dispose() will be called only if null
     console.log('a');
@@ -38,6 +38,16 @@ var ole_args_test_client = function(){
     console.log('d');
     for(var d = [], l = 0; l < 358; l++){ d[l] = 'dddddddd'; } // GC test
   }
+
+  // force GC (disposer will *NOT* be called if GC is not run)
+  var forceGCmode = 0; // 0, 1, 2, 3
+  switch(forceGCmode){
+  case 1: force_gc(); break;
+  case 2: win32ole.force_gc_extension(1); break;
+  case 3: win32ole.force_gc_internal(1); break;
+  default: break; // do nothing
+  }
+
   console.log('completed');
 };
 

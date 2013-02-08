@@ -83,6 +83,10 @@ void init(Handle<Object> target)
     FunctionTemplate::New(Method_gettimeofday)->GetFunction());
   target->Set(String::NewSymbol("sleep"),
     FunctionTemplate::New(Method_sleep)->GetFunction());
+  target->Set(String::NewSymbol("force_gc_extension"),
+    FunctionTemplate::New(Method_force_gc_extension)->GetFunction());
+  target->Set(String::NewSymbol("force_gc_internal"),
+    FunctionTemplate::New(Method_force_gc_internal)->GetFunction());
 }
 
 } // namespace

@@ -374,10 +374,6 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
   if(ocv) delete ocv;
 #endif
   thisObject->SetInternalField(0, External::New(NULL));
-#if(0) // to force GC (shold not use at here ?)
-  // v8::internal::Heap::CollectAllGarbage(); // obsolete
-  while(!v8::V8::IdleNotification());
-#endif
   DISPFUNCOUT();
   return args.This();
 }
@@ -397,7 +393,9 @@ void V8Variant::Dispose(Persistent<Value> handle, void *param)
     OCVariant *ocv = static_cast<OCVariant *>(param);
     if(ocv) delete ocv;
 //  }
+  BEVERIFY(done, handle->ToObject()->InternalFieldCount() > 0);
   handle->ToObject()->SetInternalField(0, External::New(NULL));
+done:
   handle.Dispose();
   DISPFUNCOUT();
 }

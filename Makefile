@@ -10,13 +10,15 @@ GYP = node "C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\node-gyp
 PSRC = src
 HEADS0 = $(PSRC)/node_win32ole.h $(PSRC)/ole32core.h
 HEADSA = $(HEADS0) $(PSRC)/v8variant.h $(PSRC)/client.h
+SRCS_ = $(PSRC)/force_gc_extension.cc $(PSRC)/force_gc_internal.cc
 SRCS0 = $(PSRC)/node_win32ole.cc $(PSRC)/win32ole_gettimeofday.cc
 SRCS1 = $(PSRC)/client.cc $(PSRC)/v8variant.cc $(PSRC)/ole32core.cpp
-SRCSA = $(SRCS0) $(SRCS1)
+SRCSA = $(SRCS_) $(SRCS0) $(SRCS1)
 POBJ = build/Release/obj/node_win32ole
+OBJS_ = $(POBJ)/force_gc_extension.obj $(POBJ)/force_gc_internal.obj
 OBJS0 = $(POBJ)/node_win32ole.obj $(POBJ)/win32ole_gettimeofday.obj
 OBJS1 = $(POBJ)/client.obj $(POBJ)/v8variant.obj $(POBJ)/ole32core.obj
-OBJSA = $(OBJS0) $(OBJS1)
+OBJSA = $(OBJS_) $(OBJS0) $(OBJS1)
 PTGT = build/Release
 PCNF = build
 TARGET = $(PTGT)/node_win32ole.node
@@ -31,6 +33,12 @@ $(POBJ)/node_win32ole.obj : $(PSRC)/$(*B).cc $(PSRC)/$(*B).h $(PSRC)/client.h $(
 	$(GYP) rebuild
 
 $(POBJ)/win32ole_gettimeofday.obj : $(PSRC)/$(*B).cc $(HEADS0)
+	$(GYP) rebuild
+
+$(POBJ)/force_gc_extension.obj : $(PSRC)/$(*B).cc $(HEADS0)
+	$(GYP) rebuild
+
+$(POBJ)/force_gc_internal.obj : $(PSRC)/$(*B).cc $(HEADS0)
 	$(GYP) rebuild
 
 $(POBJ)/client.obj : $(PSRC)/$(*B).cc $(PSRC)/$(*B).h $(HEADS0) $(PSRC)/v8variant.h
