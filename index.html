@@ -75,21 +75,15 @@
     <span class="nx">rg</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'Interior'</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">'ColorIndex'</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span> <span class="c1">// Yellow</span>
     <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">book</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s1">'SaveAs'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'testfileutf8.xls'</span><span class="p">]);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">toBoolean</span><span class="p">());</span>
-    <span class="nx">rg</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-    <span class="nx">result</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
   <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'(exception cached)\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
   <span class="p">}</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'ScreenUpdating'</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'Workbooks'</span><span class="p">).</span><span class="nx">call</span><span class="p">(</span><span class="s1">'Close'</span><span class="p">);</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s1">'Quit'</span><span class="p">);</span>
-  <span class="nx">sheet</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-  <span class="nx">book</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-  <span class="nx">xl</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
 <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'*** exception cached ***\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
 <span class="p">}</span>
-<span class="nx">win32ole</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">Finalize</span><span class="p">();</span> <span class="c1">// must be called (version 0.0.x)</span>
 </pre></div>
 
 <h1>FEATURES</h1>
