@@ -84,6 +84,13 @@
 <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'*** exception cached ***\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
 <span class="p">}</span>
+<span class="cm">/*</span>
+<span class="cm">  // There are 3 ways to make force GC.</span>
+<span class="cm">  // 1. use huge memory to run GC automatically ( causes abnormal termination )</span>
+<span class="cm">  // 2. win32ole.force_gc_extension(1);</span>
+<span class="cm">  // 3. win32ole.force_gc_internal(1);</span>
+<span class="cm">  //  ( see also examples/ole_args_test_client.js )</span>
+<span class="cm">*/</span>
 </pre></div>
 
 <h1>FEATURES</h1>
