@@ -79,13 +79,18 @@ var solver_excel_ole = function(filename){
     dug(0, 0, 3, false, false);
     console.log('saving to: "' + filename + '" ...');
     var result = book.call('SaveAs', [filename]);
-    console.log(result);
+    console.log(result.toBoolean());
+    rg = null;
+    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.set('ScreenUpdating', true);
   xl.get('Workbooks').call('Close');
   xl.call('Quit');
+  sheet = null;
+  book = null;
+  xl = null;
 };
 
 try{

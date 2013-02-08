@@ -16,7 +16,7 @@ try{
   ie_sample([
     'http://www.google.com/',
     'http://www.mozilla.org/',
-    'http://nodejs.org']);
+    'http://nodejs.org/']);
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }

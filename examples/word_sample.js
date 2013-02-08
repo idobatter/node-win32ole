@@ -18,12 +18,16 @@ var word_sample = function(filename){
   try{
     console.log('saving to: "' + filename + '" ...');
     var result = doc.call('SaveAs', [filename]);
-    console.log(result);
+    console.log(result); // .toBoolean() is not VT_BOOL
+    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   wd.get('Documents').call('Close');
   wd.call('Quit');
+  para = null;
+  doc = null;
+  wd = null;
 };
 
 try{

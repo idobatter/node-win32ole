@@ -16,14 +16,17 @@
 
 namespace ole32core {
 
-#ifdef DEBUG
-#define DISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
-#define DISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
-#define DISPFUNCDAT(p, q, r) do{fprintf(stderr, p. q, r);}while(0)
-#else
-#define DISPFUNCIN() //do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
-#define DISPFUNCOUT() //do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
-#define DISPFUNCDAT(p, q, r) //do{fprintf(stderr, p, q, r);}while(0)
+#define BDISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
+#define BDISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
+#define BDISPFUNCDAT(p, q, r) do{fprintf(stderr, p. q, r);}while(0)
+#if defined(_DEBUG) || defined(DEBUG)
+#define DISPFUNCIN() BDISPFUNCIN()
+#define DISPFUNCOUT() BDISPFUNCOUT()
+#define DISPFUNCDAT(p, q, r) BDISPFUNCDAT(p, q, r)
+#else // RELEASE
+#define DISPFUNCIN() // BDISPFUNCIN()
+#define DISPFUNCOUT() // BDISPFUNCOUT()
+#define DISPFUNCDAT(p, q, r) // BDISPFUNCDAT(p, q, r)
 #endif
 
 #define BASSERT(x) chkerr((BOOL)(x), __FILE__, __LINE__, __FUNCTION__, #x)

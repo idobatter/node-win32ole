@@ -61,36 +61,23 @@ var test_excel_ole = function(filename){
     rg.get('Interior').set('ColorIndex', 6); // Yellow
     console.log('saving to: "' + filename + '" ...');
     var result = book.call('SaveAs', [filename]);
-    console.log(result);
+    console.log(result.toBoolean());
+    rg = null;
+    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.set('ScreenUpdating', true);
   xl.get('Workbooks').call('Close');
   xl.call('Quit');
-
-  if(forceGC){ // force GC test (needless to do on real code)
-    result.Finalize();
-    rg.Finalize();
-    sheet.Finalize();
-    book.Finalize();
-    xl.Finalize();
-  }else{
-    result = null;
-    rg = null;
-    sheet = null;
-    book = null;
-    xl = null;
-  }
+  sheet = null;
+  book = null;
+  xl = null;
 };
 
-var forceGC = true;
 try{
   test_excel_ole(testfile);
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }
 win32ole.client.Finalize(); // must be called (version 0.0.x)
-if(forceGC){ // force GC test (needless to do on real code)
-  win32ole = null;
-}

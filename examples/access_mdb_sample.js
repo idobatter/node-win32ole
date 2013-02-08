@@ -26,7 +26,8 @@ var display_or_edit_all = function(rs, ed){
     win32ole.print('\n');
     if(ed){
       rs.call('Edit');
-      rs.get('Fields', ['c2']).set('Value', 3);
+      var id = getRSvalue(rs, 'id').toInt32();
+      rs.get('Fields', ['c2']).set('Value', id * 1000);
       rs.call('Update'); // rs.call('CancelUpdate');
     }
     rs.call('MoveNext');
@@ -60,7 +61,7 @@ var adox_sample = function(filename){
   console.log('RS released');
   cn.call('Close');
   cn = null;
-  // db.call('Close'); // 'Close' 'Disconnect' 'Release' is wrong
+  // db.Finalize(); and to call 'Close' 'Disconnect' 'Release' is wrong
   db = null;
   console.log('disconnected (ADOX)');
 };
@@ -92,13 +93,7 @@ var ole_automation_sample = function(filename){
 
 try{
   adox_sample(outfile);
-}catch(e){
-  console.log('*** exception cached ***\n' + e);
-}
-
-win32ole.sleep(2000, true, true);
-
-try{
+  win32ole.sleep(2000, true, true);
   ole_automation_sample(outfile);
 }catch(e){
   console.log('*** exception cached ***\n' + e);

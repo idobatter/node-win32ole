@@ -78,13 +78,18 @@ var maze_excel_ole = function(filename){
     dig(HEIGHT - 1, WIDTH - 1, -1, WIDTH * HEIGHT);
     console.log('saving to: "' + filename + '" ...');
     var result = book.call('SaveAs', [filename]);
-    console.log(result);
+    console.log(result.toBoolean());
+    rg = null;
+    result = null;
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.set('ScreenUpdating', true);
   xl.get('Workbooks').call('Close');
   xl.call('Quit');
+  sheet = null;
+  book = null;
+  xl = null;
 };
 
 try{
