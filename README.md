@@ -68,11 +68,39 @@ There are 3 ways to make force Garbage Collection for node.js / v8 .
 see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client.js)
 
 
+# Tutorial and Examples
+
+- [test/init_win32ole.test.js](https://github.com/idobatter/node-win32ole/blob/master/test/init_win32ole.test.js)
+- [test/unicode.test.js](https://github.com/idobatter/node-win32ole/blob/master/test/unicode.test.js)
+- [examples/maze_creator.js](https://github.com/idobatter/node-win32ole/blob/master/examples/maze_creator.js)
+- [examples/maze_solver.js](https://github.com/idobatter/node-win32ole/blob/master/examples/maze_solver.js)
+- [examples/word_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/word_sample.js)
+- [examples/access_mdb_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/access_mdb_sample.js)
+- [examples/outlook_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/outlook_sample.js)
+- [examples/ie_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ie_sample.js)
+- [examples/typelibrary_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/typelibrary_sample.js)
+- [examples/uncfinder_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/uncfinder_sample.js)
+- [examples/wmi_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/wmi_sample.js)
+- [examples/wsh_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/wsh_sample.js)
+- [examples/ole_args_test_client.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client.js)
+
+
+# Other built in functions
+
+* win32ole.version(void) // returns version string
+* win32ole.printACP(utf8string) // Utf8 to .ACP
+* win32ole.print(utf8string) // ASCII
+* win32ole.gettimeofday(struct timeval &tv, null) // now arg2 is not used
+* win32ole.sleep(long milliseconds, bool withmessage=false, bool with\n=false)
+* win32ole,force_gc_extension(long flag) // now flag is dummy
+* win32ole.force_gc_internal(long flag, string) // now flag is dummy
+
+
 # FEATURES
 
-* So much implements.
-* Implement accessors getter, setter and caller.
-* npm
+* So much implements. (can not handle some COM VARIANT types, array etc.)
+* Bug fix. (throws exception when failed to Invoke(), and many test message.)
+* Implement accessors getter, setter and caller. (version 0.1.x)
 
 
 # API

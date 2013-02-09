@@ -42,8 +42,10 @@ void V8Variant::Init(Handle<Object> target)
   clazz = Persistent<FunctionTemplate>::New(t);
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
+  NODE_SET_PROTOTYPE_METHOD(clazz, "isA", OLEIsA);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toBoolean", OLEBoolean);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toInt64", OLEInt64);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toNumber", OLENumber);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
@@ -90,6 +92,10 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
     std::cerr << "[Array (not implemented now)]" << std::endl; return NULL;
   }else if(v->IsInt32()){
     return new OCVariant((long)v->Int32Value());
+#if(0) // may not be supported node.js / v8
+  }else if(v->IsInt64()){
+    return new OCVariant((long long)v->Int64Value());
+#endif
   }else if(v->IsNumber()){
     std::cerr << "[Number (VT_R8 or VT_I8 bug?)]" << std::endl;
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
@@ -116,12 +122,23 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
       std::cerr << "[Object may not be valid (null OCVariant)]" << std::endl;
       return NULL;
     }
+    // std::cerr << ocv->v.vt;
     return new OCVariant(*ocv);
   }else{
     std::cerr << "[unknown type (not implemented now)]" << std::endl;
   }
 done:
   return NULL;
+}
+
+Handle<Value> V8Variant::OLEIsA(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV("OLEIsA", ocv);
+  DISPFUNCOUT();
+  return scope.Close(Int32::New(ocv->v.vt));
 }
 
 Handle<Value> V8Variant::OLEBoolean(const Arguments& args)
@@ -144,27 +161,29 @@ Handle<Value> V8Variant::OLEInt32(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV("OLEInt32", ocv);
-#if(0)
-  if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT)
-    return ThrowException(Exception::TypeError(
-      String::New("OLEInt32 source type OCVariant is not VT_I4 nor VT_INT")));
-  if(ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
-    return ThrowException(Exception::TypeError(
-      String::New("OLEUInt32 source type OCVariant is not VT_UI4 nor VT_UINT")));
-  if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT)
-    std::cerr << "[Int32 (not VT_I4 nor VT_INT bug?)]" << ocv->v.vt << std::endl;
-  if(ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
-    std::cerr << "[UInt32 (not VT_UI4 nor VT_UINT bug?)]" << ocv->v.vt << std::endl;
-  if(ocv->v.vt != VT_I8 && ocv->v.vt != VT_UI8)
-    std::cerr << "[(U)Int64 (not VT_I8 nor VT_UI8 bug?)]" << ocv->v.vt << std::endl;
-#else
   if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT
   && ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
     return ThrowException(Exception::TypeError(
       String::New("OLEInt32 source type OCVariant is not VT_I4 nor VT_INT nor VT_UI4 nor VT_UINT")));
-#endif
   DISPFUNCOUT();
   return scope.Close(Int32::New(ocv->v.lVal));
+}
+
+Handle<Value> V8Variant::OLEInt64(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV("OLEInt64", ocv);
+  if(ocv->v.vt != VT_I8 && ocv->v.vt != VT_UI8)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEInt64 source type OCVariant is not VT_I8 nor VT_UI8")));
+  DISPFUNCOUT();
+#if(0) // may not be supported node.js / v8
+  return scope.Close(Int64::New(ocv->v.llVal));
+#else
+  return scope.Close(Number::New(ocv->v.llVal));
+#endif
 }
 
 Handle<Value> V8Variant::OLENumber(const Arguments& args)

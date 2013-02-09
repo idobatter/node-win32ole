@@ -15,8 +15,10 @@ public:
   static void Init(Handle<Object> target);
   static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v);
   static OCVariant *CreateOCVariant(Handle<Value> v);
+  static Handle<Value> OLEIsA(const Arguments& args);
   static Handle<Value> OLEBoolean(const Arguments& args);
   static Handle<Value> OLEInt32(const Arguments& args);
+  static Handle<Value> OLEInt64(const Arguments& args);
   static Handle<Value> OLENumber(const Arguments& args);
   static Handle<Value> OLEUtf8(const Arguments& args);
   static Handle<Object> CreateUndefined(void);
