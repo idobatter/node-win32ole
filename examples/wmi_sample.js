@@ -33,7 +33,7 @@ var wmi_sample = function(filename){
     var query = "select * from Win32_Process where Name like '%explore%'";
     query += " or Name='rundll32.exe' or Name='winlogon.exe'";
     var procset = svc.call('ExecQuery', [query]);
-    console.log('procset is a ' + procset.isA()); // 9=VT_DISPATCH SAFEARRAY?
+    console.log('procset is a ' + procset.isA()); // VT_DISPATCH=SWbemObjectSet
     var count = procset.get('Count').toInt32();
     console.log('count = ' + count);
     console.log(' ImageName, ProcessId, VirtualSize, Threads, Description,');
