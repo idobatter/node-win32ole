@@ -30,9 +30,9 @@
       <section id="main_content">
         <h1>NAME</h1>
 
-<p>node-win32ole - Asynchronous, non-blocking win32ole bindings for <a href="https://github.com/joyent/node">node.js</a> .</p>
+<p>node-win32ole - Asynchronous, non-blocking win32ole bindings for <a href="https://github.com/joyent/node">node.js</a> powered by v8 engine .</p>
 
-<p>win32ole makes accessibility from node.js to Excel, Word, Access, Outlook, InternetExplorer, WSH ( ActiveXObject ) and so on. It does not need TypeLibrary.</p>
+<p>win32ole makes accessibility from node.js to Excel, Word, Access, Outlook, InternetExplorer, WSH ( ActiveXObject / COM ) and so on. It does not need TypeLibrary.</p>
 
 <h1>USAGE</h1>
 
@@ -94,12 +94,38 @@
 <li>3. win32ole.force_gc_internal(1);</li>
 </ul><p>see also <a href="https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client.js">examples/ole_args_test_client.js</a></p>
 
-<h1>FEATURES</h1>
+<h1>Tutorial and Examples</h1>
 
 <ul>
-<li>So much implements.</li>
-<li>Implement accessors getter, setter and caller.</li>
-<li>npm</li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/test/init_win32ole.test.js">test/init_win32ole.test.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/test/unicode.test.js">test/unicode.test.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/maze_creator.js">examples/maze_creator.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/maze_solver.js">examples/maze_solver.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/word_sample.js">examples/word_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/access_mdb_sample.js">examples/access_mdb_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/outlook_sample.js">examples/outlook_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/ie_sample.js">examples/ie_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/typelibrary_sample.js">examples/typelibrary_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/uncfinder_sample.js">examples/uncfinder_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/wmi_sample.js">examples/wmi_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/wsh_sample.js">examples/wsh_sample.js</a></li>
+<li><a href="https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client.js">examples/ole_args_test_client.js</a></li>
+</ul><h1>Other built in functions</h1>
+
+<ul>
+<li>win32ole.version(void) // returns version string</li>
+<li>win32ole.printACP(utf8string) // Utf8 to .ACP</li>
+<li>win32ole.print(utf8string) // ASCII</li>
+<li>win32ole.gettimeofday(struct timeval &amp;tv, null) // now arg2 is not used</li>
+<li>win32ole.sleep(long milliseconds, bool withmessage=false, bool with\n=false)</li>
+<li>win32ole,force_gc_extension(long flag) // now flag is dummy</li>
+<li>win32ole.force_gc_internal(long flag, string) // now flag is dummy</li>
+</ul><h1>FEATURES</h1>
+
+<ul>
+<li>So much implements. (can not handle some COM VARIANT types, array etc.)</li>
+<li>Bug fix. (throws exception when failed to Invoke(), and many test message.)</li>
+<li>Implement accessors getter, setter and caller. (version 0.1.x)</li>
 </ul><h1>API</h1>
 
 <p>See the <a href="https://github.com/idobatter/node-win32ole/wiki">API documentation</a> in the wiki.</p>
