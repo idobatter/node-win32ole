@@ -119,6 +119,13 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
   // options (CLSCTX_INPROC_SERVER CLSCTX_INPROC_HANDLER CLSCTX_LOCAL_SERVER)
   DWORD ctx = CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER;
+#if(0)
+#if defined(_WIN64)
+  ctx |= CLSCTX_ACTIVATE_32_BIT_SERVER; // 32bit server on 64bit OS
+#else
+  ctx |= CLSCTX_ACTIVATE_64_BIT_SERVER; // 64bit server on 32bit OS
+#endif
+#endif
   hr = CoCreateInstance(clsid, NULL, ctx,
     IID_IDispatch, (void **)&app->v.pdispVal);
 #endif
