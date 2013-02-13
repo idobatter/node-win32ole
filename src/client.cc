@@ -109,7 +109,7 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   //   The requested lookup key was not found in any active activation context.
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
-  REFIID riid = IID_IDispatch; // should better to call with IID_IUnknown ?
+  REFIID riid = IID_IDispatch; // can't connect to Excel etc with IID_IUnknown
 #ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
   IUnknown *pUnk;
   hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
