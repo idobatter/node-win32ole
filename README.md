@@ -92,7 +92,7 @@ see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-wi
 * win32ole.print(utf8string) // ASCII
 * win32ole.gettimeofday(struct timeval &tv, null) // now arg2 is not used
 * win32ole.sleep(long milliseconds, bool withmessage=false, bool with\n=false)
-* win32ole,force_gc_extension(long flag) // now flag is dummy
+* win32ole.force_gc_extension(long flag) // now flag is dummy
 * win32ole.force_gc_internal(long flag, string) // now flag is dummy
 
 

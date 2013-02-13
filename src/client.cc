@@ -117,9 +117,12 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   pUnk->Release();
 #else
   // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
-  hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER,
+  // options (CLSCTX_INPROC_SERVER CLSCTX_INPROC_HANDLER CLSCTX_LOCAL_SERVER)
+  DWORD ctx = CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER;
+  hr = CoCreateInstance(clsid, NULL, ctx,
     IID_IDispatch, (void **)&app->v.pdispVal);
 #endif
+  if(FAILED(hr)) fprintf(stderr, "FAILED CoCreateInstance(): 0x%08x\n", hr);
   BEVERIFY(done, !FAILED(hr));
   DISPFUNCOUT();
   return scope.Close(vApp);
