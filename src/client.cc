@@ -109,19 +109,19 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   //   The requested lookup key was not found in any active activation context.
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
+  REFIID riid = IID_IDispatch; // should better to call with IID_IUnknown ?
 #ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
-  IUnknown *pUnk; // should better to call QueryInterface with IID_IUnknown ?
+  IUnknown *pUnk;
   hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
   BEVERIFY(done, !FAILED(hr));
-  hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
+  hr = pUnk->QueryInterface(riid, (void **)&app->v.pdispVal);
   pUnk->Release();
 #else
   // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
   // options (CLSCTX_INPROC_SERVER CLSCTX_INPROC_HANDLER CLSCTX_LOCAL_SERVER)
   DWORD ctx = CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER;
-  hr = CoCreateInstance(clsid, NULL, ctx,
-    IID_IDispatch, (void **)&app->v.pdispVal);
-  if(FAILED(hr)){ // should better to call CoCreateInstance with IID_IUnknown ?
+  hr = CoCreateInstance(clsid, NULL, ctx, riid, (void **)&app->v.pdispVal);
+  if(FAILED(hr)){
     // Retry with WOW6432 bridge option.
     // This may not be a right way, but better.
     BDISPFUNCDAT("FAILED CoCreateInstance: %d: 0x%08x\n", 0, hr);
@@ -130,8 +130,7 @@ Handle<Value> Client::Dispatch(const Arguments& args)
 #else
     ctx |= CLSCTX_ACTIVATE_64_BIT_SERVER; // 64bit COM server on 32bit OS
 #endif
-    hr = CoCreateInstance(clsid, NULL, ctx,
-      IID_IDispatch, (void **)&app->v.pdispVal);
+    hr = CoCreateInstance(clsid, NULL, ctx, riid, (void **)&app->v.pdispVal);
   }
 #endif
   if(FAILED(hr)) BDISPFUNCDAT("FAILED CoCreateInstance: %d: 0x%08x\n", 1, hr);
