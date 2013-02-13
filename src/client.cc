@@ -110,7 +110,7 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   // (OLE2) CoCreateInstance() returns 0x000003f0
   //   An attempt was made to reference a token that does not exist.
 #ifdef DEBUG // obsolete (it needs that OLE target has been already executed)
-  IUnknown *pUnk;
+  IUnknown *pUnk; // should better to call QueryInterface with IID_IUnknown ?
   hr = GetActiveObject(clsid, NULL, (IUnknown **)&pUnk);
   BEVERIFY(done, !FAILED(hr));
   hr = pUnk->QueryInterface(IID_IDispatch, (void **)&app->v.pdispVal);
@@ -119,17 +119,22 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   // C -> C++ changes types (&clsid -> clsid, &IID_IDispatch -> IID_IDispatch)
   // options (CLSCTX_INPROC_SERVER CLSCTX_INPROC_HANDLER CLSCTX_LOCAL_SERVER)
   DWORD ctx = CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER;
-#if(0)
-#if defined(_WIN64)
-  ctx |= CLSCTX_ACTIVATE_32_BIT_SERVER; // 32bit server on 64bit OS
-#else
-  ctx |= CLSCTX_ACTIVATE_64_BIT_SERVER; // 64bit server on 32bit OS
-#endif
-#endif
   hr = CoCreateInstance(clsid, NULL, ctx,
     IID_IDispatch, (void **)&app->v.pdispVal);
+  if(FAILED(hr)){ // should better to call CoCreateInstance with IID_IUnknown ?
+    // Retry with WOW6432 bridge option.
+    // This may not be a right way, but better.
+    BDISPFUNCDAT("FAILED CoCreateInstance: %d: 0x%08x\n", 0, hr);
+#if defined(_WIN64)
+    ctx |= CLSCTX_ACTIVATE_32_BIT_SERVER; // 32bit COM server on 64bit OS
+#else
+    ctx |= CLSCTX_ACTIVATE_64_BIT_SERVER; // 64bit COM server on 32bit OS
 #endif
-  if(FAILED(hr)) fprintf(stderr, "FAILED CoCreateInstance(): 0x%08x\n", hr);
+    hr = CoCreateInstance(clsid, NULL, ctx,
+      IID_IDispatch, (void **)&app->v.pdispVal);
+  }
+#endif
+  if(FAILED(hr)) BDISPFUNCDAT("FAILED CoCreateInstance: %d: 0x%08x\n", 1, hr);
   BEVERIFY(done, !FAILED(hr));
   DISPFUNCOUT();
   return scope.Close(vApp);
