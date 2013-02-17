@@ -12,7 +12,11 @@ import win32com.client
 
 def main():
   cl = win32com.client.Dispatch('OLEArgsTester.Server')
+  cl.Init()
   print cl.Test('a', 'b', 'c', 'd')
+  print cl.GetSubName()
+  print cl.SetSubName('xyz')
+  print cl.GetSubName()
   cl.Quit()
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@ var ole_args_test_client = function(){
   console.log('create connection');
   var cl = win32ole.client.Dispatch('OLEArgsTester.Server');
   console.log('connected');
+  cl.call('Init');
   console.log('do 1');
   console.log(cl.call('Test', ['a']).toUtf8());
   console.log('do 2');
