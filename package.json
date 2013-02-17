@@ -22,6 +22,7 @@
   "dependencies": {
     "assert": ">= 0.4.9",
     "async": ">= 0.1.22",
+    "node-proxy": ">= 0.6.0",
     "ref-struct": ">= 0.0.5",
     "ref": ">= 0.1.3"
   },
@@ -29,6 +30,7 @@
     "mocha": ">= 1.8.1",
     "assert": ">= 0.4.9",
     "async": ">= 0.1.22",
+    "node-proxy": ">= 0.6.0",
     "ref-struct": ">= 0.0.5",
     "ref": ">= 0.1.3"
   },
