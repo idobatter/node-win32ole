@@ -17,6 +17,9 @@ def main():
   print cl.GetSubName()
   print cl.SetSubName('xyz')
   print cl.GetSubName()
+  print cl.subname
+  cl.subname = 'ooo'
+  print cl.GetSubName()
   cl.Quit()
 
 if __name__ == '__main__':

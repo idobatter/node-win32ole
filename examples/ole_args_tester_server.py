@@ -13,6 +13,7 @@ optional ( to unregister this server ) runas administrator
 
 class OLEArgsTesterServer:
   _public_methods_ = ['Init', 'Test', 'GetSubName', 'SetSubName', 'Quit']
+  _public_attrs_ = ['subname']
   _reg_progid_ = 'OLEArgsTester.Server'
   # NEVER copy the ProgID / CLSID
   # Use "print pythoncom.CreateGuid()" to make a new one.
