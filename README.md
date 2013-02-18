@@ -31,12 +31,14 @@ xl.Quit();
 
 But now it implements as... (version 0.0.x)
 
+(Some V8Variants were advanced to 0.1.x .)
+
 ``` js
 try{
   var win32ole = require('win32ole');
   var xl = win32ole.client.Dispatch('Excel.Application');
-  xl.set('Visible', true);
-  var book = xl.get('Workbooks').call('Add');
+  xl.Visible = true; // xl.set('Visible', true);
+  var book = xl.Workbooks.v.call('Add'); // xl.get('Workbooks').call('Add');
   var sheet = book.get('Worksheets', [1]);
   try{
     sheet.set('Name', 'sheetnameA utf8');
@@ -51,9 +53,9 @@ try{
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
-  xl.set('ScreenUpdating', true);
-  xl.get('Workbooks').call('Close');
-  xl.call('Quit');
+  xl.ScreenUpdating = true; // xl.set('ScreenUpdating', true);
+  xl.Workbooks.v.call('Close'); // xl.get('Workbooks').call('Close');
+  xl.Quit(); // xl.call('Quit');
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }

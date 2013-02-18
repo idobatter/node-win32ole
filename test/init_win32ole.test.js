@@ -47,8 +47,8 @@ xl.Quit();
 
 var test_excel_ole = function(filename){
   var xl = win32ole.client.Dispatch('Excel.Application');
-  xl.set('Visible', true);
-  var book = xl.get('Workbooks').call('Add');
+  xl.Visible = true; // xl.set('Visible', true);
+  var book = xl.Workbooks.v.call('Add'); // xl.get('Workbooks').call('Add');
 //  var sheet = book.call('Worksheets', [1]); // throws exception
   var sheet = book.get('Worksheets', [1]);
   try{
@@ -65,9 +65,9 @@ var test_excel_ole = function(filename){
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
-  xl.set('ScreenUpdating', true);
-  xl.get('Workbooks').call('Close');
-  xl.call('Quit');
+  xl.ScreenUpdating = true; // xl.set('ScreenUpdating', true);
+  xl.Workbooks.v.call('Close'); // xl.get('Workbooks').call('Close');
+  xl.Quit(); // xl.call('Quit');
 };
 
 try{
