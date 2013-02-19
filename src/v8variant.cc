@@ -49,9 +49,9 @@ void V8Variant::Init(Handle<Object> target)
   NODE_SET_PROTOTYPE_METHOD(clazz, "toNumber", OLENumber);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "call", OLECall);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "OLECall", OLECall);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "OLEGet", OLEGet);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "OLESet", OLESet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
 }

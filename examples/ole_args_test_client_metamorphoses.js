@@ -30,13 +30,15 @@ var ole_args_test_client_metamorphoses = function(){
   console.log('test getter (*** __noSuchMethod__ ***)');
   console.log(cl.GetSubName().toUtf8());
 //  console.log('test getter (*** __noSuchGetter__ ***)');
-//  console.log(cl.GetSubName.v.toUtf8()); // ERROR
+//  console.log(cl.GetSubName._.toUtf8()); // ERROR
   console.log('test setter attr (__noSuchSetter__)');
   console.log(cl.subname = 'zyx');
   console.log('test getter attr (*** __noSuchGetter__ ***)');
   console.log(cl.subname); // [object V8Variant] (called cl.subname.inspect)
   console.log(cl.subname.toUtf8()); // {} (It means late binding function)
-  console.log(cl.subname.v.toUtf8()); // right way oops
+  // discussed about __noSuchProperty__
+  // https://mail.mozilla.org/pipermail/es-discuss/2010-October/011930.html
+  console.log(cl.subname._.toUtf8()); // right way oops
 //  console.log('test getter accessor (*** __noSuchMethod__ ***)');
 //  console.log(cl.subname().toUtf8()); // ERROR
   console.log('test getter (*** __noSuchMethod__ ***)');
