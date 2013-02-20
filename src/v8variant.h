@@ -13,8 +13,8 @@ class V8Variant : public node::ObjectWrap {
 public:
   static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
-  static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v);
-  static OCVariant *CreateOCVariant(Handle<Value> v);
+  static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v); // *** p.
+  static OCVariant *CreateOCVariant(Handle<Value> v); // *** private
   static Handle<Value> OLEIsA(const Arguments& args);
   static Handle<Value> OLEVTName(const Arguments& args);
   static Handle<Value> OLEBoolean(const Arguments& args);
@@ -22,11 +22,12 @@ public:
   static Handle<Value> OLEInt64(const Arguments& args);
   static Handle<Value> OLENumber(const Arguments& args);
   static Handle<Value> OLEUtf8(const Arguments& args);
-  static Handle<Object> CreateUndefined(void);
+  static Handle<Object> CreateUndefined(void); // *** private
   static Handle<Value> New(const Arguments& args);
+  static Handle<Value> OLEInvoke(bool isCall, const Arguments& args); // *** p.
+  static Handle<Value> OLECall(const Arguments& args);
   static Handle<Value> OLEGet(const Arguments& args);
   static Handle<Value> OLESet(const Arguments& args);
-  static Handle<Value> OLECall(const Arguments& args);
   static Handle<Value> Finalize(const Arguments& args);
 public:
   V8Variant() : node::ObjectWrap(), finalized(false) {}

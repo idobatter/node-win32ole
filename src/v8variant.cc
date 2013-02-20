@@ -269,7 +269,7 @@ Handle<Value> V8Variant::New(const Arguments& args)
   return args.This();
 }
 
-Handle<Value> V8Variant::OLEGet(const Arguments& args)
+Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
@@ -296,7 +296,8 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   if(!wcs && argchain) delete argchain;
   BEVERIFY(done, wcs);
   try{
-    OCVariant *rv = ocv->getProp(wcs, argchain); // argchain will be deleted
+    OCVariant *rv = isCall ? // argchain will be deleted automatically
+      ocv->invoke(wcs, argchain, true) : ocv->getProp(wcs, argchain);
     if(rv){
       OCVariant *o = castedInternalField<OCVariant>(vResult);
       CHECK_OCV(o);
@@ -314,6 +315,24 @@ done:
     String::New(__FUNCTION__" failed")));
 }
 
+Handle<Value> V8Variant::OLECall(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  Handle<Value> r = OLEInvoke(true, args); // as Call
+  DISPFUNCOUT();
+  return scope.Close(r);
+}
+
+Handle<Value> V8Variant::OLEGet(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  Handle<Value> r = OLEInvoke(false, args); // as Get
+  DISPFUNCOUT();
+  return scope.Close(r);
+}
+
 Handle<Value> V8Variant::OLESet(const Arguments& args)
 {
   HandleScope scope;
@@ -322,16 +341,16 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 2, av0, av1);
-  OCVariant *a1 = CreateOCVariant(av1); // will be deleted automatically
-  if(!a1)
-    return ThrowException(Exception::TypeError(
-      String::New("the second argument is not valid (null OCVariant)")));
+  OCVariant *argchain = CreateOCVariant(av1);
+  if(!argchain)
+    return ThrowException(Exception::TypeError(String::New(
+      __FUNCTION__" the second argument is not valid (null OCVariant)")));
   bool result = false;
   String::Utf8Value u8s(av0);
   wchar_t *wcs = u8s2wcs(*u8s);
   BEVERIFY(done, wcs);
   try{
-    ocv->putProp(wcs, a1);
+    ocv->putProp(wcs, argchain); // argchain will be deleted automatically
   }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
@@ -339,50 +358,6 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   result = true;
   DISPFUNCOUT();
   return scope.Close(Boolean::New(result));
-done:
-  DISPFUNCOUT();
-  return ThrowException(Exception::TypeError(String::New("OLESet failed")));
-}
-
-Handle<Value> V8Variant::OLECall(const Arguments& args)
-{
-  HandleScope scope;
-  DISPFUNCIN();
-  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV(ocv);
-  Handle<Value> av0, av1;
-  CHECK_OLE_ARGS(args, 1, av0, av1);
-  OCVariant *argchain = NULL;
-  Array *a = Array::Cast(*av1);
-  for(size_t i = 0; i < a->Length(); ++i){
-    std::string snum = to_s((i ? i : a->Length()) - 1);
-    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
-    if(!o){
-      std::string msg(__FUNCTION__" can't access to argument ");
-      return ThrowException(Exception::TypeError(
-        String::New((msg + snum + " (null OCVariant)").c_str())));
-    }
-    if(!i) argchain = o;
-    else argchain->push(o);
-  }
-  Handle<Object> vResult = V8Variant::CreateUndefined();
-  String::Utf8Value u8s(av0);
-  wchar_t *wcs = u8s2wcs(*u8s);
-  if(!wcs && argchain) delete argchain;
-  BEVERIFY(done, wcs);
-  try{
-    OCVariant *rv = ocv->invoke(wcs, argchain, true); // argchain will be deleted
-    if(rv){
-      OCVariant *o = castedInternalField<OCVariant>(vResult);
-      CHECK_OCV(o);
-      *o = *rv; // copy and don't delete rv
-    }
-  }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
-  }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
-  }
-  free(wcs); // *** it may leak when error ***
-  DISPFUNCOUT();
-  return scope.Close(vResult);
 done:
   DISPFUNCOUT();
   return ThrowException(Exception::TypeError(
