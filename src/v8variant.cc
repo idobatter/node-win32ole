@@ -354,7 +354,7 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
-  free(wcs);
+  free(wcs); // *** it may leak when error ***
   result = true;
   DISPFUNCOUT();
   return scope.Close(Boolean::New(result));
