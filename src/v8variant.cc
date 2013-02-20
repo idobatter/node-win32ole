@@ -283,7 +283,7 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
     std::string snum = to_s((i ? i : a->Length()) - 1);
     OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
     if(!o){
-      std::string msg("OLEGet can't access to argument ");
+      std::string msg(__FUNCTION__" can't access to argument ");
       return ThrowException(Exception::TypeError(
         String::New((msg + snum + " (null OCVariant)").c_str())));
     }
@@ -310,7 +310,8 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   return scope.Close(vResult);
 done:
   DISPFUNCOUT();
-  return ThrowException(Exception::TypeError(String::New("OLEGet failed")));
+  return ThrowException(Exception::TypeError(
+    String::New(__FUNCTION__" failed")));
 }
 
 Handle<Value> V8Variant::OLESet(const Arguments& args)
@@ -357,7 +358,7 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
     std::string snum = to_s((i ? i : a->Length()) - 1);
     OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
     if(!o){
-      std::string msg("OLECall can't access to argument ");
+      std::string msg(__FUNCTION__" can't access to argument ");
       return ThrowException(Exception::TypeError(
         String::New((msg + snum + " (null OCVariant)").c_str())));
     }
@@ -384,7 +385,8 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   return scope.Close(vResult);
 done:
   DISPFUNCOUT();
-  return ThrowException(Exception::TypeError(String::New("OLECall failed")));
+  return ThrowException(Exception::TypeError(
+    String::New(__FUNCTION__" failed")));
 }
 
 Handle<Value> V8Variant::Finalize(const Arguments& args)
