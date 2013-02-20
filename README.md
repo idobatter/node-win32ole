@@ -13,6 +13,7 @@ It works as... (version 0.1.x)
 
 ``` js
 var win32ole = require('win32ole');
+// var xl = new ActiveXObject('Excel.Application'); // You may write it as:
 var xl = win32ole.client.Dispatch('Excel.Application');
 xl.Visible = true;
 var book = xl.Workbooks.Add();
@@ -36,6 +37,7 @@ But now it implements as... (version 0.0.x)
 ``` js
 try{
   var win32ole = require('win32ole');
+  // var xl = new ActiveXObject('Excel.Application'); // You may write it as:
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true; // xl.set('Visible', true);
   var book = xl.Workbooks._.call('Add'); // xl.get('Workbooks').call('Add');
