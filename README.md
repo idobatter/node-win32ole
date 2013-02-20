@@ -38,7 +38,7 @@ try{
   var win32ole = require('win32ole');
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true; // xl.set('Visible', true);
-  var book = xl.Workbooks.v.call('Add'); // xl.get('Workbooks').call('Add');
+  var book = xl.Workbooks._.call('Add'); // xl.get('Workbooks').call('Add');
   var sheet = book.get('Worksheets', [1]);
   try{
     sheet.set('Name', 'sheetnameA utf8');
@@ -54,7 +54,7 @@ try{
     console.log('(exception cached)\n' + e);
   }
   xl.ScreenUpdating = true; // xl.set('ScreenUpdating', true);
-  xl.Workbooks.v.call('Close'); // xl.get('Workbooks').call('Close');
+  xl.Workbooks._.call('Close'); // xl.get('Workbooks').call('Close');
   xl.Quit(); // xl.call('Quit');
 }catch(e){
   console.log('*** exception cached ***\n' + e);
@@ -113,7 +113,7 @@ See the [API documentation](https://github.com/idobatter/node-win32ole/wiki) in 
 # BUILDING
 
 This project uses VC++ 2008 Express (or later) and Python 2.6 (or later) .
-(When using Python 2.5, it needs [multiprocessing 2.5 back port](http://pypi.python.org/pypi/multiprocessing/) .)
+(When using Python 2.5, it needs [multiprocessing 2.5 back port](http://pypi.python.org/pypi/multiprocessing/) .) It needs neither ATL nor MFC.
 
 Bulding also requires node-gyp to be installed. You can do this with npm:
 

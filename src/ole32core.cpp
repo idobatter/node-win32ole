@@ -28,6 +28,13 @@ BOOL chkerr(BOOL b, char *m, int n, char *f, char *e)
   return b;
 }
 
+string to_s(int num)
+{
+  ostringstream ossnum;
+  ossnum << num;
+  return ossnum.str(); // create new string
+}
+
 wchar_t *u8s2wcs(char *u8s)
 {
   size_t u8len = strlen(u8s);

@@ -16,6 +16,7 @@ public:
   static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v);
   static OCVariant *CreateOCVariant(Handle<Value> v);
   static Handle<Value> OLEIsA(const Arguments& args);
+  static Handle<Value> OLEVTName(const Arguments& args);
   static Handle<Value> OLEBoolean(const Arguments& args);
   static Handle<Value> OLEInt32(const Arguments& args);
   static Handle<Value> OLEInt64(const Arguments& args);

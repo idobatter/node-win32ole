@@ -9,24 +9,24 @@ using namespace ole32core;
 
 namespace node_win32ole {
 
-#define CHECK_OCV(s, ocv) do{ \
+#define CHECK_OCV(ocv) do{ \
     if(!ocv) \
-      return ThrowException(Exception::TypeError( \
-        String::New( s " can't access to V8Variant (null OCVariant)"))); \
+      return ThrowException(Exception::TypeError(String::New( \
+        __FUNCTION__" can't access to V8Variant (null OCVariant)"))); \
   }while(0)
 
-#define CHECK_OLE_ARGS(s, args, n, av0, av1) do{ \
+#define CHECK_OLE_ARGS(args, n, av0, av1) do{ \
     if(args.Length() < n) \
       return ThrowException(Exception::TypeError( \
-        String::New( s " takes exactly " #n " argument(s)"))); \
+        String::New(__FUNCTION__" takes exactly " #n " argument(s)"))); \
     if(!args[0]->IsString()) \
       return ThrowException(Exception::TypeError( \
-        String::New( s " the first argument is not a Symbol"))); \
+        String::New(__FUNCTION__" the first argument is not a Symbol"))); \
     if(n == 1) \
       if(args.Length() >= 2) \
         if(!args[1]->IsArray()) \
-          return ThrowException(Exception::TypeError( \
-            String::New( s " the second argument is not an Array"))); \
+          return ThrowException(Exception::TypeError(String::New( \
+            __FUNCTION__" the second argument is not an Array"))); \
         else av1 = args[1]; /* Array */ \
       else av1 = Array::New(0); /* change none to Array[] */ \
     else av1 = args[1]; /* may not be Array */ \
@@ -43,6 +43,7 @@ void V8Variant::Init(Handle<Object> target)
   clazz->InstanceTemplate()->SetInternalFieldCount(1);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
   NODE_SET_PROTOTYPE_METHOD(clazz, "isA", OLEIsA);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "vtName", OLEVTName);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toBoolean", OLEBoolean);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt64", OLEInt64);
@@ -136,9 +137,20 @@ Handle<Value> V8Variant::OLEIsA(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLEIsA", ocv);
+  CHECK_OCV(ocv);
   DISPFUNCOUT();
   return scope.Close(Int32::New(ocv->v.vt));
+}
+
+Handle<Value> V8Variant::OLEVTName(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV(ocv);
+  Array *a = Array::Cast(*module_target->Get(String::NewSymbol("vt_names")));
+  DISPFUNCOUT();
+  return scope.Close(a->Get(String::NewSymbol(to_s(ocv->v.vt).c_str())));
 }
 
 Handle<Value> V8Variant::OLEBoolean(const Arguments& args)
@@ -146,7 +158,7 @@ Handle<Value> V8Variant::OLEBoolean(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLEBoolean", ocv);
+  CHECK_OCV(ocv);
   if(ocv->v.vt != VT_BOOL)
     return ThrowException(Exception::TypeError(
       String::New("OLEBoolean source type OCVariant is not VT_BOOL")));
@@ -160,7 +172,7 @@ Handle<Value> V8Variant::OLEInt32(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLEInt32", ocv);
+  CHECK_OCV(ocv);
   if(ocv->v.vt != VT_I4 && ocv->v.vt != VT_INT
   && ocv->v.vt != VT_UI4 && ocv->v.vt != VT_UINT)
     return ThrowException(Exception::TypeError(
@@ -174,7 +186,7 @@ Handle<Value> V8Variant::OLEInt64(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLEInt64", ocv);
+  CHECK_OCV(ocv);
   if(ocv->v.vt != VT_I8 && ocv->v.vt != VT_UI8)
     return ThrowException(Exception::TypeError(
       String::New("OLEInt64 source type OCVariant is not VT_I8 nor VT_UI8")));
@@ -191,7 +203,7 @@ Handle<Value> V8Variant::OLENumber(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLENumber", ocv);
+  CHECK_OCV(ocv);
   if(ocv->v.vt != VT_R8)
     return ThrowException(Exception::TypeError(
       String::New("OLENumber source type OCVariant is not VT_R8")));
@@ -204,7 +216,7 @@ Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLEUtf8", ocv);
+  CHECK_OCV(ocv);
   if(ocv->v.vt != VT_BSTR)
     return ThrowException(Exception::TypeError(
       String::New("OLEUtf8 source type OCVariant is not VT_BSTR")));
@@ -246,7 +258,7 @@ Handle<Value> V8Variant::New(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("Use the new operator to create new V8Variant objects")));
   OCVariant *ocv = new OCVariant();
-  CHECK_OCV("New", ocv);
+  CHECK_OCV(ocv);
   Local<Object> thisObject = args.This();
   V8Variant *v = new V8Variant();
   v->Wrap(thisObject);
@@ -262,15 +274,13 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLEGet", ocv);
+  CHECK_OCV(ocv);
   Handle<Value> av0, av1;
-  CHECK_OLE_ARGS("OLEGet", args, 1, av0, av1);
+  CHECK_OLE_ARGS(args, 1, av0, av1);
   OCVariant *argchain = NULL;
   Array *a = Array::Cast(*av1);
   for(size_t i = 0; i < a->Length(); ++i){
-    std::ostringstream num;
-    num << (i ? (i - 1) : (a->Length() - 1));
-    std::string snum = num.str();
+    std::string snum = to_s((i ? i : a->Length()) - 1);
     OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
     if(!o){
       std::string msg("OLEGet can't access to argument ");
@@ -289,7 +299,7 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
     OCVariant *rv = ocv->getProp(wcs, argchain); // argchain will be deleted
     if(rv){
       OCVariant *o = castedInternalField<OCVariant>(vResult);
-      CHECK_OCV("OLEGet(result)", o);
+      CHECK_OCV(o);
       *o = *rv; // copy and don't delete rv
     }
   }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;
@@ -308,9 +318,9 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLESet", ocv);
+  CHECK_OCV(ocv);
   Handle<Value> av0, av1;
-  CHECK_OLE_ARGS("OLESet", args, 2, av0, av1);
+  CHECK_OLE_ARGS(args, 2, av0, av1);
   OCVariant *a1 = CreateOCVariant(av1); // will be deleted automatically
   if(!a1)
     return ThrowException(Exception::TypeError(
@@ -338,15 +348,13 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
   HandleScope scope;
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
-  CHECK_OCV("OLECall", ocv);
+  CHECK_OCV(ocv);
   Handle<Value> av0, av1;
-  CHECK_OLE_ARGS("OLECall", args, 1, av0, av1);
+  CHECK_OLE_ARGS(args, 1, av0, av1);
   OCVariant *argchain = NULL;
   Array *a = Array::Cast(*av1);
   for(size_t i = 0; i < a->Length(); ++i){
-    std::ostringstream num;
-    num << (i ? (i - 1) : (a->Length() - 1));
-    std::string snum = num.str();
+    std::string snum = to_s((i ? i : a->Length()) - 1);
     OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
     if(!o){
       std::string msg("OLECall can't access to argument ");
@@ -365,7 +373,7 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
     OCVariant *rv = ocv->invoke(wcs, argchain, true); // argchain will be deleted
     if(rv){
       OCVariant *o = castedInternalField<OCVariant>(vResult);
-      CHECK_OCV("OLECall(result)", o);
+      CHECK_OCV(o);
       *o = *rv; // copy and don't delete rv
     }
   }catch(OLE32coreException e){ std::cerr << e.errorMessage(*u8s); goto done;

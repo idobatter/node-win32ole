@@ -42,6 +42,7 @@ extern BOOL chkerr(BOOL b, char *m, int n, char *f, char *e);
 #define BEVERIFY(y, x) if(!BVERIFY(x)){ goto y; }
 #define DEVERIFY(y, x) if(!DVERIFY(x)){ goto y; }
 
+extern std::string to_s(int num);
 extern wchar_t *u8s2wcs(char *u8s); // UTF8 -> UCS2 (allocate wcs, must free)
 extern char *wcs2mbs(wchar_t *wcs); // UCS2 -> locale (allocate mbs, must free)
 

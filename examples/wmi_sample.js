@@ -27,7 +27,8 @@ var outfile = path.join(tmpdir, 'wmi_sample.txt');
 
 var safeutf8 = function(obj, propertyname){
   var property = obj.get(propertyname);
-  return property.isA() == 1 ? 'NULL' : property.toUtf8();
+  // return property.isA() == 1 ? 'NULL' : property.toUtf8();
+  return property.vtName() == 'VT_NULL' ? 'NULL' : property.toUtf8();
 };
 
 var get_value_from_key = function(kv, key){
@@ -53,7 +54,7 @@ var wmi_sample = function(filename){
     var query = "select * from Win32_Process where Name like '%explore%'";
     query += " or Name='rundll32.exe' or Name='winlogon.exe'";
     var procset = svr.call('ExecQuery', [query]);
-    console.log('procset is a ' + procset.isA()); // VT_DISPATCH=SWbemObjectSet
+    console.log('procset is a ' + procset.vtName()); // ( SWbemObjectSet )
     var count = procset.get('Count').toInt32();
     console.log('count = ' + count);
     console.log(' ImageName, ProcessId, VirtualSize, Threads, Description,');
