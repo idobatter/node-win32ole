@@ -63,7 +63,7 @@ var test_excel_ole = function(filename){
     sheet.set('Name', 'sheetnameA utf8');
     sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
     var ltrb = [-4131, -4160, -4152, -4107]; // left, top, right, bottom
-    for(var i in ltrb){
+    for(var i = 0; i < ltrb.length; ++i){
       var bd = sheet.get('Cells', [5, 6]).get('Borders', [ltrb[i]]);
       bd.set('Weight', 2); // thin
       bd.set('LineStyle', 5); // dashdotdot
