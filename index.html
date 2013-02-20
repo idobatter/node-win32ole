@@ -41,6 +41,7 @@
 <p>It works as... (version 0.1.x)</p>
 
 <div class="highlight"><pre><span class="kd">var</span> <span class="nx">win32ole</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'win32ole'</span><span class="p">);</span>
+<span class="c1">// var xl = new ActiveXObject('Excel.Application'); // You may write it as:</span>
 <span class="kd">var</span> <span class="nx">xl</span> <span class="o">=</span> <span class="nx">win32ole</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">Dispatch</span><span class="p">(</span><span class="s1">'Excel.Application'</span><span class="p">);</span>
 <span class="nx">xl</span><span class="p">.</span><span class="nx">Visible</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">Add</span><span class="p">();</span>
@@ -63,9 +64,10 @@
 
 <div class="highlight"><pre><span class="k">try</span><span class="p">{</span>
   <span class="kd">var</span> <span class="nx">win32ole</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'win32ole'</span><span class="p">);</span>
+  <span class="c1">// var xl = new ActiveXObject('Excel.Application'); // You may write it as:</span>
   <span class="kd">var</span> <span class="nx">xl</span> <span class="o">=</span> <span class="nx">win32ole</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">Dispatch</span><span class="p">(</span><span class="s1">'Excel.Application'</span><span class="p">);</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">Visible</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="c1">// xl.set('Visible', true);</span>
-  <span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">v</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s1">'Add'</span><span class="p">);</span> <span class="c1">// xl.get('Workbooks').call('Add');</span>
+  <span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s1">'Add'</span><span class="p">);</span> <span class="c1">// xl.get('Workbooks').call('Add');</span>
   <span class="kd">var</span> <span class="nx">sheet</span> <span class="o">=</span> <span class="nx">book</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'Worksheets'</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
   <span class="k">try</span><span class="p">{</span>
     <span class="nx">sheet</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'Name'</span><span class="p">,</span> <span class="s1">'sheetnameA utf8'</span><span class="p">);</span>
@@ -81,7 +83,7 @@
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'(exception cached)\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
   <span class="p">}</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">ScreenUpdating</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="c1">// xl.set('ScreenUpdating', true);</span>
-  <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">v</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s1">'Close'</span><span class="p">);</span> <span class="c1">// xl.get('Workbooks').call('Close');</span>
+  <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s1">'Close'</span><span class="p">);</span> <span class="c1">// xl.get('Workbooks').call('Close');</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">Quit</span><span class="p">();</span> <span class="c1">// xl.call('Quit');</span>
 <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'*** exception cached ***\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
@@ -135,7 +137,7 @@
 <h1>BUILDING</h1>
 
 <p>This project uses VC++ 2008 Express (or later) and Python 2.6 (or later) .
-(When using Python 2.5, it needs <a href="http://pypi.python.org/pypi/multiprocessing/">multiprocessing 2.5 back port</a> .)</p>
+(When using Python 2.5, it needs <a href="http://pypi.python.org/pypi/multiprocessing/">multiprocessing 2.5 back port</a> .) It needs neither ATL nor MFC.</p>
 
 <p>Bulding also requires node-gyp to be installed. You can do this with npm:</p>
 
