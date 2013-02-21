@@ -39,25 +39,24 @@ try{
   var win32ole = require('win32ole');
   // var xl = new ActiveXObject('Excel.Application'); // You may write it as:
   var xl = win32ole.client.Dispatch('Excel.Application');
-  xl.Visible = true; // xl.set('Visible', true);
-  var book = xl.Workbooks._.call('Add'); // xl.get('Workbooks').call('Add');
-  var sheet = book.get('Worksheets', [1]);
+  xl.Visible = true;
+  var book = xl.Workbooks._.Add(); // ***
+  var sheet = book.Worksheets(1);
   try{
-    sheet.set('Name', 'sheetnameA utf8');
-    sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
-    var rg = sheet.get('Range',
-      [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
-    rg.set('RowHeight', 5.18);
-    rg.set('ColumnWidth', 0.58);
-    rg.get('Interior').set('ColorIndex', 6); // Yellow
-    var result = book.call('SaveAs', ['testfileutf8.xls']);
+    sheet.Name = 'sheetnameA utf8';
+    sheet.Cells(1, 2).Value = 'test utf8';
+    var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
+    rg.RowHeight = 5.18;
+    rg.ColumnWidth = 0.58;
+    rg.Interior._.ColorIndex = 6; // *** Yellow
+    var result = book.SaveAs('testfileutf8.xls');
     console.log(result.toBoolean());
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
-  xl.ScreenUpdating = true; // xl.set('ScreenUpdating', true);
-  xl.Workbooks._.call('Close'); // xl.get('Workbooks').call('Close');
-  xl.Quit(); // xl.call('Quit');
+  xl.ScreenUpdating = true;
+  xl.Workbooks._.Close(); // ***
+  xl.Quit();
 }catch(e){
   console.log('*** exception cached ***\n' + e);
 }

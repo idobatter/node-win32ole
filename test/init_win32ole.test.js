@@ -56,31 +56,29 @@ var test_excel_ole = function(filename){
   // var xl = new ActiveXObject('Excel.Application'); // You may write it as:
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true;
-  var book = xl.Workbooks._.call('Add');
-//  var sheet = book.call('Worksheets', [1]); // throws exception
-  var sheet = book.get('Worksheets', [1]);
+  var book = xl.Workbooks._.Add(); // ***
+  var sheet = book.Worksheets(1);
   try{
-    sheet.set('Name', 'sheetnameA utf8');
-    sheet.get('Cells', [1, 2]).set('Value', 'test utf8');
+    sheet.Name = 'sheetnameA utf8';
+    sheet.Cells(1, 2).Value = 'test utf8';
     var ltrb = [-4131, -4160, -4152, -4107]; // left, top, right, bottom
     for(var i = 0; i < ltrb.length; ++i){
-      var bd = sheet.get('Cells', [5, 6]).get('Borders', [ltrb[i]]);
-      bd.set('Weight', 2); // thin
-      bd.set('LineStyle', 5); // dashdotdot
+      var bd = sheet.Cells(5, 6).Borders(ltrb[i]);
+      bd.Weight = 2; // thin
+      bd.LineStyle = 5; // dashdotdot
     }
-    var rg = sheet.get('Range',
-      [sheet.get('Cells', [2, 2]), sheet.get('Cells', [4, 4])]);
-    rg.set('RowHeight', 5.18);
-    rg.set('ColumnWidth', 0.58);
-    rg.get('Interior').set('ColorIndex', 6); // Yellow
+    var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
+    rg.RowHeight = 5.18;
+    rg.ColumnWidth = 0.58;
+    rg.Interior._.ColorIndex = 6; // *** Yellow
     console.log('saving to: "' + filename + '" ...');
-    var result = book.call('SaveAs', [filename]);
+    var result = book.SaveAs(filename);
     console.log(result.toBoolean());
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.ScreenUpdating = true;
-  xl.Workbooks._.call('Close');
+  xl.Workbooks._.Close(); // ***
   xl.Quit();
 };
 

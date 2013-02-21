@@ -2,7 +2,7 @@ var win32ole = require('win32ole');
 win32ole.print('ie_sample\n');
 
 var ie_sample = function(uris){
-  var ie = win32ole.client.Dispatch('InternetExplorer.Application');
+  var ie = new ActiveXObject('InternetExplorer.Application');
   ie.Visible = true;
   for(var i = 0; i < uris.length; ++i){
     console.log(uris[i]);

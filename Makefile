@@ -76,6 +76,7 @@ test: build
 	node examples/ie_sample.js
 	node examples/typelibrary_sample.js
 	node examples/uncfinder_sample.js
+	node examples/activex_filesystemobject_sample.js
 	node examples/wmi_sample.js
 	node examples/wsh_sample.js
 

@@ -411,7 +411,7 @@ OCVariant *OCVariant::invoke(LPOLESTR method, OCVariant *argchain, bool re)
     return this;
   }else{
     OCVariant *r = new OCVariant();
-    AutoWrap(DISPATCH_METHOD, &r->v, method, argchain); // distinguish PROPERTY
+    AutoWrap(DISPATCH_METHOD | DISPATCH_PROPERTYGET, &r->v, method, argchain);
     return r; // may be called with DISPATCH_PROPERTYGET|DISPATCH_METHOD
     // 'METHOD' may be called only with DISPATCH_PROPERTYGET
     // but 'PROPERTY' must not be called only with DISPATCH_METHOD

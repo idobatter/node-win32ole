@@ -53,6 +53,9 @@ void V8Variant::Init(Handle<Object> target)
   NODE_SET_PROTOTYPE_METHOD(clazz, "OLECall", OLECall);
   NODE_SET_PROTOTYPE_METHOD(clazz, "OLEGet", OLEGet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "OLESet", OLESet);
+// SetCallAsFunctionHandler
+// SetNamedPropertyHandler
+// SetIndexedPropertyHandler
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
 }
@@ -118,7 +121,10 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
     return new OCVariant(CreateStdStringMBCSfromUTF8(v));
   }else if(v->IsObject()){
     std::cerr << "[Object (test)]" << std::endl;
-    OCVariant *ocv = castedInternalField<OCVariant>(v->ToObject());
+    Handle<Object> obj = v->ToObject();
+    Handle<Value> vrealobj = obj->Get(String::NewSymbol("__")); // encapsulated
+    OCVariant *ocv = castedInternalField<OCVariant>(
+      vrealobj->IsUndefined() ? obj : vrealobj->ToObject());
     if(!ocv){
       std::cerr << "[Object may not be valid (null OCVariant)]" << std::endl;
       return NULL;
@@ -386,7 +392,8 @@ void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
 #if(1)
-  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
+//  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
+  std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
 #endif
   OCVariant *p = castedInternalField<OCVariant>(handle->ToObject());
   if(!p){
