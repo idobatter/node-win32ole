@@ -15,13 +15,13 @@ var ole_args_test_client = function(){
   console.log('connected');
   cl.call('Init');
   console.log('do 1');
-  console.log(cl.call('Test', ['a']).toUtf8());
+  console.log(cl.call('Test', ['a']));
   console.log('do 2');
-  console.log(cl.call('Test', ['a1', 'b2']).toUtf8());
+  console.log(cl.call('Test', ['a1', 'b2']));
   console.log('do 3');
-  console.log(cl.call('Test', ['aa1', 'bb2', 'cc3']).toUtf8());
+  console.log(cl.call('Test', ['aa1', 'bb2', 'cc3']));
   console.log('do 4');
-  console.log(cl.call('Test', ['aaa1', 'bbb2', 'ccc3', 'ddd4']).toUtf8());
+  console.log(cl.call('Test', ['aaa1', 'bbb2', 'ccc3', 'ddd4']));
   console.log('quit');
   cl.call('Quit');
   console.log('disconnected');

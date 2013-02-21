@@ -12,6 +12,7 @@ var outfile = path.join(tmpdir, 'wsh_sample.txt');
 var wsh_sample = function(filename){
   var sh = win32ole.client.Dispatch('WScript.Shell');
   console.log('sh:');
+  // console.log(require('util').inspect(sh.__, true, null, true)); // {}
   console.log(require('util').inspect(sh, true, null, true));
 
   try{
@@ -21,26 +22,26 @@ var wsh_sample = function(filename){
     // arg1=1: movetop (default), 2: minimize, 3: maximize, 4: no movetop
     //      5: movetop, 6: minimize, 7: minimize
     // arg2=false: Async (default), true: Sync
-    sh.call('run', ['notepad.exe', 1, false]); // must be Async (for SendKeys)
+    sh.Run('notepad.exe', 1, false); // must be Async (for SendKeys)
     win32ole.sleep(3000, true, false);
-    sh.call('SendKeys', ['Congratulations!{ENTER}']); // 'run' option must be 1
+    sh.SendKeys('Congratulations!{ENTER}'); // 'Run' option must be 1
     win32ole.sleep(200);
-    sh.call('SendKeys', ["*** DON'T TOUCH THIS WINDOW ***{ENTER}"]);
+    sh.SendKeys("*** DON'T TOUCH THIS WINDOW ***{ENTER}");
     win32ole.sleep(3000);
-    sh.call('SendKeys', ["Saving filename will be entered automatically."]);
+    sh.SendKeys('Saving filename will be entered automatically.');
     win32ole.sleep(3000);
-    sh.call('SendKeys', ['%f']); // ALT-F (File)
+    sh.SendKeys('%f'); // ALT-F (File)
     win32ole.sleep(500);
-    sh.call('SendKeys', ['a']); // SaveAs
+    sh.SendKeys('a'); // SaveAs
     win32ole.sleep(5000);
-    sh.call('SendKeys', [filename + '{ENTER}']);
+    sh.SendKeys(filename + '{ENTER}');
     win32ole.sleep(1000);
-    sh.call('SendKeys', ['%{F4}']); // ALT-F4 (Exit)
+    sh.SendKeys('%{F4}'); // ALT-F4 (Exit)
     win32ole.sleep(100);
     win32ole.print('ok\n');
 
     win32ole.print('ping ...');
-    sh.call('run', ['ping.exe 127.0.0.1', 4, true]); // wait for close (Sync)
+    sh.Run('ping.exe 127.0.0.1', 4, true); // wait for close (Sync)
     win32ole.print('ok\n');
 
   }catch(e){
@@ -49,12 +50,11 @@ var wsh_sample = function(filename){
 
   var shellexec = function(sh, cmd, callback){
     console.log('sh.Exec(' + cmd + ')');
-    var stat = sh.call('Exec', [cmd]);
-//    while(stat.get('Status').toInt32() == 0) win32ole.sleep(100, true, true);
-    var so = stat.get('StdOut');
-    while(!so.get('AtEndOfStream').toBoolean())
-      callback(so.call('ReadLine').toUtf8());
-    console.log('code = ' + stat.get('ExitCode').toInt32());
+    var stat = sh.Exec(cmd);
+//    while(stat.Status._ == 0) win32ole.sleep(100, true, true); // ***
+    var so = stat.StdOut._; // ***
+    while(!so.AtEndOfStream._) callback(so.ReadLine()); // ***
+    console.log('code = ' + stat.ExitCode._); // ***
   }
 
   var cmd = 'reg query "HKLM\\Software\\Microsoft\\Internet Explorer"';
@@ -75,10 +75,10 @@ var wsh_sample = function(filename){
   //  8: EVENTLOG_AUDIT_SUCCESS
   // 16: EVENTLOG_AUDIT_FAILURE
   // the 3rd argument '.' means 'self computer name' to send LogEvent target
-  sh.call('LogEvent', [4, name + 'installed', '.']);
-  sh.call('LogEvent', [2, name + 'warning test', '.']);
-  sh.call('LogEvent', [1, name + 'error test', '.']);
-  sh.call('LogEvent', [0, name + 'success', '.']);
+  sh.LogEvent(4, name + 'installed', '.');
+  sh.LogEvent(2, name + 'warning test', '.');
+  sh.LogEvent(1, name + 'error test', '.');
+  sh.LogEvent(0, name + 'success', '.');
   win32ole.print('ok\n');
 
   console.log('completed');

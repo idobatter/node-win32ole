@@ -12,13 +12,13 @@ var outfile = path.join(tmpdir, 'uncfinder_sample.txt');
 var uncfinder_sample = function(filename){
   var wnt = win32ole.client.Dispatch('WinNTSystemInfo');
   console.log('ComputerName:');
-  console.log(wnt.get('ComputerName').toUtf8());
+  console.log(wnt.ComputerName._); // ***
   console.log('DomainName:');
-  console.log(wnt.get('DomainName').toUtf8());
+  console.log(wnt.DomainName._); // ***
   console.log('PDC:');
-  console.log(wnt.get('PDC').toUtf8());
+  console.log(wnt.PDC._); // ***
   console.log('UserName:');
-  console.log(wnt.get('UserName').toUtf8());
+  console.log(wnt.UserName._); // ***
 };
 
 try{

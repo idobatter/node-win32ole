@@ -27,8 +27,9 @@ var outfile = path.join(tmpdir, 'wmi_sample.txt');
 
 var safeutf8 = function(obj, propertyname){
   var property = obj.get(propertyname); // ***
-  // return property.isA() == 1 ? 'NULL' : property.toUtf8(); // ***
-  return property.vtName() == 'VT_NULL' ? 'NULL' : property.toUtf8(); // ***
+  // return property.isA() == 1 ? 'NULL' : property;
+  // return property.vtName() == 'VT_NULL' ? 'NULL' : property;
+  return property == null ? 'NULL' : property;
 };
 
 var get_value_from_key = function(kv, key){
@@ -55,7 +56,7 @@ var wmi_sample = function(filename){
     query += " or Name='rundll32.exe' or Name='winlogon.exe'";
     var procset = svr.ExecQuery(query);
     console.log('procset is a ' + procset.__.vtName()); // *** ( SWbemObjectSet )
-    var count = procset.Count._.toInt32(); // ***
+    var count = procset.Count._; // ***
     console.log('count = ' + count);
     console.log(' ImageName, ProcessId, VirtualSize, Threads, Description,');
     console.log(' [ImagePath]');
@@ -68,9 +69,9 @@ var wmi_sample = function(filename){
       if(imgpath.match(/[\s]+/ig)) size += 2;
       win32ole.printACP(
         '-> ' + safeutf8(proc, 'Name')
-        + ', ' + proc.ProcessId._.toInt32() // ***
+        + ', ' + proc.ProcessId._ // ***
         + ', ' + safeutf8(proc, 'VirtualSize')
-        + ', ' + proc.ThreadCount._.toInt32() // ***
+        + ', ' + proc.ThreadCount._ // ***
         + ', ' + safeutf8(proc, 'Description')
         + '\n   [' + imgpath
         + ']\n   [' + cmdline.substring(size)
@@ -78,7 +79,7 @@ var wmi_sample = function(filename){
     }
     console.log('*** get services (first 10 items) ***');
     var svcset = svr.ExecQuery('select * from Win32_Service');
-    count = svcset.Count._.toInt32(); // ***
+    count = svcset.Count._; // ***
     console.log('count = ' + count);
     for(var i = 0; i < 10; ++i){
       var svc = svcset.ItemIndex(i);
@@ -106,7 +107,7 @@ var wmi_sample = function(filename){
         }
       };
       var m = svc.Methods_._; // ***
-      console.log('   methods: ' + m.Count._.toInt32()); // ***
+      console.log('   methods: ' + m.Count._); // ***
       if(true){
         // do nothing here because there are too many bugs (get_value_from_key)
         // np(m, [me.Name for me in svc.Methods_]); // dummy code (as python)

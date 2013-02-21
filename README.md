@@ -50,7 +50,7 @@ try{
     rg.ColumnWidth = 0.58;
     rg.Interior._.ColorIndex = 6; // *** Yellow
     var result = book.SaveAs('testfileutf8.xls');
-    console.log(result.toBoolean());
+    console.log(result);
   }catch(e){
     console.log('(exception cached)\n' + e);
   }

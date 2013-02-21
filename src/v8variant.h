@@ -22,6 +22,7 @@ public:
   static Handle<Value> OLEInt64(const Arguments& args);
   static Handle<Value> OLENumber(const Arguments& args);
   static Handle<Value> OLEUtf8(const Arguments& args);
+  static Handle<Value> OLEValue(const Arguments& args);
   static Handle<Object> CreateUndefined(void); // *** private
   static Handle<Value> New(const Arguments& args);
   static Handle<Value> OLEInvoke(bool isCall, const Arguments& args); // *** p.

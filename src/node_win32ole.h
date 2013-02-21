@@ -9,6 +9,19 @@ using namespace v8;
 
 namespace node_win32ole {
 
+#define CHECK_OCV(ocv) do{ \
+    if(!(ocv)) \
+      return ThrowException(Exception::TypeError(String::New( \
+        __FUNCTION__" can't access to V8Variant (null OCVariant)"))); \
+  }while(0)
+
+#define GET_PROP(obj, prop) (obj)->Get(String::NewSymbol(prop))
+
+#define ARRAY_AT(ary, idx) (ary)->Get(String::NewSymbol(to_s(idx).c_str()))
+
+#define INSTANCE_CALL(obj, method, argc, argv) Handle<Function>::Cast( \
+  GET_PROP((obj), (method)))->Call((obj), (argc), (argv))
+
 template <class T> T *castedInternalField(Handle<Object> object)
 {
   return static_cast<T *>(

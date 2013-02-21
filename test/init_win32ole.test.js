@@ -73,7 +73,7 @@ var test_excel_ole = function(filename){
     rg.Interior._.ColorIndex = 6; // *** Yellow
     console.log('saving to: "' + filename + '" ...');
     var result = book.SaveAs(filename);
-    console.log(result.toBoolean());
+    console.log(result);
   }catch(e){
     console.log('(exception cached)\n' + e);
   }

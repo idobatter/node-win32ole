@@ -6,7 +6,7 @@ var testfile = 'examples\\activex_filesystemobject_sample.js';
 var activex_filesystemobject_sample = function(){
   var withReadFile = function(filename, callback){
     var fso = new ActiveXObject('Scripting.FileSystemObject');
-    var fullpath = fso.GetAbsolutePathName(filename); // .toUtf8(); // ***
+    var fullpath = fso.GetAbsolutePathName(filename);
     var file = fso.OpenTextFile(fullpath, 1, false); // open to read
     try{
       callback(file);
@@ -16,8 +16,7 @@ var activex_filesystemobject_sample = function(){
   };
   var withEachLine = function(filename, callback){
     withReadFile(filename, function(file){
-      while(!file.AtEndOfStream._.toBoolean()) // ***
-        callback(file.ReadLine().toUtf8()); // ***
+      while(!file.AtEndOfStream._) callback(file.ReadLine()); // ***
     });
   };
   withEachLine(testfile, function(line){

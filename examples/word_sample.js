@@ -11,19 +11,19 @@ var outfile = path.join(tmpdir, 'word_sample.doc');
 
 var word_sample = function(filename){
   var wd = win32ole.client.Dispatch('Word.Application');
-  wd.set('Visible', true);
-  var doc = wd.get('Documents').call('Add');
-  var para = doc.get('Content').get('Paragraphs').call('Add');
-  para.get('Range').set('Text', 'stringUTF8');
+  wd.Visible = true;
+  var doc = wd.Documents._.Add(); // ***
+  var para = doc.Content._.Paragraphs._.Add(); // ***
+  para.Range._.Text = 'stringUTF8'; // ***
   try{
     console.log('saving to: "' + filename + '" ...');
-    var result = doc.call('SaveAs', [filename]);
-    console.log(result); // .toBoolean() is not VT_BOOL
+    var result = doc.SaveAs(filename);
+    console.log(result); // *** undefined
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
-  wd.get('Documents').call('Close');
-  wd.call('Quit');
+  wd.Documents._.Close(); // ***
+  wd.Quit();
 };
 
 try{

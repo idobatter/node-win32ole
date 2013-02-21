@@ -3,18 +3,18 @@ win32ole.print('outlook_sample\n');
 
 var outlook_sample = function(){
   var ol = win32ole.client.Dispatch('Outlook.Application');
-  // ol.set('Visible', true);
-  var ns = ol.get('getNameSpace', ['MAPI']);
-  var frcv = ns.get('GetDefaultFolder', [6]); // receive mail box tray
-  var items = frcv.get('Items');
-  var count = items.get('Count').toInt32();
+  // ol.Visible = true;
+  var ns = ol.GetNameSpace('MAPI');
+  var frcv = ns.GetDefaultFolder(6); // receive mail box tray
+  var items = frcv.Items._; // ***
+  var count = items.Count._; // ***
   for(var n = 1; n <= count; ++n){
     win32ole.print(n + ' : ');
-    var i = items.get('Item', [n]);
-    win32ole.printACP(i.get('Subject').toUtf8());
+    var i = items.Item(n);
+    win32ole.printACP(i.Subject._); // ***
     win32ole.print('\n');
   }
-  // ol.call('Quit');
+  // ol.Quit();
 };
 
 try{

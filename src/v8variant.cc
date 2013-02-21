@@ -9,12 +9,6 @@ using namespace ole32core;
 
 namespace node_win32ole {
 
-#define CHECK_OCV(ocv) do{ \
-    if(!ocv) \
-      return ThrowException(Exception::TypeError(String::New( \
-        __FUNCTION__" can't access to V8Variant (null OCVariant)"))); \
-  }while(0)
-
 #define CHECK_OLE_ARGS(args, n, av0, av1) do{ \
     if(args.Length() < n) \
       return ThrowException(Exception::TypeError( \
@@ -49,6 +43,7 @@ void V8Variant::Init(Handle<Object> target)
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt64", OLEInt64);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toNumber", OLENumber);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toValue", OLEValue);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "OLECall", OLECall);
   NODE_SET_PROTOTYPE_METHOD(clazz, "OLEGet", OLEGet);
@@ -154,9 +149,9 @@ Handle<Value> V8Variant::OLEVTName(const Arguments& args)
   DISPFUNCIN();
   OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV(ocv);
-  Array *a = Array::Cast(*module_target->Get(String::NewSymbol("vt_names")));
+  Array *a = Array::Cast(*GET_PROP(module_target, "vt_names"));
   DISPFUNCOUT();
-  return scope.Close(a->Get(String::NewSymbol(to_s(ocv->v.vt).c_str())));
+  return scope.Close(ARRAY_AT(a, ocv->v.vt));
 }
 
 Handle<Value> V8Variant::OLEBoolean(const Arguments& args)
@@ -227,8 +222,38 @@ Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("OLEUtf8 source type OCVariant is not VT_BSTR")));
   Handle<Value> result;
-  if(!ocv->v.bstrVal) result = Undefined(); // Null();
+  if(!ocv->v.bstrVal) result = Undefined(); // or Null();
   else result = String::New(MBCS2UTF8(BSTR2MBCS(ocv->v.bstrVal)).c_str());
+  DISPFUNCOUT();
+  return scope.Close(result);
+}
+
+Handle<Value> V8Variant::OLEValue(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV(ocv);
+  Handle<Value> result = Undefined();
+  if(ocv->v.vt == VT_EMPTY) ; // do nothing
+  else if(ocv->v.vt == VT_NULL) result = Null();
+  else if(ocv->v.vt == VT_DISPATCH) result = args.This(); // through it
+  else if(ocv->v.vt == VT_BOOL) result = OLEBoolean(args);
+  else if(ocv->v.vt == VT_I4 || ocv->v.vt == VT_INT
+  || ocv->v.vt == VT_UI4 || ocv->v.vt == VT_UINT) result = OLEInt32(args);
+  else if(ocv->v.vt == VT_I8 || ocv->v.vt == VT_UI8) result = OLEInt64(args);
+  else if(ocv->v.vt == VT_R8) result = OLENumber(args);
+  else if(ocv->v.vt == VT_BSTR) result = OLEUtf8(args);
+  else if(ocv->v.vt == VT_ARRAY || ocv->v.vt == VT_SAFEARRAY)
+    std::cerr << "[Array (not implemented now)]" << std::endl;
+  else if(ocv->v.vt == VT_DATE)
+    std::cerr << "[Date (bug?)]" << std::endl;
+  else{
+    Handle<Value> s = INSTANCE_CALL(args.This(), "vtName", 0, NULL);
+    std::cerr << "[unknown type " << ocv->v.vt << ":" << *String::Utf8Value(s);
+    std::cerr << " (not implemented now)]" << std::endl;
+  }
+done:
   DISPFUNCOUT();
   return scope.Close(result);
 }
@@ -286,13 +311,9 @@ Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
   OCVariant *argchain = NULL;
   Array *a = Array::Cast(*av1);
   for(size_t i = 0; i < a->Length(); ++i){
-    std::string snum = to_s((i ? i : a->Length()) - 1);
-    OCVariant *o = CreateOCVariant(a->Get(String::NewSymbol(snum.c_str())));
-    if(!o){
-      std::string msg(__FUNCTION__" can't access to argument ");
-      return ThrowException(Exception::TypeError(
-        String::New((msg + snum + " (null OCVariant)").c_str())));
-    }
+    OCVariant *o = V8Variant::CreateOCVariant(
+      ARRAY_AT(a, (i ? i : a->Length()) - 1));
+    CHECK_OCV(o);
     if(!i) argchain = o;
     else argchain->push(o);
   }
@@ -313,8 +334,9 @@ Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
   free(wcs); // *** it may leak when error ***
+  Handle<Value> result = INSTANCE_CALL(vResult, "toValue", 0, NULL);
   DISPFUNCOUT();
-  return scope.Close(vResult);
+  return scope.Close(result);
 done:
   DISPFUNCOUT();
   return ThrowException(Exception::TypeError(
@@ -325,7 +347,7 @@ Handle<Value> V8Variant::OLECall(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  Handle<Value> r = OLEInvoke(true, args); // as Call
+  Handle<Value> r = V8Variant::OLEInvoke(true, args); // as Call
   DISPFUNCOUT();
   return scope.Close(r);
 }
@@ -334,7 +356,7 @@ Handle<Value> V8Variant::OLEGet(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  Handle<Value> r = OLEInvoke(false, args); // as Get
+  Handle<Value> r = V8Variant::OLEInvoke(false, args); // as Get
   DISPFUNCOUT();
   return scope.Close(r);
 }
@@ -347,7 +369,7 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 2, av0, av1);
-  OCVariant *argchain = CreateOCVariant(av1);
+  OCVariant *argchain = V8Variant::CreateOCVariant(av1);
   if(!argchain)
     return ThrowException(Exception::TypeError(String::New(
       __FUNCTION__" the second argument is not valid (null OCVariant)")));

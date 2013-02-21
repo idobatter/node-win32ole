@@ -99,9 +99,7 @@ Handle<Value> Client::Dispatch(const Arguments& args)
   BEVERIFY(done, !vApp->IsUndefined());
   BEVERIFY(done, vApp->IsObject());
   OCVariant *app = castedInternalField<OCVariant>(vApp);
-  if(!app)
-    return ThrowException(Exception::TypeError(
-      String::New("Can't access to V8Variant object (null OCVariant)")));
+  CHECK_OCV(app);
   app->v.vt = VT_DISPATCH;
   // When 'CoInitialize(NULL)' is not called first (and on the same instance),
   // next functions will return many errors.

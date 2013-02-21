@@ -18,15 +18,15 @@ namespace ole32core {
 
 #define BDISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
 #define BDISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
-#define BDISPFUNCDAT(f, a, t) do{fprintf(stderr, f, a, t);}while(0)
+#define BDISPFUNCDAT(f, a, t) do{fprintf(stderr, (f), (a), (t));}while(0)
 #if defined(_DEBUG) || defined(DEBUG)
 #define DISPFUNCIN() BDISPFUNCIN()
 #define DISPFUNCOUT() BDISPFUNCOUT()
-#define DISPFUNCDAT(f, a, t) BDISPFUNCDAT(f, a, t)
+#define DISPFUNCDAT(f, a, t) BDISPFUNCDAT((f), (a), (t))
 #else // RELEASE
 #define DISPFUNCIN() // BDISPFUNCIN()
 #define DISPFUNCOUT() // BDISPFUNCOUT()
-#define DISPFUNCDAT(f, a, t) // BDISPFUNCDAT(f, a, t)
+#define DISPFUNCDAT(f, a, t) // BDISPFUNCDAT((f), (a), (t))
 #endif
 
 #define BASSERT(x) chkerr((BOOL)(x), __FILE__, __LINE__, __FUNCTION__, #x)
