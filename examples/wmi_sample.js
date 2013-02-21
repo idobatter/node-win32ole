@@ -26,15 +26,15 @@ if(!fs.existsSync(tmpdir)) fs.mkdirSync(tmpdir);
 var outfile = path.join(tmpdir, 'wmi_sample.txt');
 
 var safeutf8 = function(obj, propertyname){
-  var property = obj.get(propertyname);
-  // return property.isA() == 1 ? 'NULL' : property.toUtf8();
-  return property.vtName() == 'VT_NULL' ? 'NULL' : property.toUtf8();
+  var property = obj.get(propertyname); // ***
+  // return property.isA() == 1 ? 'NULL' : property.toUtf8(); // ***
+  return property.vtName() == 'VT_NULL' ? 'NULL' : property.toUtf8(); // ***
 };
 
 var get_value_from_key = function(kv, key){
   // search from kv where Item['Name'] == key, return found Item['Value']
   try{
-    var item = kv.call('Item', [key]);
+    var item = kv.Item(key);
     try{
       return safeutf8(item, 'Value');
     }catch(e){
@@ -47,47 +47,47 @@ var get_value_from_key = function(kv, key){
 
 var wmi_sample = function(filename){
   var locator = win32ole.client.Dispatch('WbemScripting.SWbemLocator');
-  var svr = locator.call('ConnectServer', ['.', 'root/cimv2']); // . = self PC
+  var svr = locator.ConnectServer('.', 'root/cimv2'); // . = self PC
   try{
     if(fs.existsSync(filename)) fs.unlinkSync(filename);
     console.log('*** get processes (partial) ***');
     var query = "select * from Win32_Process where Name like '%explore%'";
     query += " or Name='rundll32.exe' or Name='winlogon.exe'";
-    var procset = svr.call('ExecQuery', [query]);
-    console.log('procset is a ' + procset.__.vtName()); // ( SWbemObjectSet )
-    var count = procset.get('Count').toInt32();
+    var procset = svr.ExecQuery(query);
+    console.log('procset is a ' + procset.__.vtName()); // *** ( SWbemObjectSet )
+    var count = procset.Count._.toInt32(); // ***
     console.log('count = ' + count);
     console.log(' ImageName, ProcessId, VirtualSize, Threads, Description,');
     console.log(' [ImagePath]');
     console.log(' [CommandLine],');
     for(var i = 0; i < count; ++i){
-      var proc = procset.call('ItemIndex', [i]);
+      var proc = procset.ItemIndex(i);
       var imgpath = safeutf8(proc, 'ExecutablePath');
       var cmdline = safeutf8(proc, 'CommandLine');
       var size = imgpath.length + 1;
       if(imgpath.match(/[\s]+/ig)) size += 2;
       win32ole.printACP(
         '-> ' + safeutf8(proc, 'Name')
-        + ', ' + proc.get('ProcessId').toInt32()
+        + ', ' + proc.ProcessId._.toInt32() // ***
         + ', ' + safeutf8(proc, 'VirtualSize')
-        + ', ' + proc.get('ThreadCount').toInt32()
+        + ', ' + proc.ThreadCount._.toInt32() // ***
         + ', ' + safeutf8(proc, 'Description')
         + '\n   [' + imgpath
         + ']\n   [' + cmdline.substring(size)
         + ']\n');
     }
     console.log('*** get services (first 10 items) ***');
-    var svcset = svr.call('ExecQuery', ['select * from Win32_Service']);
-    count = svcset.get('Count').toInt32();
+    var svcset = svr.ExecQuery('select * from Win32_Service');
+    count = svcset.Count._.toInt32(); // ***
     console.log('count = ' + count);
     for(var i = 0; i < 10; ++i){
-      var svc = svcset.call('ItemIndex', [i]);
-      var q = svc.get('Qualifiers_');
+      var svc = svcset.ItemIndex(i);
+      var q = svc.Qualifiers_._; // ***
       win32ole.printACP(
         '-> ' + get_value_from_key(q, 'provider')
         + '\n   [' + get_value_from_key(q, 'UUID')
         + ']\n');
-      var p = svc.get('Properties_');
+      var p = svc.Properties_._; // ***
       win32ole.printACP(
         '   ' + get_value_from_key(p, 'Name')
         + '\n   [' + get_value_from_key(p, 'PathName')
@@ -95,8 +95,8 @@ var wmi_sample = function(filename){
       var np = function(m, na){
         for(var j = 0; j < na.length; ++j){
           console.log('    method Qualifiers_: ' + na[j]);
-          var me = m.call('Item', [na[j]]);
-          var mq = me.get('Qualifiers_');
+          var me = m.Item(na[j]);
+          var mq = me.Qualifiers_._; // ***
           win32ole.printACP(
             '     [' + get_value_from_key(mq, 'Override')
             + ']\n     [' + get_value_from_key(mq, 'Static') // Boolean
@@ -105,8 +105,8 @@ var wmi_sample = function(filename){
             + ']\n');
         }
       };
-      var m = svc.get('Methods_');
-      console.log('   methods: ' + m.get('Count').toInt32());
+      var m = svc.Methods_._; // ***
+      console.log('   methods: ' + m.Count._.toInt32()); // ***
       if(true){
         // do nothing here because there are too many bugs (get_value_from_key)
         // np(m, [me.Name for me in svc.Methods_]); // dummy code (as python)

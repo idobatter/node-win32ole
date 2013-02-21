@@ -13,7 +13,7 @@ var mazefile = path.join(tmpdir, 'maze_sample.xls');
 
 // These parameters must be same as maze_solver.js
 // colors 1: K 2: W 3: R 4: G 5: B 6: Y 7: M 8: C
-var HEIGHT = 4, WIDTH = 6, OFFSET_ROW = 2, OFFSET_COL = 2;
+var HEIGHT = 20, WIDTH = 30, OFFSET_ROW = 2, OFFSET_COL = 2;
 var MAX_ROW = OFFSET_ROW + HEIGHT - 1, MAX_COL = OFFSET_COL + WIDTH - 1;
 var sheet = null;
 
