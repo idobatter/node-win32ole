@@ -83,9 +83,11 @@ see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-wi
 - [examples/ie_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ie_sample.js)
 - [examples/typelibrary_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/typelibrary_sample.js)
 - [examples/uncfinder_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/uncfinder_sample.js)
+- [examples/activex_filesystemobject_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/activex_filesystemobject_sample.js)
 - [examples/wmi_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/wmi_sample.js)
 - [examples/wsh_sample.js](https://github.com/idobatter/node-win32ole/blob/master/examples/wsh_sample.js)
 - [examples/ole_args_test_client.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client.js)
+- [examples/ole_args_test_client_metamorphoses.js](https://github.com/idobatter/node-win32ole/blob/master/examples/ole_args_test_client_metamorphoses.js)
 
 
 # Other built in functions
@@ -101,9 +103,10 @@ see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-wi
 
 # FEATURES
 
+* BUG: Some samples in win32ole@0.0.25 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( __noSuchMethod__ / __noSuchGetter__ / __noSuchSetter__ ) by node-proxy.
 * So much implements. (can not handle some COM VARIANT types, array etc.)
 * Bug fix. (throws exception when failed to Invoke(), and many test message.)
-* Implement accessors getter, setter and caller. (version 0.1.x)
+* Implement accessors getter, setter and caller. (version 0.1.x) (Some V8Variants were advanced to 0.1.x .)
 
 
 # API
