@@ -103,7 +103,7 @@ see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-wi
 
 # FEATURES
 
-* BUG: Some samples in win32ole@0.0.25 and win32ole@0.0.26 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( __noSuchMethod__ / __noSuchGetter__ / __noSuchSetter__ ) by node-proxy.
+* BUG: Some samples in win32ole@0.0.25 , win32ole@0.0.26 and win32ole@0.0.27 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( __noSuchMethod__ / __noSuchGetter__ / __noSuchSetter__ ) by node-proxy.
 * So much implements. (can not handle some COM VARIANT types, array etc.)
 * Bug fix. (throws exception when failed to Invoke(), and many test message.)
 * Implement accessors getter, setter and caller. (version 0.1.x) (Some V8Variants were advanced to 0.1.x .)
