@@ -128,7 +128,7 @@
 </ul><h1>FEATURES</h1>
 
 <ul>
-<li>BUG: Some samples in win32ole@0.0.25 and win32ole@0.0.26 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( <strong>noSuchMethod</strong> / <strong>noSuchGetter</strong> / <strong>noSuchSetter</strong> ) by node-proxy.</li>
+<li>BUG: Some samples in win32ole@0.0.25 , win32ole@0.0.26 and win32ole@0.0.27 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( <strong>noSuchMethod</strong> / <strong>noSuchGetter</strong> / <strong>noSuchSetter</strong> ) by node-proxy.</li>
 <li>So much implements. (can not handle some COM VARIANT types, array etc.)</li>
 <li>Bug fix. (throws exception when failed to Invoke(), and many test message.)</li>
 <li>Implement accessors getter, setter and caller. (version 0.1.x) (Some V8Variants were advanced to 0.1.x .)</li>
