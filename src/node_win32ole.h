@@ -17,11 +17,13 @@ namespace node_win32ole {
 
 #if(1)
 #define OLETRACEIN() do{ BDISPFUNCIN(); }while(0)
+#define OLETRACEARG(v) do{ \
+    std::cerr << (v->IsObject() ? "object" : *String::Utf8Value(v)) << ","; \
+  }while(0)
 #define OLETRACEPREARGV(sargs) Handle<Value> argv[] = { sargs }; \
   int argc = sizeof(argv) / sizeof(argv[0])
 #define OLETRACEARGV() do{ \
-    for(int i = 0; i < argc; ++i) \
-      std::cerr << *String::Utf8Value(argv[i]) << ","; \
+    for(int i = 0; i < argc; ++i) OLETRACEARG(argv[i]); \
   }while(0)
 #define OLETRACEVT(th) do{ \
     OCVariant *ocv = castedInternalField<OCVariant>(th); \
@@ -32,8 +34,7 @@ namespace node_win32ole {
     std::cerr.flush(); \
   }while(0)
 #define OLETRACEARGS() do{ \
-    for(int i = 0; i < args.Length(); ++i) \
-      std::cerr << *String::Utf8Value(args[i]) << ","; \
+    for(int i = 0; i < args.Length(); ++i) OLETRACEARG(args[i]); \
   }while(0)
 #define OLETRACEFLUSH() do{ std::cerr<<std::endl; std::cerr.flush(); }while(0)
 #define OLETRACEOUT() do{ BDISPFUNCOUT(); }while(0)
