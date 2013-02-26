@@ -353,16 +353,7 @@ Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
   OLETRACEVT(args.This());
   OLETRACEARGS();
   OLETRACEFLUSH();
-  Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
-  if(!r->IsObject()){
-    std::cerr << "There is something wrong. (invoke)" << std::endl;
-    std::cerr.flush();
-    return scope.Close(r); // *** or throw exception
-  }
-  Local<Object> thisObject = r->ToObject();
-  OLETRACEVT(thisObject);
-  OLETRACEFLUSH();
-  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 1, av0, av1);
@@ -432,16 +423,7 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   OLETRACEVT(args.This());
   OLETRACEARGS();
   OLETRACEFLUSH();
-  Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
-  if(!r->IsObject()){
-    std::cerr << "There is something wrong. (set)" << std::endl;
-    std::cerr.flush();
-    return scope.Close(r); // *** or throw exception
-  }
-  Local<Object> thisObject = r->ToObject();
-  OLETRACEVT(thisObject);
-  OLETRACEFLUSH();
-  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 2, av0, av1);
@@ -472,29 +454,30 @@ Handle<Value> V8Variant::OLECallComplete(const Arguments& args)
 {
   HandleScope scope;
   OLETRACEIN();
+  Handle<Value> result = Undefined();
   V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(args.This());
-  if(v8v->property_carryover.empty()){ // *** or throw exception
+  if(!v8v->property_carryover.empty()){
+    const char *name = v8v->property_carryover.c_str();
+    {
+      OLETRACEPREARGV(String::NewSymbol(name));
+      OLETRACEARGV();
+    }
+    OLETRACEVT(args.This());
+    OLETRACEARGS();
+    OLETRACEFLUSH();
+    Handle<Array> a = Array::New(args.Length());
+    for(int i = 0; i < args.Length(); ++i) ARRAY_SET(a, i, args[i]);
+    Handle<Value> argv[] = {String::NewSymbol(name), a};
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    v8v->property_carryover.erase();
+    result = INSTANCE_CALL(args.This(), "call", argc, argv);
+  }else{
     std::cerr << "There is something wrong. (name is empty)" << std::endl;
     std::cerr.flush();
+    // *** or throw exception
   }
-  const char *name = v8v->property_carryover.c_str();
-  {
-    OLETRACEPREARGV(String::NewSymbol(name));
-    OLETRACEARGV();
-  }
-  OLETRACEVT(args.This());
-  OLETRACEARGS();
-  OLETRACEFLUSH();
-  Handle<Array> a = Array::New(args.Length());
-  for(int i = 0; i < args.Length(); ++i) ARRAY_SET(a, i, args[i]);
-  Handle<Value> argv[] = {String::NewSymbol(name), a};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  v8v->property_carryover.erase();
-  Handle<Value> result = INSTANCE_CALL(args.This(), "call", argc, argv);
-
 //_
 //Handle<Value> r = INSTANCE_CALL(Handle<Object>::Cast(v), "toValue", 0, NULL);
-
   OLETRACEOUT();
   return scope.Close(result);
 }
@@ -509,6 +492,22 @@ Handle<Value> V8Variant::OLEGetAttr(
     OLETRACEARGV();
   }
   OLETRACEVT(info.This());
+  OLETRACEFLUSH();
+  String::Utf8Value u8name(name);
+  Local<Object> thisObject = info.This();
+  if(std::string("call") == *u8name
+  || std::string("get") == *u8name || std::string("set") == *u8name
+  || std::string("_") == *u8name || std::string("toValue") == *u8name){
+//|| std::string("valueOf") == *u8name || std::string("toString") == *u8name){
+    Handle<Value> r = V8Variant::OLEFlushCarryOver(thisObject);
+    if(!r->IsObject()){
+      std::cerr << "There is something wrong. (getattr)" << std::endl;
+      std::cerr.flush();
+      return scope.Close(r); // *** or throw exception
+    }
+    thisObject = r->ToObject();
+  }
+  OLETRACEVT(thisObject);
   OLETRACEFLUSH();
   // Can't use INSTANCE_CALL here. (recursion itself)
   // So it returns Object's fundamental function and custom function:
@@ -526,7 +525,6 @@ Handle<Value> V8Variant::OLEGetAttr(
     {0, "hasOwnProperty", NULL}, {0, "isPrototypeOf", NULL},
     {0, "propertyIsEnumerable", NULL}
   };
-  String::Utf8Value u8name(name);
   for(int i = 0; i < sizeof(fundamentals) / sizeof(fundamentals[0]); ++i){
     if(std::string(fundamentals[i].name) != *u8name) continue;
     if(fundamentals[i].obsoleted){
@@ -534,21 +532,22 @@ Handle<Value> V8Variant::OLEGetAttr(
       std::cerr << "()] is obsoleted. ## ***" << std::endl;
       std::cerr.flush();
     }
+    OLETRACEOUT();
     return scope.Close(FunctionTemplate::New(
-      fundamentals[i].func, info.This())->GetFunction());
+      fundamentals[i].func, thisObject)->GetFunction());
   }
   if(std::string("_") == *u8name){ // through it when "_"
     std::cerr << std::endl << "*** ## [._] is obsoleted. ## ***" << std::endl;
     std::cerr.flush();
   }else{
-    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(info.This());
+    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(thisObject);
     v8v->property_carryover.assign(*u8name);
     OLETRACEPREARGV(name);
     OLETRACEARGV();
     OLETRACEFLUSH();
   }
   OLETRACEOUT();
-  return scope.Close(info.This()); // through it
+  return scope.Close(thisObject); // through it
 }
 
 Handle<Value> V8Variant::OLESetAttr(

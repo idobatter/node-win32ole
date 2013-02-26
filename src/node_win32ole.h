@@ -27,7 +27,9 @@ namespace node_win32ole {
     OCVariant *ocv = castedInternalField<OCVariant>(th); \
     if(!ocv){ std::cerr << "*** OCVariant is NULL ***"; std::cerr.flush(); } \
     CHECK_OCV(ocv); \
-    std::cerr << "vt=" << ocv->v.vt << ":"; std::cerr.flush(); \
+    std::cerr << "vt=" << ocv->v.vt << ":"; \
+    std::cerr << "0x" << std::setw(8) << std::left << std::hex << ocv << ":"; \
+    std::cerr.flush(); \
   }while(0)
 #define OLETRACEARGS() do{ \
     for(int i = 0; i < args.Length(); ++i) \
