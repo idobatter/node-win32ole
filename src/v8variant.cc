@@ -245,9 +245,9 @@ Handle<Value> V8Variant::OLEValue(const Arguments& args)
   OLETRACEFLUSH();
   Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
   if(!r->IsObject()){
-    std::cerr << "There is something wrong." << std::endl;
+    std::cerr << "There is something wrong. (no problem ?)" << std::endl;
     std::cerr.flush();
-    return scope.Close(r); // *** or throw exception
+    return scope.Close(r); // *** or throw exception // no problem ?
   }
   Local<Object> thisObject = r->ToObject();
   OLETRACEVT(thisObject);
@@ -355,7 +355,7 @@ Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
   OLETRACEFLUSH();
   Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
   if(!r->IsObject()){
-    std::cerr << "There is something wrong." << std::endl;
+    std::cerr << "There is something wrong. (invoke)" << std::endl;
     std::cerr.flush();
     return scope.Close(r); // *** or throw exception
   }
@@ -434,7 +434,7 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   OLETRACEFLUSH();
   Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
   if(!r->IsObject()){
-    std::cerr << "There is something wrong." << std::endl;
+    std::cerr << "There is something wrong. (set)" << std::endl;
     std::cerr.flush();
     return scope.Close(r); // *** or throw exception
   }
