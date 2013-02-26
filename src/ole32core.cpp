@@ -266,7 +266,7 @@ OCVariant::~OCVariant()
 {
   DISPFUNCIN();
   DISPFUNCDAT("--destruction-- %08lx %08lx\n", &v, v.vt);
-  DISPFUNCDAT("---(first step in)");
+  DISPFUNCDAT("---(first step in)%d%d", 0, 0);
 #if(0) // recursive (use stack)
   if(next){
     delete next;
@@ -282,8 +282,8 @@ OCVariant::~OCVariant()
 #endif
   // The first node (== self) only be reversed.
   // 1, n, ..., 5, 4, 3, 2
-  DISPFUNCDAT("---(first step out)");
-  DISPFUNCDAT("---(second step in)");
+  DISPFUNCDAT("---(first step out)%d%d", 0, 0);
+  DISPFUNCDAT("---(second step in)%d%d", 0, 0);
   // bug ? comment (see old ole32core.cpp project)
   if((v.vt == VT_DISPATCH) && v.pdispVal){ // app
     v.pdispVal->Release();
@@ -296,7 +296,7 @@ OCVariant::~OCVariant()
     v.bstrVal = NULL;
   }
   VariantClear(&v); // need it
-  DISPFUNCDAT("---(second step out)");
+  DISPFUNCDAT("---(second step out)%d%d", 0, 0);
   DISPFUNCOUT();
 }
 

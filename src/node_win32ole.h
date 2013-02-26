@@ -15,17 +15,48 @@ namespace node_win32ole {
         __FUNCTION__" can't access to V8Variant (null OCVariant)"))); \
   }while(0)
 
+#if(1)
+#define OLETRACEIN() do{ BDISPFUNCIN(); }while(0)
+#define OLETRACEPREARGV(sargs) Handle<Value> argv[] = { sargs }; \
+  int argc = sizeof(argv) / sizeof(argv[0])
+#define OLETRACEARGV() do{ \
+    for(int i = 0; i < argc; ++i) \
+      std::cerr << *String::Utf8Value(argv[i]) << ","; \
+  }while(0)
+#define OLETRACEVT(th) do{ \
+    OCVariant *ocv = castedInternalField<OCVariant>(th); \
+    if(!ocv){ std::cerr << "*** OCVariant is NULL ***"; std::cerr.flush(); } \
+    CHECK_OCV(ocv); \
+    std::cerr << "vt=" << ocv->v.vt << ":"; std::cerr.flush(); \
+  }while(0)
+#define OLETRACEARGS() do{ \
+    for(int i = 0; i < args.Length(); ++i) \
+      std::cerr << *String::Utf8Value(args[i]) << ","; \
+  }while(0)
+#define OLETRACEFLUSH() do{ std::cerr<<std::endl; std::cerr.flush(); }while(0)
+#define OLETRACEOUT() do{ BDISPFUNCOUT(); }while(0)
+#else
+#define OLETRACEIN()
+#define OLETRACEPREARGV()
+#define OLETRACEARGV()
+#define OLETRACEVT()
+#define OLETRACEARGS()
+#define OLETRACEFLUSH()
+#define OLETRACEOUT()
+#endif
+
 #define GET_PROP(obj, prop) (obj)->Get(String::NewSymbol(prop))
 
-#define ARRAY_AT(ary, idx) (ary)->Get(String::NewSymbol(to_s(idx).c_str()))
+#define ARRAY_AT(a, i) (a)->Get(String::NewSymbol(to_s(i).c_str()))
+#define ARRAY_SET(a, i, v) (a)->Set(String::NewSymbol(to_s(i).c_str()), (v))
 
 #define INSTANCE_CALL(obj, method, argc, argv) Handle<Function>::Cast( \
   GET_PROP((obj), (method)))->Call((obj), (argc), (argv))
 
-template <class T> T *castedInternalField(Handle<Object> object)
+template <class T> T *castedInternalField(Handle<Object> object, int fidx=1)
 {
   return static_cast<T *>(
-    Local<External>::Cast(object->GetInternalField(0))->Value());
+    Local<External>::Cast(object->GetInternalField(fidx))->Value());
 }
 
 extern Persistent<Object> module_target;

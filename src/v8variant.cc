@@ -34,7 +34,7 @@ void V8Variant::Init(Handle<Object> target)
   HandleScope scope;
   Local<FunctionTemplate> t = FunctionTemplate::New(New);
   clazz = Persistent<FunctionTemplate>::New(t);
-  clazz->InstanceTemplate()->SetInternalFieldCount(1);
+  clazz->InstanceTemplate()->SetInternalFieldCount(2);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
   NODE_SET_PROTOTYPE_METHOD(clazz, "isA", OLEIsA);
   NODE_SET_PROTOTYPE_METHOD(clazz, "vtName", OLEVTName);
@@ -45,12 +45,13 @@ void V8Variant::Init(Handle<Object> target)
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toValue", OLEValue);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "OLECall", OLECall);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "OLEGet", OLEGet);
-  NODE_SET_PROTOTYPE_METHOD(clazz, "OLESet", OLESet);
-// SetCallAsFunctionHandler
-// SetNamedPropertyHandler
-// SetIndexedPropertyHandler
+  NODE_SET_PROTOTYPE_METHOD(clazz, "call", OLECall);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
+  Local<ObjectTemplate> instancetpl = clazz->InstanceTemplate();
+  instancetpl->SetCallAsFunctionHandler(OLECallComplete);
+  instancetpl->SetNamedPropertyHandler(OLEGetAttr, OLESetAttr);
+//  instancetpl->SetIndexedPropertyHandler(OLEGetIdxAttr, OLESetIdxAttr);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Finalize", Finalize);
   target->Set(String::NewSymbol("V8Variant"), clazz->GetFunction());
 }
@@ -61,12 +62,14 @@ std::string V8Variant::CreateStdStringMBCSfromUTF8(Handle<Value> v)
   wchar_t * wcs = u8s2wcs(*u8s);
   if(!wcs){
     std::cerr << "[Can't allocate string (wcs)]" << std::endl;
+    std::cerr.flush();
     return std::string("'!ERROR'");
   }
   char *mbs = wcs2mbs(wcs);
   if(!mbs){
     free(wcs);
     std::cerr << "[Can't allocate string (mbs)]" << std::endl;
+    std::cerr.flush();
     return std::string("'!ERROR'");
   }
   std::string s(mbs);
@@ -89,6 +92,7 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
   }else if(v->IsArray()){
 // VT_BYREF VT_ARRAY VT_SAFEARRAY
     std::cerr << "[Array (not implemented now)]" << std::endl; return NULL;
+    std::cerr.flush();
   }else if(v->IsInt32()){
     return new OCVariant((long)v->Int32Value());
 #if(0) // may not be supported node.js / v8
@@ -97,37 +101,42 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
 #endif
   }else if(v->IsNumber()){
     std::cerr << "[Number (VT_R8 or VT_I8 bug?)]" << std::endl;
+    std::cerr.flush();
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsNumberObject()){
     std::cerr << "[NumberObject (VT_R8 or VT_I8 bug?)]" << std::endl;
+    std::cerr.flush();
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsDate()){
     std::cerr << "[Date (bug?)]" << std::endl;
+    std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
   }else if(v->IsRegExp()){
     std::cerr << "[RegExp (bug?)]" << std::endl;
+    std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
   }else if(v->IsString()){
     return new OCVariant(CreateStdStringMBCSfromUTF8(v));
   }else if(v->IsStringObject()){
     std::cerr << "[StringObject (bug?)]" << std::endl;
+    std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v));
   }else if(v->IsObject()){
     std::cerr << "[Object (test)]" << std::endl;
-    Handle<Object> obj = v->ToObject();
-    Handle<Value> vrealobj = obj->Get(String::NewSymbol("__")); // encapsulated
-    OCVariant *ocv = castedInternalField<OCVariant>(
-      vrealobj->IsUndefined() ? obj : vrealobj->ToObject());
+    std::cerr.flush();
+    OCVariant *ocv = castedInternalField<OCVariant>(v->ToObject());
     if(!ocv){
       std::cerr << "[Object may not be valid (null OCVariant)]" << std::endl;
+      std::cerr.flush();
       return NULL;
     }
     // std::cerr << ocv->v.vt;
     return new OCVariant(*ocv);
   }else{
     std::cerr << "[unknown type (not implemented now)]" << std::endl;
+    std::cerr.flush();
   }
 done:
   return NULL;
@@ -231,30 +240,45 @@ Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
 Handle<Value> V8Variant::OLEValue(const Arguments& args)
 {
   HandleScope scope;
-  DISPFUNCIN();
-  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  OLETRACEIN();
+  OLETRACEVT(args.This());
+  OLETRACEFLUSH();
+  Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
+  if(!r->IsObject()){
+    std::cerr << "There is something wrong." << std::endl;
+    std::cerr.flush();
+    return scope.Close(r); // *** or throw exception
+  }
+  Local<Object> thisObject = r->ToObject();
+  OLETRACEVT(thisObject);
+  OLETRACEFLUSH();
+  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
+  if(!ocv){ std::cerr << "ocv is null"; std::cerr.flush(); }
   CHECK_OCV(ocv);
   Handle<Value> result = Undefined();
   if(ocv->v.vt == VT_EMPTY) ; // do nothing
   else if(ocv->v.vt == VT_NULL) result = Null();
-  else if(ocv->v.vt == VT_DISPATCH) result = args.This(); // through it
+  else if(ocv->v.vt == VT_DISPATCH) result = thisObject; // through it
   else if(ocv->v.vt == VT_BOOL) result = OLEBoolean(args);
   else if(ocv->v.vt == VT_I4 || ocv->v.vt == VT_INT
   || ocv->v.vt == VT_UI4 || ocv->v.vt == VT_UINT) result = OLEInt32(args);
   else if(ocv->v.vt == VT_I8 || ocv->v.vt == VT_UI8) result = OLEInt64(args);
   else if(ocv->v.vt == VT_R8) result = OLENumber(args);
   else if(ocv->v.vt == VT_BSTR) result = OLEUtf8(args);
-  else if(ocv->v.vt == VT_ARRAY || ocv->v.vt == VT_SAFEARRAY)
+  else if(ocv->v.vt == VT_ARRAY || ocv->v.vt == VT_SAFEARRAY){
     std::cerr << "[Array (not implemented now)]" << std::endl;
-  else if(ocv->v.vt == VT_DATE)
+    std::cerr.flush();
+  }else if(ocv->v.vt == VT_DATE){
     std::cerr << "[Date (bug?)]" << std::endl;
-  else{
-    Handle<Value> s = INSTANCE_CALL(args.This(), "vtName", 0, NULL);
+    std::cerr.flush();
+  }else{
+    Handle<Value> s = INSTANCE_CALL(thisObject, "vtName", 0, NULL);
     std::cerr << "[unknown type " << ocv->v.vt << ":" << *String::Utf8Value(s);
     std::cerr << " (not implemented now)]" << std::endl;
+    std::cerr.flush();
   }
 done:
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return scope.Close(result);
 }
 
@@ -274,8 +298,8 @@ Handle<Object> V8Variant::CreateUndefined(void)
   Local<Object> instance = clazz->GetFunction()->NewInstance(0, NULL);
 #endif
 #if(0) // needless to do (instance has been already wrapped in New)
-  V8Variant *v = new V8Variant();
-  v->Wrap(instance);
+  V8Variant *v = new V8Variant(); // must catch exception
+  v->Wrap(instance); // InternalField[0]
 #endif
   DISPFUNCOUT();
   return scope.Close(instance);
@@ -291,20 +315,54 @@ Handle<Value> V8Variant::New(const Arguments& args)
   OCVariant *ocv = new OCVariant();
   CHECK_OCV(ocv);
   Local<Object> thisObject = args.This();
-  V8Variant *v = new V8Variant();
-  v->Wrap(thisObject);
-  thisObject->SetInternalField(0, External::New(ocv));
+  V8Variant *v = new V8Variant(); // must catch exception
+  v->Wrap(thisObject); // InternalField[0]
+  thisObject->SetInternalField(1, External::New(ocv));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
   objectDisposer.MakeWeak(ocv, Dispose);
   DISPFUNCOUT();
   return args.This();
 }
 
+Handle<Value> V8Variant::OLEFlushCarryOver(Handle<Value> v)
+{
+  HandleScope scope;
+  OLETRACEIN();
+  Handle<Value> result = v;
+  V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(v->ToObject());
+  if(!v8v->property_carryover.empty()){
+    const char *name = v8v->property_carryover.c_str();
+    {
+      OLETRACEPREARGV(String::NewSymbol(name));
+      OLETRACEARGV();
+    }
+    OLETRACEFLUSH();
+    Handle<Value> argv[] = {String::NewSymbol(name), Array::New(0)};
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    v8v->property_carryover.erase();
+    result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
+  }
+  OLETRACEOUT();
+  return scope.Close(result);
+}
+
 Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
 {
   HandleScope scope;
-  DISPFUNCIN();
-  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  OLETRACEIN();
+  OLETRACEVT(args.This());
+  OLETRACEARGS();
+  OLETRACEFLUSH();
+  Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
+  if(!r->IsObject()){
+    std::cerr << "There is something wrong." << std::endl;
+    std::cerr.flush();
+    return scope.Close(r); // *** or throw exception
+  }
+  Local<Object> thisObject = r->ToObject();
+  OLETRACEVT(thisObject);
+  OLETRACEFLUSH();
+  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 1, av0, av1);
@@ -335,10 +393,10 @@ Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
   }
   free(wcs); // *** it may leak when error ***
   Handle<Value> result = INSTANCE_CALL(vResult, "toValue", 0, NULL);
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return scope.Close(result);
 done:
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return ThrowException(Exception::TypeError(
     String::New(__FUNCTION__" failed")));
 }
@@ -346,26 +404,44 @@ done:
 Handle<Value> V8Variant::OLECall(const Arguments& args)
 {
   HandleScope scope;
-  DISPFUNCIN();
+  OLETRACEIN();
+  OLETRACEVT(args.This());
+  OLETRACEARGS();
+  OLETRACEFLUSH();
   Handle<Value> r = V8Variant::OLEInvoke(true, args); // as Call
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return scope.Close(r);
 }
 
 Handle<Value> V8Variant::OLEGet(const Arguments& args)
 {
   HandleScope scope;
-  DISPFUNCIN();
+  OLETRACEIN();
+  OLETRACEVT(args.This());
+  OLETRACEARGS();
+  OLETRACEFLUSH();
   Handle<Value> r = V8Variant::OLEInvoke(false, args); // as Get
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return scope.Close(r);
 }
 
 Handle<Value> V8Variant::OLESet(const Arguments& args)
 {
   HandleScope scope;
-  DISPFUNCIN();
-  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  OLETRACEIN();
+  OLETRACEVT(args.This());
+  OLETRACEARGS();
+  OLETRACEFLUSH();
+  Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
+  if(!r->IsObject()){
+    std::cerr << "There is something wrong." << std::endl;
+    std::cerr.flush();
+    return scope.Close(r); // *** or throw exception
+  }
+  Local<Object> thisObject = r->ToObject();
+  OLETRACEVT(thisObject);
+  OLETRACEFLUSH();
+  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 2, av0, av1);
@@ -384,12 +460,110 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   }
   free(wcs); // *** it may leak when error ***
   result = true;
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return scope.Close(Boolean::New(result));
 done:
-  DISPFUNCOUT();
+  OLETRACEOUT();
   return ThrowException(Exception::TypeError(
     String::New(__FUNCTION__" failed")));
+}
+
+Handle<Value> V8Variant::OLECallComplete(const Arguments& args)
+{
+  HandleScope scope;
+  OLETRACEIN();
+  V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(args.This());
+  if(v8v->property_carryover.empty()){ // *** or throw exception
+    std::cerr << "There is something wrong. (name is empty)" << std::endl;
+    std::cerr.flush();
+  }
+  const char *name = v8v->property_carryover.c_str();
+  {
+    OLETRACEPREARGV(String::NewSymbol(name));
+    OLETRACEARGV();
+  }
+  OLETRACEVT(args.This());
+  OLETRACEARGS();
+  OLETRACEFLUSH();
+  Handle<Array> a = Array::New(args.Length());
+  for(int i = 0; i < args.Length(); ++i) ARRAY_SET(a, i, args[i]);
+  Handle<Value> argv[] = {String::NewSymbol(name), a};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  v8v->property_carryover.erase();
+  Handle<Value> result = INSTANCE_CALL(args.This(), "call", argc, argv);
+
+//_
+//Handle<Value> r = INSTANCE_CALL(Handle<Object>::Cast(v), "toValue", 0, NULL);
+
+  OLETRACEOUT();
+  return scope.Close(result);
+}
+
+Handle<Value> V8Variant::OLEGetAttr(
+  Local<String> name, const AccessorInfo& info)
+{
+  HandleScope scope;
+  OLETRACEIN();
+  {
+    OLETRACEPREARGV(name);
+    OLETRACEARGV();
+  }
+  OLETRACEVT(info.This());
+  OLETRACEFLUSH();
+  // Can't use INSTANCE_CALL here. (recursion itself)
+  // So it returns Object's fundamental function and custom function:
+  //   inspect ?, constructor valueOf toString toLocaleString
+  //   hasOwnProperty isPrototypeOf propertyIsEnumerable
+  static fundamental_attr fundamentals[] = {
+    {0, "call", OLECall}, {0, "get", OLEGet}, {0, "set", OLESet},
+    {0, "isA", OLEIsA}, {0, "vtName", OLEVTName}, // {"vt_names", ???},
+    {!0, "toBoolean", OLEValue},
+    {!0, "toInt32", OLEValue}, {!0, "toInt64", OLEValue},
+    {!0, "toNumber", OLEValue}, {!0, "toUtf8", OLEValue},
+    {0, "toValue", OLEValue},
+    {0, "inspect", NULL}, {0, "constructor", NULL}, {0, "valueOf", OLEValue},
+    {0, "toString", OLEValue}, {0, "toLocaleString", OLEValue},
+    {0, "hasOwnProperty", NULL}, {0, "isPrototypeOf", NULL},
+    {0, "propertyIsEnumerable", NULL}
+  };
+  String::Utf8Value u8name(name);
+  for(int i = 0; i < sizeof(fundamentals) / sizeof(fundamentals[0]); ++i){
+    if(std::string(fundamentals[i].name) != *u8name) continue;
+    if(fundamentals[i].obsoleted){
+      std::cerr << std::endl << "*** ## [." << fundamentals[i].name;
+      std::cerr << "()] is obsoleted. ## ***" << std::endl;
+      std::cerr.flush();
+    }
+    return scope.Close(FunctionTemplate::New(
+      fundamentals[i].func, info.This())->GetFunction());
+  }
+  if(std::string("_") == *u8name){ // through it when "_"
+    std::cerr << std::endl << "*** ## [._] is obsoleted. ## ***" << std::endl;
+    std::cerr.flush();
+  }else{
+    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(info.This());
+    v8v->property_carryover.assign(*u8name);
+    OLETRACEPREARGV(name);
+    OLETRACEARGV();
+    OLETRACEFLUSH();
+  }
+  OLETRACEOUT();
+  return scope.Close(info.This()); // through it
+}
+
+Handle<Value> V8Variant::OLESetAttr(
+  Local<String> name, Local<Value> val, const AccessorInfo& info)
+{
+  HandleScope scope;
+  OLETRACEIN();
+  Handle<Value> argv[] = {name, val};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  OLETRACEARGV();
+  OLETRACEVT(info.This());
+  OLETRACEFLUSH();
+  Handle<Value> r = INSTANCE_CALL(info.This(), "set", argc, argv);
+  OLETRACEOUT();
+  return scope.Close(r);
 }
 
 Handle<Value> V8Variant::Finalize(const Arguments& args)
@@ -398,14 +572,19 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
   DISPFUNCIN();
 #if(0)
   std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
+  std::cerr.flush();
 #endif
   Local<Object> thisObject = args.This();
-// V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+#if(0)
+  V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+  if(v) delete v; // it has been already deleted ?
+  thisObject->SetInternalField(0, External::New(NULL));
+#endif
 #if(1) // now GC will call Disposer automatically
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   if(ocv) delete ocv;
 #endif
-  thisObject->SetInternalField(0, External::New(NULL));
+  thisObject->SetInternalField(1, External::New(NULL));
   DISPFUNCOUT();
   return args.This();
 }
@@ -416,18 +595,31 @@ void V8Variant::Dispose(Persistent<Value> handle, void *param)
 #if(1)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
+  std::cerr.flush();
 #endif
-  OCVariant *p = castedInternalField<OCVariant>(handle->ToObject());
+  Local<Object> thisObject = handle->ToObject();
+#if(1)
+  V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+  if(!v){
+    std::cerr << __FUNCTION__;
+    std::cerr << "InternalField[0] has been already deleted" << std::endl;
+    std::cerr.flush();
+  }else delete v; // it has been already deleted ?
+  BEVERIFY(done, thisObject->InternalFieldCount() > 0);
+  thisObject->SetInternalField(0, External::New(NULL));
+#endif
+  OCVariant *p = castedInternalField<OCVariant>(thisObject);
   if(!p){
     std::cerr << __FUNCTION__;
-    std::cerr << "InternalField has been already deleted" << std::endl;
+    std::cerr << "InternalField[1] has been already deleted" << std::endl;
+    std::cerr.flush();
   }
 //  else{
-    OCVariant *ocv = static_cast<OCVariant *>(param);
+    OCVariant *ocv = static_cast<OCVariant *>(param); // ocv may be same as p
     if(ocv) delete ocv;
 //  }
-  BEVERIFY(done, handle->ToObject()->InternalFieldCount() > 0);
-  handle->ToObject()->SetInternalField(0, External::New(NULL));
+  BEVERIFY(done, thisObject->InternalFieldCount() > 1);
+  thisObject->SetInternalField(1, External::New(NULL));
 done:
   handle.Dispose();
   DISPFUNCOUT();
