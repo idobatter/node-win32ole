@@ -243,13 +243,8 @@ Handle<Value> V8Variant::OLEValue(const Arguments& args)
   OLETRACEIN();
   OLETRACEVT(args.This());
   OLETRACEFLUSH();
-  Handle<Value> r = V8Variant::OLEFlushCarryOver(args.This());
-  if(!r->IsObject()){
-    std::cerr << "There is something wrong. (no problem ?)" << std::endl;
-    std::cerr.flush();
-    return scope.Close(r); // *** or throw exception // no problem ?
-  }
-  Local<Object> thisObject = r->ToObject();
+  Local<Object> thisObject = args.This();
+  OLE_PROCESS_CARRY_OVER(thisObject, "OLEValue (no problem ?)"); // *** , NULL
   OLETRACEVT(thisObject);
   OLETRACEFLUSH();
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
@@ -330,18 +325,17 @@ Handle<Value> V8Variant::OLEFlushCarryOver(Handle<Value> v)
   OLETRACEIN();
   Handle<Value> result = v;
   V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(v->ToObject());
-  if(!v8v->property_carryover.empty()){
-    const char *name = v8v->property_carryover.c_str();
-    {
-      OLETRACEPREARGV(String::NewSymbol(name));
-      OLETRACEARGV();
-    }
-    OLETRACEFLUSH();
-    Handle<Value> argv[] = {String::NewSymbol(name), Array::New(0)};
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    v8v->property_carryover.erase();
-    result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
+  // if(v8v->property_carryover.empty()) // throw exception
+  const char *name = v8v->property_carryover.c_str();
+  {
+    OLETRACEPREARGV(String::NewSymbol(name));
+    OLETRACEARGV();
   }
+  OLETRACEFLUSH();
+  Handle<Value> argv[] = {String::NewSymbol(name), Array::New(0)};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  v8v->property_carryover.erase();
+  result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
   OLETRACEOUT();
   return scope.Close(result);
 }
@@ -454,6 +448,7 @@ Handle<Value> V8Variant::OLECallComplete(const Arguments& args)
 {
   HandleScope scope;
   OLETRACEIN();
+  OLETRACEVT(args.This());
   Handle<Value> result = Undefined();
   V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(args.This());
   if(!v8v->property_carryover.empty()){
@@ -462,7 +457,6 @@ Handle<Value> V8Variant::OLECallComplete(const Arguments& args)
       OLETRACEPREARGV(String::NewSymbol(name));
       OLETRACEARGV();
     }
-    OLETRACEVT(args.This());
     OLETRACEARGS();
     OLETRACEFLUSH();
     Handle<Array> a = Array::New(args.Length());
@@ -487,11 +481,11 @@ Handle<Value> V8Variant::OLEGetAttr(
 {
   HandleScope scope;
   OLETRACEIN();
+  OLETRACEVT(info.This());
   {
     OLETRACEPREARGV(name);
     OLETRACEARGV();
   }
-  OLETRACEVT(info.This());
   OLETRACEFLUSH();
   String::Utf8Value u8name(name);
   Local<Object> thisObject = info.This();
@@ -499,16 +493,9 @@ Handle<Value> V8Variant::OLEGetAttr(
   || std::string("get") == *u8name || std::string("set") == *u8name
   || std::string("_") == *u8name || std::string("toValue") == *u8name){
 //|| std::string("valueOf") == *u8name || std::string("toString") == *u8name){
-    Handle<Value> r = V8Variant::OLEFlushCarryOver(thisObject);
-    if(!r->IsObject()){
-      std::cerr << "There is something wrong. (getattr)" << std::endl;
-      std::cerr.flush();
-      return scope.Close(r); // *** or throw exception
-    }
-    thisObject = r->ToObject();
+    OLE_PROCESS_CARRY_OVER(thisObject, "OLEGetAttr");
   }
   OLETRACEVT(thisObject);
-  OLETRACEFLUSH();
   // Can't use INSTANCE_CALL here. (recursion itself)
   // So it returns Object's fundamental function and custom function:
   //   inspect ?, constructor valueOf toString toLocaleString
@@ -532,6 +519,7 @@ Handle<Value> V8Variant::OLEGetAttr(
       std::cerr << "()] is obsoleted. ## ***" << std::endl;
       std::cerr.flush();
     }
+    OLETRACEFLUSH();
     OLETRACEOUT();
     return scope.Close(FunctionTemplate::New(
       fundamentals[i].func, thisObject)->GetFunction());
@@ -544,8 +532,8 @@ Handle<Value> V8Variant::OLEGetAttr(
     v8v->property_carryover.assign(*u8name);
     OLETRACEPREARGV(name);
     OLETRACEARGV();
-    OLETRACEFLUSH();
   }
+  OLETRACEFLUSH();
   OLETRACEOUT();
   return scope.Close(thisObject); // through it
 }
@@ -555,10 +543,10 @@ Handle<Value> V8Variant::OLESetAttr(
 {
   HandleScope scope;
   OLETRACEIN();
+  OLETRACEVT(info.This());
   Handle<Value> argv[] = {name, val};
   int argc = sizeof(argv) / sizeof(argv[0]);
   OLETRACEARGV();
-  OLETRACEVT(info.This());
   OLETRACEFLUSH();
   Handle<Value> r = INSTANCE_CALL(info.This(), "set", argc, argv);
   OLETRACEOUT();

@@ -17,21 +17,21 @@ namespace node_win32ole {
 
 #if(1)
 #define OLETRACEIN() do{ BDISPFUNCIN(); }while(0)
+#define OLETRACEVT(th) do{ \
+    OCVariant *ocv = castedInternalField<OCVariant>(th); \
+    if(!ocv){ std::cerr << "*** OCVariant is NULL ***"; std::cerr.flush(); } \
+    CHECK_OCV(ocv); \
+    std::cerr << "0x" << std::setw(8) << std::left << std::hex << ocv << ":"; \
+    std::cerr << "vt=" << ocv->v.vt << ":"; \
+    std::cerr.flush(); \
+  }while(0)
 #define OLETRACEARG(v) do{ \
-    std::cerr << (v->IsObject() ? "object" : *String::Utf8Value(v)) << ","; \
+    std::cerr << (v->IsObject() ? "OBJECT" : *String::Utf8Value(v)) << ","; \
   }while(0)
 #define OLETRACEPREARGV(sargs) Handle<Value> argv[] = { sargs }; \
   int argc = sizeof(argv) / sizeof(argv[0])
 #define OLETRACEARGV() do{ \
     for(int i = 0; i < argc; ++i) OLETRACEARG(argv[i]); \
-  }while(0)
-#define OLETRACEVT(th) do{ \
-    OCVariant *ocv = castedInternalField<OCVariant>(th); \
-    if(!ocv){ std::cerr << "*** OCVariant is NULL ***"; std::cerr.flush(); } \
-    CHECK_OCV(ocv); \
-    std::cerr << "vt=" << ocv->v.vt << ":"; \
-    std::cerr << "0x" << std::setw(8) << std::left << std::hex << ocv << ":"; \
-    std::cerr.flush(); \
   }while(0)
 #define OLETRACEARGS() do{ \
     for(int i = 0; i < args.Length(); ++i) OLETRACEARG(args[i]); \
@@ -40,13 +40,26 @@ namespace node_win32ole {
 #define OLETRACEOUT() do{ BDISPFUNCOUT(); }while(0)
 #else
 #define OLETRACEIN()
+#define OLETRACEVT()
 #define OLETRACEPREARGV()
 #define OLETRACEARGV()
-#define OLETRACEVT()
 #define OLETRACEARGS()
 #define OLETRACEFLUSH()
 #define OLETRACEOUT()
 #endif
+
+// *** or throw exception
+#define OLE_PROCESS_CARRY_OVER(th, funcname) do{ \
+    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(th); \
+    if(v8v->property_carryover.empty()) break; \
+    Handle<Value> r = V8Variant::OLEFlushCarryOver(th); \
+    if(funcname && !r->IsObject()){ \
+      std::cerr << "There is something wrong. :" << funcname << std::endl; \
+      std::cerr.flush(); \
+      return scope.Close(r); \
+    } \
+    th = r->ToObject(); \
+  }while(0)
 
 #define GET_PROP(obj, prop) (obj)->Get(String::NewSymbol(prop))
 
