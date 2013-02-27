@@ -55,8 +55,8 @@ var wmi_sample = function(filename){
     var query = "select * from Win32_Process where Name like '%explore%'";
     query += " or Name='rundll32.exe' or Name='winlogon.exe'";
     var procset = svr.ExecQuery(query);
-    console.log('procset is a ' + procset.__.vtName()); // *** ( SWbemObjectSet )
-    var count = procset.Count._; // ***
+    console.log('procset is a ' + procset.vtName()); // *** ( SWbemObjectSet )
+    var count = procset.Count;
     console.log('count = ' + count);
     console.log(' ImageName, ProcessId, VirtualSize, Threads, Description,');
     console.log(' [ImagePath]');
@@ -69,9 +69,9 @@ var wmi_sample = function(filename){
       if(imgpath.match(/[\s]+/ig)) size += 2;
       win32ole.printACP(
         '-> ' + safeutf8(proc, 'Name')
-        + ', ' + proc.ProcessId._ // ***
+        + ', ' + proc.ProcessId
         + ', ' + safeutf8(proc, 'VirtualSize')
-        + ', ' + proc.ThreadCount._ // ***
+        + ', ' + proc.ThreadCount
         + ', ' + safeutf8(proc, 'Description')
         + '\n   [' + imgpath
         + ']\n   [' + cmdline.substring(size)
@@ -79,16 +79,16 @@ var wmi_sample = function(filename){
     }
     console.log('*** get services (first 10 items) ***');
     var svcset = svr.ExecQuery('select * from Win32_Service');
-    count = svcset.Count._; // ***
+    count = svcset.Count;
     console.log('count = ' + count);
     for(var i = 0; i < 10; ++i){
       var svc = svcset.ItemIndex(i);
-      var q = svc.Qualifiers_._; // ***
+      var q = svc.Qualifiers_.valueOf(); // ***
       win32ole.printACP(
         '-> ' + get_value_from_key(q, 'provider')
         + '\n   [' + get_value_from_key(q, 'UUID')
         + ']\n');
-      var p = svc.Properties_._; // ***
+      var p = svc.Properties_.valueOf(); // ***
       win32ole.printACP(
         '   ' + get_value_from_key(p, 'Name')
         + '\n   [' + get_value_from_key(p, 'PathName')
@@ -97,7 +97,7 @@ var wmi_sample = function(filename){
         for(var j = 0; j < na.length; ++j){
           console.log('    method Qualifiers_: ' + na[j]);
           var me = m.Item(na[j]);
-          var mq = me.Qualifiers_._; // ***
+          var mq = me.Qualifiers_.valueOf(); // ***
           win32ole.printACP(
             '     [' + get_value_from_key(mq, 'Override')
             + ']\n     [' + get_value_from_key(mq, 'Static') // Boolean
@@ -106,8 +106,8 @@ var wmi_sample = function(filename){
             + ']\n');
         }
       };
-      var m = svc.Methods_._; // ***
-      console.log('   methods: ' + m.Count._); // ***
+      var m = svc.Methods_;
+      console.log('   methods: ' + m.Count);
       if(true){
         // do nothing here because there are too many bugs (get_value_from_key)
         // np(m, [me.Name for me in svc.Methods_]); // dummy code (as python)

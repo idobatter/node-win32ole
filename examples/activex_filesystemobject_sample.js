@@ -16,7 +16,8 @@ var activex_filesystemobject_sample = function(){
   };
   var withEachLine = function(filename, callback){
     withReadFile(filename, function(file){
-      while(!file.AtEndOfStream._) callback(file.ReadLine()); // ***
+      while(file.AtEndOfStream != true) // *** !file.AtEndOfStream.valueOf()
+        callback(file.ReadLine());
     });
   };
   withEachLine(testfile, function(line){

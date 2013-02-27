@@ -172,13 +172,13 @@ Handle<Value> Client::Finalize(const Arguments& args)
 void Client::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-#if(1)
+#if(0)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
   std::cerr.flush();
 #endif
   Local<Object> thisObject = handle->ToObject();
-#if(1)
+#if(0) // it has been already deleted ?
   Client *cl = ObjectWrap::Unwrap<Client>(thisObject);
   if(!cl){
     std::cerr << __FUNCTION__;

@@ -12,9 +12,9 @@ var outfile = path.join(tmpdir, 'word_sample.doc');
 var word_sample = function(filename){
   var wd = win32ole.client.Dispatch('Word.Application');
   wd.Visible = true;
-  var doc = wd.Documents._.Add(); // ***
-  var para = doc.Content._.Paragraphs._.Add(); // ***
-  para.Range._.Text = 'stringUTF8'; // ***
+  var doc = wd.Documents.Add();
+  var para = doc.Content.Paragraphs.Add();
+  para.Range.Text = 'stringUTF8';
   try{
     console.log('saving to: "' + filename + '" ...');
     var result = doc.SaveAs(filename);
@@ -22,7 +22,7 @@ var word_sample = function(filename){
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
-  wd.Documents._.Close(); // ***
+  wd.Documents.Close();
   wd.Quit();
 };
 

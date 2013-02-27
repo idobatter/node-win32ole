@@ -11,10 +11,10 @@ var outfile = path.join(tmpdir, 'access_mdb_sample.mdb');
 
 var display_or_edit_all = function(rs, ed){
   var getRSvalue = function(rs, fieldname){
-    return rs.Fields(fieldname).Value._; // ***
+    return rs.Fields(fieldname).Value;
   }
   rs.MoveFirst();
-  while(!rs.Eof._){ // ***
+  while(rs.Eof != true){ // *** !rs.Eof.valueOf()
     win32ole.print('id: ');
     win32ole.print(getRSvalue(rs, 'id'));
     win32ole.print(', c1: ');
@@ -43,7 +43,7 @@ var adox_sample = function(filename){
   db.Create(dsn);
   var sql_create_table = 'create table testtbl (id autoincrement primary key,';
   sql_create_table += ' c1 varchar(255), c2 integer, c3 varchar(255));';
-  var cn = db.ActiveConnection._; // ***
+  var cn = db.ActiveConnection.valueOf(); // ***
   cn.Execute(sql_create_table);
   for(var i = 11; i < 13; ++i){
     var sql_insert = "insert into testtbl (c1, c2, c3) values";

@@ -124,8 +124,10 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
     std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v));
   }else if(v->IsObject()){
+#if(0)
     std::cerr << "[Object (test)]" << std::endl;
     std::cerr.flush();
+#endif
     OCVariant *ocv = castedInternalField<OCVariant>(v->ToObject());
     if(!ocv){
       std::cerr << "[Object may not be valid (null OCVariant)]" << std::endl;
@@ -577,10 +579,19 @@ Handle<Value> V8Variant::OLEGetAttr(
     std::cerr << " *** ## [._] is obsoleted. ## ***" << std::endl;
     std::cerr.flush();
   }else{
-    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+    Handle<Object> vResult = V8Variant::CreateUndefined(); // uses much memory
+    OCVariant *rv = V8Variant::CreateOCVariant(thisObject);
+    CHECK_OCV(rv);
+    OCVariant *o = castedInternalField<OCVariant>(vResult);
+    CHECK_OCV(o);
+    *o = *rv; // copy and don't delete rv
+    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(vResult);
     v8v->property_carryover.assign(*u8name);
     OLETRACEPREARGV(name);
     OLETRACEARGV();
+    OLETRACEFLUSH();
+    OLETRACEOUT();
+    return scope.Close(vResult); // convert and hold it (uses much memory)
   }
   OLETRACEFLUSH();
   OLETRACEOUT();
@@ -628,13 +639,13 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-#if(1)
+#if(0)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
   std::cerr.flush();
 #endif
   Local<Object> thisObject = handle->ToObject();
-#if(1)
+#if(0) // it has been already deleted ?
   V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
   if(!v){
     std::cerr << __FUNCTION__;

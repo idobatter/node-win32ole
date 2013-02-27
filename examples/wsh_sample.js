@@ -13,7 +13,7 @@ var wsh_sample = function(filename){
   var sh = win32ole.client.Dispatch('WScript.Shell');
   console.log('sh:');
   // console.log(require('util').inspect(sh.__, true, null, true)); // {}
-  console.log(require('util').inspect(sh, true, null, true));
+  console.log(require('util').inspect(sh, true, null, true)); // *** error
 
   try{
 
@@ -51,10 +51,10 @@ var wsh_sample = function(filename){
   var shellexec = function(sh, cmd, callback){
     console.log('sh.Exec(' + cmd + ')');
     var stat = sh.Exec(cmd);
-//    while(stat.Status._ == 0) win32ole.sleep(100, true, true); // ***
-    var so = stat.StdOut._; // ***
-    while(!so.AtEndOfStream._) callback(so.ReadLine()); // ***
-    console.log('code = ' + stat.ExitCode._); // ***
+//    while(stat.Status == 0) win32ole.sleep(100, true, true);
+    var so = stat.StdOut.valueOf(); // ***
+    while(so.AtEndOfStream != true) callback(so.ReadLine()); // *** !so.At...
+    console.log('code = ' + stat.ExitCode);
   }
 
   var cmd = 'reg query "HKLM\\Software\\Microsoft\\Internet Explorer"';
