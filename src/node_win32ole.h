@@ -16,7 +16,7 @@ namespace node_win32ole {
   }while(0)
 
 #if(0)
-#define OLETRACEIN() do{ BDISPFUNCIN(); }while(0)
+#define OLETRACEIN() BDISPFUNCIN()
 #define OLETRACEVT(th) do{ \
     OCVariant *ocv = castedInternalField<OCVariant>(th); \
     if(!ocv){ std::cerr << "*** OCVariant is NULL ***"; std::cerr.flush(); } \
@@ -37,18 +37,7 @@ namespace node_win32ole {
     for(int i = 0; i < args.Length(); ++i) OLETRACEARG(args[i]); \
   }while(0)
 #define OLETRACEFLUSH() do{ std::cerr<<std::endl; std::cerr.flush(); }while(0)
-#define OLETRACEOUT() do{ BDISPFUNCOUT(); }while(0)
-#else
-#define OLETRACEIN()
-#define OLETRACEVT()
-#define OLETRACEPREARGV()
-#define OLETRACEARGV()
-#define OLETRACEARGS()
-#define OLETRACEFLUSH()
-#define OLETRACEOUT()
-#endif
-
-#if(0)
+#define OLETRACEOUT() BDISPFUNCOUT()
 #define OLE_PROCESS_CARRY_OVER(th) do{ \
     V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(th); \
     if(v8v->property_carryover.empty()) break; \
@@ -61,6 +50,14 @@ namespace node_win32ole {
     th = r->ToObject(); \
   }while(0)
 #else
+#define OLETRACEIN()
+#define OLETRACEVT(th)
+#define OLETRACEARG(v)
+#define OLETRACEPREARGV(sargs)
+#define OLETRACEARGV()
+#define OLETRACEARGS()
+#define OLETRACEFLUSH()
+#define OLETRACEOUT()
 #define OLE_PROCESS_CARRY_OVER(th) do{ \
     V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(th); \
     if(v8v->property_carryover.empty()) break; \

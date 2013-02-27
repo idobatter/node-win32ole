@@ -56,7 +56,7 @@ var test_excel_ole = function(filename){
   // var xl = new ActiveXObject('Excel.Application'); // You may write it as:
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true;
-  var book = xl.Workbooks._.Add(); // ***
+  var book = xl.Workbooks.Add();
   var sheet = book.Worksheets(1);
   try{
     sheet.Name = 'sheetnameA utf8';
@@ -70,7 +70,7 @@ var test_excel_ole = function(filename){
     var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
     rg.RowHeight = 5.18;
     rg.ColumnWidth = 0.58;
-    rg.Interior._.ColorIndex = 6; // *** Yellow
+    rg.Interior.ColorIndex = 6; // Yellow
     console.log('saving to: "' + filename + '" ...');
     var result = book.SaveAs(filename);
     console.log(result);
@@ -78,7 +78,7 @@ var test_excel_ole = function(filename){
     console.log('(exception cached)\n' + e);
   }
   xl.ScreenUpdating = true;
-  xl.Workbooks._.Close(); // ***
+  xl.Workbooks.Close();
   xl.Quit();
 };
 

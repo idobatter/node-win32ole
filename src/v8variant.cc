@@ -417,7 +417,9 @@ Handle<Value> V8Variant::OLESet(const Arguments& args)
   OLETRACEVT(args.This());
   OLETRACEARGS();
   OLETRACEFLUSH();
-  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  Local<Object> thisObject = args.This();
+  OLE_PROCESS_CARRY_OVER(thisObject);
+  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   CHECK_OCV(ocv);
   Handle<Value> av0, av1;
   CHECK_OLE_ARGS(args, 2, av0, av1);
@@ -489,16 +491,15 @@ Handle<Value> V8Variant::OLEGetAttr(
   OLETRACEFLUSH();
   String::Utf8Value u8name(name);
   Local<Object> thisObject = info.This();
-#if(1)
-  if(std::string("call") == *u8name
-  || std::string("get") == *u8name || std::string("set") == *u8name
+#if(0)
+  if(std::string("call") == *u8name || std::string("get") == *u8name
   || std::string("_") == *u8name || std::string("toValue") == *u8name
 //|| std::string("valueOf") == *u8name || std::string("toString") == *u8name
   ){
     OLE_PROCESS_CARRY_OVER(thisObject);
   }
 #else
-  if(std::string("_") != *u8name
+  if(std::string("set") != *u8name && std::string("_") != *u8name
   && std::string("toBoolean") != *u8name
   && std::string("toInt32") != *u8name && std::string("toInt64") != *u8name
   && std::string("toNumber") != *u8name && std::string("toUtf8") != *u8name
