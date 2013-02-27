@@ -377,7 +377,11 @@ Handle<Value> V8Variant::OLEInvoke(bool isCall, const Arguments& args)
   }catch(char *e){ std::cerr << e << *u8s << std::endl; goto done;
   }
   free(wcs); // *** it may leak when error ***
+#if(0) // It does not work. (when access to NamedPropertyHandler)
+  Handle<Value> result = vResult;
+#else // It works.
   Handle<Value> result = INSTANCE_CALL(vResult, "toValue", 0, NULL);
+#endif
   OLETRACEOUT();
   return scope.Close(result);
 done:
