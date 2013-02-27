@@ -342,11 +342,11 @@ Handle<Value> V8Variant::OLEFlushCarryOver(Handle<Value> v)
     v8v->property_carryover.erase();
     result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
     if(!result->IsObject()){
-      OCVariant *rv = V8Variant::CreateOCVariant(result); \
-      CHECK_OCV(rv); \
-      OCVariant *o = castedInternalField<OCVariant>(v->ToObject()); \
-      CHECK_OCV(o); \
-      *o = *rv; /* copy and don't delete rv */ \
+      OCVariant *rv = V8Variant::CreateOCVariant(result);
+      CHECK_OCV(rv);
+      OCVariant *o = castedInternalField<OCVariant>(v->ToObject());
+      CHECK_OCV(o);
+      *o = *rv; // copy and don't delete rv
     }
   }
   OLETRACEOUT();
