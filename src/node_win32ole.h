@@ -48,18 +48,27 @@ namespace node_win32ole {
 #define OLETRACEOUT()
 #endif
 
-// *** or throw exception
-#define OLE_PROCESS_CARRY_OVER(th, funcname) do{ \
+#if(0)
+#define OLE_PROCESS_CARRY_OVER(th) do{ \
     V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(th); \
     if(v8v->property_carryover.empty()) break; \
     Handle<Value> r = V8Variant::OLEFlushCarryOver(th); \
-    if(funcname && !r->IsObject()){ \
-      std::cerr << "There is something wrong. :" << funcname << std::endl; \
+    if(!r->IsObject()){ \
+      std::cerr << "** CarryOver primitive ** " << __FUNCTION__ << std::endl; \
       std::cerr.flush(); \
       return scope.Close(r); \
     } \
     th = r->ToObject(); \
   }while(0)
+#else
+#define OLE_PROCESS_CARRY_OVER(th) do{ \
+    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(th); \
+    if(v8v->property_carryover.empty()) break; \
+    Handle<Value> r = V8Variant::OLEFlushCarryOver(th); \
+    if(!r->IsObject()) return scope.Close(r); \
+    th = r->ToObject(); \
+  }while(0)
+#endif
 
 #define GET_PROP(obj, prop) (obj)->Get(String::NewSymbol(prop))
 

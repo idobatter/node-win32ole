@@ -244,7 +244,7 @@ Handle<Value> V8Variant::OLEValue(const Arguments& args)
   OLETRACEVT(args.This());
   OLETRACEFLUSH();
   Local<Object> thisObject = args.This();
-  OLE_PROCESS_CARRY_OVER(thisObject, "OLEValue (no problem ?)"); // *** , NULL
+  OLE_PROCESS_CARRY_OVER(thisObject);
   OLETRACEVT(thisObject);
   OLETRACEFLUSH();
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
@@ -489,12 +489,30 @@ Handle<Value> V8Variant::OLEGetAttr(
   OLETRACEFLUSH();
   String::Utf8Value u8name(name);
   Local<Object> thisObject = info.This();
+#if(1)
   if(std::string("call") == *u8name
   || std::string("get") == *u8name || std::string("set") == *u8name
-  || std::string("_") == *u8name || std::string("toValue") == *u8name){
-//|| std::string("valueOf") == *u8name || std::string("toString") == *u8name){
-    OLE_PROCESS_CARRY_OVER(thisObject, "OLEGetAttr");
+  || std::string("_") == *u8name || std::string("toValue") == *u8name
+//|| std::string("valueOf") == *u8name || std::string("toString") == *u8name
+  ){
+    OLE_PROCESS_CARRY_OVER(thisObject);
   }
+#else
+  if(std::string("_") != *u8name
+  && std::string("toBoolean") != *u8name
+  && std::string("toInt32") != *u8name && std::string("toInt64") != *u8name
+  && std::string("toNumber") != *u8name && std::string("toUtf8") != *u8name
+  && std::string("inspect") != *u8name && std::string("constructor") != *u8name
+  && std::string("valueOf") != *u8name
+  && std::string("toString") != *u8name
+  && std::string("toLocaleString") != *u8name
+  && std::string("hasOwnProperty") != *u8name
+  && std::string("isPrototypeOf") != *u8name
+  && std::string("propertyIsEnumerable") != *u8name
+  ){
+    OLE_PROCESS_CARRY_OVER(thisObject);
+  }
+#endif
   OLETRACEVT(thisObject);
   // Can't use INSTANCE_CALL here. (recursion itself)
   // So it returns Object's fundamental function and custom function:
@@ -515,7 +533,7 @@ Handle<Value> V8Variant::OLEGetAttr(
   for(int i = 0; i < sizeof(fundamentals) / sizeof(fundamentals[0]); ++i){
     if(std::string(fundamentals[i].name) != *u8name) continue;
     if(fundamentals[i].obsoleted){
-      std::cerr << std::endl << "*** ## [." << fundamentals[i].name;
+      std::cerr << " *** ## [." << fundamentals[i].name;
       std::cerr << "()] is obsoleted. ## ***" << std::endl;
       std::cerr.flush();
     }
@@ -525,7 +543,7 @@ Handle<Value> V8Variant::OLEGetAttr(
       fundamentals[i].func, thisObject)->GetFunction());
   }
   if(std::string("_") == *u8name){ // through it when "_"
-    std::cerr << std::endl << "*** ## [._] is obsoleted. ## ***" << std::endl;
+    std::cerr << " *** ## [._] is obsoleted. ## ***" << std::endl;
     std::cerr.flush();
   }else{
     V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(thisObject);
