@@ -323,19 +323,32 @@ Handle<Value> V8Variant::OLEFlushCarryOver(Handle<Value> v)
 {
   HandleScope scope;
   OLETRACEIN();
-  Handle<Value> result = v;
+  OLETRACEVT(v->ToObject());
+  Handle<Value> result = Undefined();
   V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(v->ToObject());
-  // if(v8v->property_carryover.empty()) // throw exception
-  const char *name = v8v->property_carryover.c_str();
-  {
-    OLETRACEPREARGV(String::NewSymbol(name));
-    OLETRACEARGV();
+  if(v8v->property_carryover.empty()){
+    std::cerr << " *** carryover empty *** " << __FUNCTION__ << std::endl;
+    std::cerr.flush();
+    // *** or throw exception
+  }else{
+    const char *name = v8v->property_carryover.c_str();
+    {
+      OLETRACEPREARGV(String::NewSymbol(name));
+      OLETRACEARGV();
+    }
+    OLETRACEFLUSH();
+    Handle<Value> argv[] = {String::NewSymbol(name), Array::New(0)};
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    v8v->property_carryover.erase();
+    result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
+    if(!result->IsObject()){
+      OCVariant *rv = V8Variant::CreateOCVariant(result); \
+      CHECK_OCV(rv); \
+      OCVariant *o = castedInternalField<OCVariant>(v->ToObject()); \
+      CHECK_OCV(o); \
+      *o = *rv; /* copy and don't delete rv */ \
+    }
   }
-  OLETRACEFLUSH();
-  Handle<Value> argv[] = {String::NewSymbol(name), Array::New(0)};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  v8v->property_carryover.erase();
-  result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
   OLETRACEOUT();
   return scope.Close(result);
 }
@@ -457,7 +470,11 @@ Handle<Value> V8Variant::OLECallComplete(const Arguments& args)
   OLETRACEVT(args.This());
   Handle<Value> result = Undefined();
   V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(args.This());
-  if(!v8v->property_carryover.empty()){
+  if(v8v->property_carryover.empty()){
+    std::cerr << " *** carryover empty *** " << __FUNCTION__ << std::endl;
+    std::cerr.flush();
+    // *** or throw exception
+  }else{
     const char *name = v8v->property_carryover.c_str();
     {
       OLETRACEPREARGV(String::NewSymbol(name));
@@ -471,10 +488,6 @@ Handle<Value> V8Variant::OLECallComplete(const Arguments& args)
     int argc = sizeof(argv) / sizeof(argv[0]);
     v8v->property_carryover.erase();
     result = INSTANCE_CALL(args.This(), "call", argc, argv);
-  }else{
-    std::cerr << "There is something wrong. (name is empty)" << std::endl;
-    std::cerr.flush();
-    // *** or throw exception
   }
 //_
 //Handle<Value> r = INSTANCE_CALL(Handle<Object>::Cast(v), "toValue", 0, NULL);
