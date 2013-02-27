@@ -15,7 +15,7 @@ namespace node_win32ole {
         __FUNCTION__" can't access to V8Variant (null OCVariant)"))); \
   }while(0)
 
-#if(1)
+#if(0)
 #define OLETRACEIN() do{ BDISPFUNCIN(); }while(0)
 #define OLETRACEVT(th) do{ \
     OCVariant *ocv = castedInternalField<OCVariant>(th); \
