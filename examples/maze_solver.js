@@ -26,11 +26,11 @@ var isExit = function(r, c){
 };
 
 var isWall = function(r, c, d){
-  var linestyle = mat(r, c).Borders(1 + d).LineStyle._; // ***
+  var linestyle = mat(r, c).Borders(1 + d).LineStyle;
   if(linestyle == 1) return true;
   var dr = d == 3 ? 1 : d == 2 ? -1 : 0;
   var dc = d == 1 ? 1 : d == 0 ? -1 : 0;
-  var color = mat(r + dr, c + dc).Interior._.ColorIndex._; // ***
+  var color = mat(r + dr, c + dc).Interior.ColorIndex;
   if(color == 7 || color == 8) return true; // M or C
   return false;
 };
@@ -46,14 +46,14 @@ var isDeadendWall = function(r, c, direc){
 
 var drawPath = function(r, c, solved, branch){
   var color = (solved && !branch) ? 8 : 7; // C or M
-  mat(r, c).Interior._.ColorIndex = color; // ***
+  mat(r, c).Interior.ColorIndex = color;
   return solved;
 };
 
 var dug = function(r, c, direc, solved, branch){
   var dlist = [0, 0, 0, 0];
   if(direc >= 0) dlist[[1, 0, 3, 2][direc]] = 1;
-  mat(r, c).Interior._.ColorIndex = 6; // *** Y
+  mat(r, c).Interior.ColorIndex = 6; // Y
   while(true){
     if(isExit(r, c)) solved = true;
     if(isDeadendWall(r, c, direc)) return drawPath(r, c, solved, branch);
@@ -70,7 +70,7 @@ var dug = function(r, c, direc, solved, branch){
 var solver_excel_ole = function(filename){
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true;
-  var book = xl.Workbooks._.Open(filename); // ***
+  var book = xl.Workbooks.Open(filename);
   // This code uses variable sheet as global
   sheet = book.Worksheets(1);
   try{
@@ -85,7 +85,7 @@ var solver_excel_ole = function(filename){
     console.log('(exception cached)\n' + e);
   }
   xl.ScreenUpdating = true;
-  xl.Workbooks._.Close(); // ***
+  xl.Workbooks.Close();
   xl.Quit();
 };
 

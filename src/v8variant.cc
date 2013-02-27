@@ -491,6 +491,19 @@ Handle<Value> V8Variant::OLEGetAttr(
   OLETRACEFLUSH();
   String::Utf8Value u8name(name);
   Local<Object> thisObject = info.This();
+
+  // Why GetAttr comes twice for () in the third loop instead of CallComplete ?
+  // Because of the Crankshaft v8's run-time optimizer ?
+  {
+    V8Variant *v8v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+    if(!v8v->property_carryover.empty()){
+      if(v8v->property_carryover == *u8name){
+        OLETRACEOUT();
+        return scope.Close(thisObject); // through it
+      }
+    }
+  }
+
 #if(0)
   if(std::string("call") == *u8name || std::string("get") == *u8name
   || std::string("_") == *u8name || std::string("toValue") == *u8name

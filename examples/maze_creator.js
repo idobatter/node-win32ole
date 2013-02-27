@@ -23,7 +23,7 @@ var mat = function(r, c){
 
 var isPassed = function(r, c){
   try{
-    return mat(r, c).Interior._.ColorIndex._ != 6 // *** Y
+    return mat(r, c).Interior.ColorIndex != 6 // Y
   }catch(e){
     return true;
   }
@@ -47,7 +47,7 @@ var drawWall = function(r, c, dlist){
 var dig = function(r, c, direc, count){
   var dlist = [0, 0, 0, 0];
   if(direc >= 0) dlist[[1, 0, 3, 2][direc]] = 1;
-  mat(r, c).Interior._.ColorIndex = 4; // G
+  mat(r, c).Interior.ColorIndex = 4; // G
   if(--count == 0) return drawWall(r, c, dlist);
   while(true){
     if(isDeadend(r, c)) return drawWall(r, c, dlist);
@@ -64,7 +64,7 @@ var dig = function(r, c, direc, count){
 var maze_excel_ole = function(filename){
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true;
-  var book = xl.Workbooks._.Add(); // ***
+  var book = xl.Workbooks.Add();
   // This code uses variable sheet as global
   sheet = book.Worksheets(1);
   try{
@@ -74,7 +74,7 @@ var maze_excel_ole = function(filename){
       sheet.Cells(OFFSET_ROW, OFFSET_COL), sheet.Cells(MAX_ROW, MAX_COL));
     rg.RowHeight = 5.18;
     rg.ColumnWidth = 0.58;
-    rg.Interior._.ColorIndex = 6; // *** Yellow
+    rg.Interior.ColorIndex = 6; // Yellow
     // Math.random() seed is automatically set
     dig(HEIGHT - 1, WIDTH - 1, -1, WIDTH * HEIGHT);
     console.log('saving to: "' + filename + '" ...');
@@ -84,7 +84,7 @@ var maze_excel_ole = function(filename){
     console.log('(exception cached)\n' + e);
   }
   xl.ScreenUpdating = true;
-  xl.Workbooks._.Close(); // ***
+  xl.Workbooks.Close();
   xl.Quit();
 };
 
