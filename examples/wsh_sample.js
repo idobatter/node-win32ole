@@ -53,7 +53,8 @@ var wsh_sample = function(filename){
     var stat = sh.Exec(cmd);
 //    while(stat.Status == 0) win32ole.sleep(100, true, true);
     var so = stat.StdOut.valueOf(); // ***
-    while(so.AtEndOfStream != true) callback(so.ReadLine()); // *** !so.At...
+    while(so.AtEndOfStream != true) // *** !so.AtEndOfStream.valueOf()
+      callback(so.ReadLine());
     console.log('code = ' + stat.ExitCode);
   }
 
