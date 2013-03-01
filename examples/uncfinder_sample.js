@@ -16,7 +16,8 @@ var uncfinder_sample = function(filename){
   console.log('DomainName:');
   console.log(wnt.DomainName);
   console.log('PDC:');
-  console.log(wnt.PDC); // *** IsUndefined() -> return NULL -> new OCVariant(?)
+//console.log(wnt.PDC); // *** IsUndefined() -> return NULL -> new OCVariant(?)
+//console.log(wnt.PDC._); // *** It does not work, too.
   console.log('UserName:');
   console.log(wnt.UserName);
 };

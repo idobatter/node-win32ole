@@ -6,7 +6,7 @@ var outlook_sample = function(){
   // ol.Visible = true;
   var ns = ol.GetNameSpace('MAPI');
   var frcv = ns.GetDefaultFolder(6); // receive mail box tray
-  var items = frcv.Items.valueOf(); // ***
+  var items = frcv.Items._; // ***
   var count = items.Count;
   for(var n = 1; n <= count; ++n){
     win32ole.print(n + ' : ');

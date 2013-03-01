@@ -172,7 +172,7 @@ Handle<Value> Client::Finalize(const Arguments& args)
 void Client::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-#if(0)
+#if(1)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
   std::cerr.flush();

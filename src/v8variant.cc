@@ -48,6 +48,13 @@ void V8Variant::Init(Handle<Object> target)
   NODE_SET_PROTOTYPE_METHOD(clazz, "call", OLECall);
   NODE_SET_PROTOTYPE_METHOD(clazz, "get", OLEGet);
   NODE_SET_PROTOTYPE_METHOD(clazz, "set", OLESet);
+/*
+ In ParseUnaryExpression() < v8/src/parser.cc >
+ v8::Object::ToBoolean() is called directly for unary operator '!'
+ instead of v8::Object::valueOf()
+ so NamedPropertyHandler will not be called
+ Local<Boolean> ToBoolean(); // How to fake ? override v8::Value::ToBoolean
+*/
   Local<ObjectTemplate> instancetpl = clazz->InstanceTemplate();
   instancetpl->SetCallAsFunctionHandler(OLECallComplete);
   instancetpl->SetNamedPropertyHandler(OLEGetAttr, OLESetAttr);
@@ -531,17 +538,17 @@ Handle<Value> V8Variant::OLEGetAttr(
     OLE_PROCESS_CARRY_OVER(thisObject);
   }
 #else
-  if(std::string("set") != *u8name && std::string("_") != *u8name
+  if(std::string("set") != *u8name
   && std::string("toBoolean") != *u8name
   && std::string("toInt32") != *u8name && std::string("toInt64") != *u8name
   && std::string("toNumber") != *u8name && std::string("toUtf8") != *u8name
   && std::string("inspect") != *u8name && std::string("constructor") != *u8name
-  && std::string("valueOf") != *u8name
-  && std::string("toString") != *u8name
+  && std::string("valueOf") != *u8name && std::string("toString") != *u8name
   && std::string("toLocaleString") != *u8name
   && std::string("hasOwnProperty") != *u8name
   && std::string("isPrototypeOf") != *u8name
   && std::string("propertyIsEnumerable") != *u8name
+//&& std::string("_") != *u8name
   ){
     OLE_PROCESS_CARRY_OVER(thisObject);
   }
@@ -576,8 +583,10 @@ Handle<Value> V8Variant::OLEGetAttr(
       fundamentals[i].func, thisObject)->GetFunction());
   }
   if(std::string("_") == *u8name){ // through it when "_"
+#if(0)
     std::cerr << " *** ## [._] is obsoleted. ## ***" << std::endl;
     std::cerr.flush();
+#endif
   }else{
     Handle<Object> vResult = V8Variant::CreateUndefined(); // uses much memory
     OCVariant *rv = V8Variant::CreateOCVariant(thisObject);
@@ -639,7 +648,7 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-#if(0)
+#if(1)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
   std::cerr.flush();

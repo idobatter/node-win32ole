@@ -16,7 +16,16 @@ var activex_filesystemobject_sample = function(){
   };
   var withEachLine = function(filename, callback){
     withReadFile(filename, function(file){
-      while(file.AtEndOfStream != true) // *** !file.AtEndOfStream.valueOf()
+/*
+ In ParseUnaryExpression() < v8/src/parser.cc >
+ v8::Object::ToBoolean() is called directly for unary operator '!'
+ instead of v8::Object::valueOf()
+ so NamedPropertyHandler will not be called
+ Local<Boolean> ToBoolean(); // How to fake ? override v8::Value::ToBoolean
+*/
+//    while(file.AtEndOfStream != true) // It works. (without unary operator !)
+//    while(!file.AtEndOfStream) // It does not work.
+      while(!file.AtEndOfStream._) // *** It works. oops!
         callback(file.ReadLine());
     });
   };
