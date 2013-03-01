@@ -12,35 +12,12 @@ Install with `npm install win32ole`.
 It works as... (version 0.1.x)
 
 ``` js
-var win32ole = require('win32ole');
-// var xl = new ActiveXObject('Excel.Application'); // You may write it as:
-var xl = win32ole.client.Dispatch('Excel.Application');
-xl.Visible = true;
-var book = xl.Workbooks.Add();
-var sheet = book.Worksheets(1);
-sheet.Name = 'sheetnameA utf8';
-sheet.Cells(1, 2).Value = 'test utf8';
-var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
-rg.RowHeight = 5.18;
-rg.ColumnWidth = 0.58;
-rg.Interior.ColorIndex = 6; // Yellow
-book.SaveAs('testfileutf8.xls');
-xl.ScreenUpdating = true;
-xl.Workbooks.Close();
-xl.Quit();
-```
-
-But now it implements as... (version 0.0.x)
-
-(Some V8Variants were advanced to 0.1.x .)
-
-``` js
 try{
   var win32ole = require('win32ole');
   // var xl = new ActiveXObject('Excel.Application'); // You may write it as:
   var xl = win32ole.client.Dispatch('Excel.Application');
   xl.Visible = true;
-  var book = xl.Workbooks._.Add(); // ***
+  var book = xl.Workbooks.Add();
   var sheet = book.Worksheets(1);
   try{
     sheet.Name = 'sheetnameA utf8';
@@ -48,14 +25,14 @@ try{
     var rg = sheet.Range(sheet.Cells(2, 2), sheet.Cells(4, 4));
     rg.RowHeight = 5.18;
     rg.ColumnWidth = 0.58;
-    rg.Interior._.ColorIndex = 6; // *** Yellow
+    rg.Interior.ColorIndex = 6; // Yellow
     var result = book.SaveAs('testfileutf8.xls');
     console.log(result);
   }catch(e){
     console.log('(exception cached)\n' + e);
   }
   xl.ScreenUpdating = true;
-  xl.Workbooks._.Close(); // ***
+  xl.Workbooks.Close();
   xl.Quit();
 }catch(e){
   console.log('*** exception cached ***\n' + e);
@@ -103,6 +80,10 @@ see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-wi
 
 # FEATURES
 
+* BUG: A few samples in win32ole@0.1.0 needs '._' ideom.
+* When you use unary operator '!' at the place that needs boolean CONDITION (for example 'while(!obj.status){...}') , you must write 'while(!obj.status._){...}' to complete v8::Object::ToBoolean() conversion. (NamedPropertyHandler will not be called because v8::Object::ToBoolean() is called directly for unary operator '!' instead of v8::Object::valueOf() in ParseUnaryExpression() v8/src/parser.cc .) Do you know how to fake it?
+* V8Variant::OLEGetAttr returns a copy of object, so it uses much memory. I want to fix it.
+* Now '._' ideom is obsoleted.
 * BUG: Some samples in between win32ole@0.0.25 and win32ole@0.0.28 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( '__noSuchMethod__' / '__noSuchGetter__' / '__noSuchSetter__' ) by node-proxy.
 * So much implements. (can not handle some COM VARIANT types, array etc.)
 * Bug fix. (throws exception when failed to Invoke(), and many test message.)
