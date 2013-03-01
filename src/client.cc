@@ -17,7 +17,7 @@ void Client::Init(Handle<Object> target)
   HandleScope scope;
   Local<FunctionTemplate> t = FunctionTemplate::New(New);
   clazz = Persistent<FunctionTemplate>::New(t);
-  clazz->InstanceTemplate()->SetInternalFieldCount(1);
+  clazz->InstanceTemplate()->SetInternalFieldCount(2);
   clazz->SetClassName(String::NewSymbol("Client"));
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
   NODE_SET_PROTOTYPE_METHOD(clazz, "Dispatch", Dispatch);
@@ -56,9 +56,9 @@ Handle<Value> Client::New(const Arguments& args)
     return ThrowException(Exception::TypeError(
       String::New("May be CoInitialize() is failed.")));
   Local<Object> thisObject = args.This();
-  Client *cl = new Client();
-  cl->Wrap(thisObject);
-  thisObject->SetInternalField(0, External::New(oc));
+  Client *cl = new Client(); // must catch exception
+  cl->Wrap(thisObject); // InternalField[0]
+  thisObject->SetInternalField(1, External::New(oc));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
   objectDisposer.MakeWeak(oc, Dispose);
   DISPFUNCOUT();
@@ -146,9 +146,14 @@ Handle<Value> Client::Finalize(const Arguments& args)
   DISPFUNCIN();
 #if(0)
   std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
+  std::cerr.flush();
 #endif
   Local<Object> thisObject = args.This();
-// Client *cl = ObjectWrap::Unwrap<Client>(thisObject);
+#if(0)
+  Client *cl = ObjectWrap::Unwrap<Client>(thisObject);
+  if(cl) delete cl; // it has been already deleted ?
+  thisObject->SetInternalField(0, External::New(NULL));
+#endif
 #if(1) // now GC will call Disposer automatically
   OLE32core *oc = castedInternalField<OLE32core>(thisObject);
   if(oc){
@@ -159,7 +164,7 @@ Handle<Value> Client::Finalize(const Arguments& args)
     }
   }
 #endif
-  thisObject->SetInternalField(0, External::New(NULL));
+  thisObject->SetInternalField(1, External::New(NULL));
   DISPFUNCOUT();
   return args.This();
 }
@@ -170,14 +175,27 @@ void Client::Dispose(Persistent<Value> handle, void *param)
 #if(1)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
+  std::cerr.flush();
 #endif
-  OLE32core *p = castedInternalField<OLE32core>(handle->ToObject());
+  Local<Object> thisObject = handle->ToObject();
+#if(0) // it has been already deleted ?
+  Client *cl = ObjectWrap::Unwrap<Client>(thisObject);
+  if(!cl){
+    std::cerr << __FUNCTION__;
+    std::cerr << " InternalField[0] has been already deleted" << std::endl;
+    std::cerr.flush();
+  }else delete cl; // it has been already deleted ?
+  BEVERIFY(done, thisObject->InternalFieldCount() > 0);
+  thisObject->SetInternalField(0, External::New(NULL));
+#endif
+  OLE32core *p = castedInternalField<OLE32core>(thisObject);
   if(!p){
     std::cerr << __FUNCTION__;
-    std::cerr << " InternalField has been already deleted" << std::endl;
+    std::cerr << " InternalField[1] has been already deleted" << std::endl;
+    std::cerr.flush();
   }
 //  else{
-    OLE32core *oc = static_cast<OLE32core *>(param);
+    OLE32core *oc = static_cast<OLE32core *>(param); // oc may be same as p
     if(oc){
       try{
         delete oc; // will call oc->disconnect();
@@ -186,8 +204,8 @@ void Client::Dispose(Persistent<Value> handle, void *param)
       }
     }
 //  }
-  BEVERIFY(done, handle->ToObject()->InternalFieldCount() > 0);
-  handle->ToObject()->SetInternalField(0, External::New(NULL));
+  BEVERIFY(done, thisObject->InternalFieldCount() > 1);
+  thisObject->SetInternalField(1, External::New(NULL));
 done:
   handle.Dispose();
   DISPFUNCOUT();

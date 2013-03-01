@@ -22,10 +22,10 @@ namespace node_win32ole {
 #define INSTANCE_CALL(obj, method, argc, argv) Handle<Function>::Cast( \
   GET_PROP((obj), (method)))->Call((obj), (argc), (argv))
 
-template <class T> T *castedInternalField(Handle<Object> object)
+template <class T> T *castedInternalField(Handle<Object> object, int fidx=1)
 {
   return static_cast<T *>(
-    Local<External>::Cast(object->GetInternalField(0))->Value());
+    Local<External>::Cast(object->GetInternalField(fidx))->Value());
 }
 
 extern Persistent<Object> module_target;

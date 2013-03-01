@@ -34,7 +34,7 @@ void V8Variant::Init(Handle<Object> target)
   HandleScope scope;
   Local<FunctionTemplate> t = FunctionTemplate::New(New);
   clazz = Persistent<FunctionTemplate>::New(t);
-  clazz->InstanceTemplate()->SetInternalFieldCount(1);
+  clazz->InstanceTemplate()->SetInternalFieldCount(2);
   clazz->SetClassName(String::NewSymbol("V8Variant"));
   NODE_SET_PROTOTYPE_METHOD(clazz, "isA", OLEIsA);
   NODE_SET_PROTOTYPE_METHOD(clazz, "vtName", OLEVTName);
@@ -61,12 +61,14 @@ std::string V8Variant::CreateStdStringMBCSfromUTF8(Handle<Value> v)
   wchar_t * wcs = u8s2wcs(*u8s);
   if(!wcs){
     std::cerr << "[Can't allocate string (wcs)]" << std::endl;
+    std::cerr.flush();
     return std::string("'!ERROR'");
   }
   char *mbs = wcs2mbs(wcs);
   if(!mbs){
     free(wcs);
     std::cerr << "[Can't allocate string (mbs)]" << std::endl;
+    std::cerr.flush();
     return std::string("'!ERROR'");
   }
   std::string s(mbs);
@@ -89,6 +91,7 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
   }else if(v->IsArray()){
 // VT_BYREF VT_ARRAY VT_SAFEARRAY
     std::cerr << "[Array (not implemented now)]" << std::endl; return NULL;
+    std::cerr.flush();
   }else if(v->IsInt32()){
     return new OCVariant((long)v->Int32Value());
 #if(0) // may not be supported node.js / v8
@@ -97,37 +100,47 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
 #endif
   }else if(v->IsNumber()){
     std::cerr << "[Number (VT_R8 or VT_I8 bug?)]" << std::endl;
+    std::cerr.flush();
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsNumberObject()){
     std::cerr << "[NumberObject (VT_R8 or VT_I8 bug?)]" << std::endl;
+    std::cerr.flush();
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsDate()){
     std::cerr << "[Date (bug?)]" << std::endl;
+    std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
   }else if(v->IsRegExp()){
     std::cerr << "[RegExp (bug?)]" << std::endl;
+    std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
   }else if(v->IsString()){
     return new OCVariant(CreateStdStringMBCSfromUTF8(v));
   }else if(v->IsStringObject()){
     std::cerr << "[StringObject (bug?)]" << std::endl;
+    std::cerr.flush();
     return new OCVariant(CreateStdStringMBCSfromUTF8(v));
   }else if(v->IsObject()){
+#if(0)
     std::cerr << "[Object (test)]" << std::endl;
+    std::cerr.flush();
+#endif
     Handle<Object> obj = v->ToObject();
     Handle<Value> vrealobj = obj->Get(String::NewSymbol("__")); // encapsulated
     OCVariant *ocv = castedInternalField<OCVariant>(
       vrealobj->IsUndefined() ? obj : vrealobj->ToObject());
     if(!ocv){
       std::cerr << "[Object may not be valid (null OCVariant)]" << std::endl;
+      std::cerr.flush();
       return NULL;
     }
     // std::cerr << ocv->v.vt;
     return new OCVariant(*ocv);
   }else{
     std::cerr << "[unknown type (not implemented now)]" << std::endl;
+    std::cerr.flush();
   }
 done:
   return NULL;
@@ -232,26 +245,31 @@ Handle<Value> V8Variant::OLEValue(const Arguments& args)
 {
   HandleScope scope;
   DISPFUNCIN();
-  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  Local<Object> thisObject = args.This();
+  OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
+  if(!ocv){ std::cerr << "ocv is null"; std::cerr.flush(); }
   CHECK_OCV(ocv);
   Handle<Value> result = Undefined();
   if(ocv->v.vt == VT_EMPTY) ; // do nothing
   else if(ocv->v.vt == VT_NULL) result = Null();
-  else if(ocv->v.vt == VT_DISPATCH) result = args.This(); // through it
+  else if(ocv->v.vt == VT_DISPATCH) result = thisObject; // through it
   else if(ocv->v.vt == VT_BOOL) result = OLEBoolean(args);
   else if(ocv->v.vt == VT_I4 || ocv->v.vt == VT_INT
   || ocv->v.vt == VT_UI4 || ocv->v.vt == VT_UINT) result = OLEInt32(args);
   else if(ocv->v.vt == VT_I8 || ocv->v.vt == VT_UI8) result = OLEInt64(args);
   else if(ocv->v.vt == VT_R8) result = OLENumber(args);
   else if(ocv->v.vt == VT_BSTR) result = OLEUtf8(args);
-  else if(ocv->v.vt == VT_ARRAY || ocv->v.vt == VT_SAFEARRAY)
+  else if(ocv->v.vt == VT_ARRAY || ocv->v.vt == VT_SAFEARRAY){
     std::cerr << "[Array (not implemented now)]" << std::endl;
-  else if(ocv->v.vt == VT_DATE)
+    std::cerr.flush();
+  }else if(ocv->v.vt == VT_DATE){
     std::cerr << "[Date (bug?)]" << std::endl;
-  else{
-    Handle<Value> s = INSTANCE_CALL(args.This(), "vtName", 0, NULL);
+    std::cerr.flush();
+  }else{
+    Handle<Value> s = INSTANCE_CALL(thisObject, "vtName", 0, NULL);
     std::cerr << "[unknown type " << ocv->v.vt << ":" << *String::Utf8Value(s);
     std::cerr << " (not implemented now)]" << std::endl;
+    std::cerr.flush();
   }
 done:
   DISPFUNCOUT();
@@ -274,8 +292,8 @@ Handle<Object> V8Variant::CreateUndefined(void)
   Local<Object> instance = clazz->GetFunction()->NewInstance(0, NULL);
 #endif
 #if(0) // needless to do (instance has been already wrapped in New)
-  V8Variant *v = new V8Variant();
-  v->Wrap(instance);
+  V8Variant *v = new V8Variant(); // must catch exception
+  v->Wrap(instance); // InternalField[0]
 #endif
   DISPFUNCOUT();
   return scope.Close(instance);
@@ -291,9 +309,9 @@ Handle<Value> V8Variant::New(const Arguments& args)
   OCVariant *ocv = new OCVariant();
   CHECK_OCV(ocv);
   Local<Object> thisObject = args.This();
-  V8Variant *v = new V8Variant();
-  v->Wrap(thisObject);
-  thisObject->SetInternalField(0, External::New(ocv));
+  V8Variant *v = new V8Variant(); // must catch exception
+  v->Wrap(thisObject); // InternalField[0]
+  thisObject->SetInternalField(1, External::New(ocv));
   Persistent<Object> objectDisposer = Persistent<Object>::New(thisObject);
   objectDisposer.MakeWeak(ocv, Dispose);
   DISPFUNCOUT();
@@ -398,14 +416,19 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
   DISPFUNCIN();
 #if(0)
   std::cerr << __FUNCTION__ << " Finalizer is called\a" << std::endl;
+  std::cerr.flush();
 #endif
   Local<Object> thisObject = args.This();
-// V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+#if(0)
+  V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+  if(v) delete v; // it has been already deleted ?
+  thisObject->SetInternalField(0, External::New(NULL));
+#endif
 #if(1) // now GC will call Disposer automatically
   OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
   if(ocv) delete ocv;
 #endif
-  thisObject->SetInternalField(0, External::New(NULL));
+  thisObject->SetInternalField(1, External::New(NULL));
   DISPFUNCOUT();
   return args.This();
 }
@@ -416,18 +439,31 @@ void V8Variant::Dispose(Persistent<Value> handle, void *param)
 #if(1)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
+  std::cerr.flush();
 #endif
-  OCVariant *p = castedInternalField<OCVariant>(handle->ToObject());
+  Local<Object> thisObject = handle->ToObject();
+#if(0) // it has been already deleted ?
+  V8Variant *v = ObjectWrap::Unwrap<V8Variant>(thisObject);
+  if(!v){
+    std::cerr << __FUNCTION__;
+    std::cerr << "InternalField[0] has been already deleted" << std::endl;
+    std::cerr.flush();
+  }else delete v; // it has been already deleted ?
+  BEVERIFY(done, thisObject->InternalFieldCount() > 0);
+  thisObject->SetInternalField(0, External::New(NULL));
+#endif
+  OCVariant *p = castedInternalField<OCVariant>(thisObject);
   if(!p){
     std::cerr << __FUNCTION__;
-    std::cerr << "InternalField has been already deleted" << std::endl;
+    std::cerr << "InternalField[1] has been already deleted" << std::endl;
+    std::cerr.flush();
   }
 //  else{
-    OCVariant *ocv = static_cast<OCVariant *>(param);
+    OCVariant *ocv = static_cast<OCVariant *>(param); // ocv may be same as p
     if(ocv) delete ocv;
 //  }
-  BEVERIFY(done, handle->ToObject()->InternalFieldCount() > 0);
-  handle->ToObject()->SetInternalField(0, External::New(NULL));
+  BEVERIFY(done, thisObject->InternalFieldCount() > 1);
+  thisObject->SetInternalField(1, External::New(NULL));
 done:
   handle.Dispose();
   DISPFUNCOUT();
