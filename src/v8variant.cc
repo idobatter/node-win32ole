@@ -648,7 +648,7 @@ Handle<Value> V8Variant::Finalize(const Arguments& args)
 void V8Variant::Dispose(Persistent<Value> handle, void *param)
 {
   DISPFUNCIN();
-#if(1)
+#if(0)
 //  std::cerr << __FUNCTION__ << " Disposer is called\a" << std::endl;
   std::cerr << __FUNCTION__ << " Disposer is called" << std::endl;
   std::cerr.flush();
