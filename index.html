@@ -40,34 +40,12 @@
 
 <p>It works as... (version 0.1.x)</p>
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">win32ole</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'win32ole'</span><span class="p">);</span>
-<span class="c1">// var xl = new ActiveXObject('Excel.Application'); // You may write it as:</span>
-<span class="kd">var</span> <span class="nx">xl</span> <span class="o">=</span> <span class="nx">win32ole</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">Dispatch</span><span class="p">(</span><span class="s1">'Excel.Application'</span><span class="p">);</span>
-<span class="nx">xl</span><span class="p">.</span><span class="nx">Visible</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-<span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">Add</span><span class="p">();</span>
-<span class="kd">var</span> <span class="nx">sheet</span> <span class="o">=</span> <span class="nx">book</span><span class="p">.</span><span class="nx">Worksheets</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-<span class="nx">sheet</span><span class="p">.</span><span class="nx">Name</span> <span class="o">=</span> <span class="s1">'sheetnameA utf8'</span><span class="p">;</span>
-<span class="nx">sheet</span><span class="p">.</span><span class="nx">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">).</span><span class="nx">Value</span> <span class="o">=</span> <span class="s1">'test utf8'</span><span class="p">;</span>
-<span class="kd">var</span> <span class="nx">rg</span> <span class="o">=</span> <span class="nx">sheet</span><span class="p">.</span><span class="nx">Range</span><span class="p">(</span><span class="nx">sheet</span><span class="p">.</span><span class="nx">Cells</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="nx">sheet</span><span class="p">.</span><span class="nx">Cells</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">));</span>
-<span class="nx">rg</span><span class="p">.</span><span class="nx">RowHeight</span> <span class="o">=</span> <span class="mf">5.18</span><span class="p">;</span>
-<span class="nx">rg</span><span class="p">.</span><span class="nx">ColumnWidth</span> <span class="o">=</span> <span class="mf">0.58</span><span class="p">;</span>
-<span class="nx">rg</span><span class="p">.</span><span class="nx">Interior</span><span class="p">.</span><span class="nx">ColorIndex</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span> <span class="c1">// Yellow</span>
-<span class="nx">book</span><span class="p">.</span><span class="nx">SaveAs</span><span class="p">(</span><span class="s1">'testfileutf8.xls'</span><span class="p">);</span>
-<span class="nx">xl</span><span class="p">.</span><span class="nx">ScreenUpdating</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-<span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">Close</span><span class="p">();</span>
-<span class="nx">xl</span><span class="p">.</span><span class="nx">Quit</span><span class="p">();</span>
-</pre></div>
-
-<p>But now it implements as... (version 0.0.x)</p>
-
-<p>(Some V8Variants were advanced to 0.1.x .)</p>
-
 <div class="highlight"><pre><span class="k">try</span><span class="p">{</span>
   <span class="kd">var</span> <span class="nx">win32ole</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'win32ole'</span><span class="p">);</span>
   <span class="c1">// var xl = new ActiveXObject('Excel.Application'); // You may write it as:</span>
   <span class="kd">var</span> <span class="nx">xl</span> <span class="o">=</span> <span class="nx">win32ole</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">Dispatch</span><span class="p">(</span><span class="s1">'Excel.Application'</span><span class="p">);</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">Visible</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-  <span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">Add</span><span class="p">();</span> <span class="c1">// ***</span>
+  <span class="kd">var</span> <span class="nx">book</span> <span class="o">=</span> <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">Add</span><span class="p">();</span>
   <span class="kd">var</span> <span class="nx">sheet</span> <span class="o">=</span> <span class="nx">book</span><span class="p">.</span><span class="nx">Worksheets</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
   <span class="k">try</span><span class="p">{</span>
     <span class="nx">sheet</span><span class="p">.</span><span class="nx">Name</span> <span class="o">=</span> <span class="s1">'sheetnameA utf8'</span><span class="p">;</span>
@@ -75,14 +53,14 @@
     <span class="kd">var</span> <span class="nx">rg</span> <span class="o">=</span> <span class="nx">sheet</span><span class="p">.</span><span class="nx">Range</span><span class="p">(</span><span class="nx">sheet</span><span class="p">.</span><span class="nx">Cells</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="nx">sheet</span><span class="p">.</span><span class="nx">Cells</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">));</span>
     <span class="nx">rg</span><span class="p">.</span><span class="nx">RowHeight</span> <span class="o">=</span> <span class="mf">5.18</span><span class="p">;</span>
     <span class="nx">rg</span><span class="p">.</span><span class="nx">ColumnWidth</span> <span class="o">=</span> <span class="mf">0.58</span><span class="p">;</span>
-    <span class="nx">rg</span><span class="p">.</span><span class="nx">Interior</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">ColorIndex</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span> <span class="c1">// *** Yellow</span>
+    <span class="nx">rg</span><span class="p">.</span><span class="nx">Interior</span><span class="p">.</span><span class="nx">ColorIndex</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span> <span class="c1">// Yellow</span>
     <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">book</span><span class="p">.</span><span class="nx">SaveAs</span><span class="p">(</span><span class="s1">'testfileutf8.xls'</span><span class="p">);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
   <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'(exception cached)\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
   <span class="p">}</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">ScreenUpdating</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-  <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">Close</span><span class="p">();</span> <span class="c1">// ***</span>
+  <span class="nx">xl</span><span class="p">.</span><span class="nx">Workbooks</span><span class="p">.</span><span class="nx">Close</span><span class="p">();</span>
   <span class="nx">xl</span><span class="p">.</span><span class="nx">Quit</span><span class="p">();</span>
 <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'*** exception cached ***\n'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">);</span>
@@ -128,6 +106,12 @@
 </ul><h1>FEATURES</h1>
 
 <ul>
+<li>BUG: A few samples in win32ole@0.1.0 needs '._' ideom.</li>
+<li>When you use unary operator '!' at the place that needs boolean CONDITION (for example 'while(!obj.status){...}') , you must write 'while(!obj.status._){...}' to complete v8::Object::ToBoolean() conversion. (NamedPropertyHandler will not be called because v8::Object::ToBoolean() is called directly for unary operator '!' instead of v8::Object::valueOf() in ParseUnaryExpression() v8/src/parser.cc .) Do you know how to fake it?</li>
+<li>V8Variant::OLEGetAttr returns a copy of object, so it uses much memory. I want to fix it.</li>
+<li>Now '._' ideom is obsoleted.</li>
+<li>Remove 'node-proxy' from dependencies list.</li>
+<li>Change default branch to dev0.1.0 .</li>
 <li>BUG: Some samples in between win32ole@0.0.25 and win32ole@0.0.28 ( examples/maze_creator.js examples/maze_solver.js ) uses huge memory and many disposers will run by v8 GC when maze size is 20*30. I think that each encapsulated V8Variant (by node-proxy) may be big object. So I will try to use v8 accessor handlers ( SetCallAsFunctionHandler / SetNamedPropertyHandler / SetIndexedPropertyHandler ) instead of ( '__noSuchMethod__' / '__noSuchGetter__' / '__noSuchSetter__' ) by node-proxy.</li>
 <li>So much implements. (can not handle some COM VARIANT types, array etc.)</li>
 <li>Bug fix. (throws exception when failed to Invoke(), and many test message.)</li>
