@@ -5,13 +5,38 @@ var outlook_sample = function(){
   var ol = win32ole.client.Dispatch('Outlook.Application');
   // ol.Visible = true;
   var ns = ol.GetNameSpace('MAPI');
+  win32ole.print('mail:\n');
   var frcv = ns.GetDefaultFolder(6); // receive mail box tray
   var items = frcv.Items._; // ***
   var count = items.Count;
   for(var n = 1; n <= count; ++n){
-    win32ole.print(n + ' : ');
+    win32ole.print(' ' + n + ' : ');
     var i = items.Item(n);
     win32ole.printACP(i.Subject);
+    win32ole.print('\n');
+  }
+  win32ole.print('schedule:\n');
+  var fcal = ns.GetDefaultFolder(9); // olFolderCalendar (schedule)
+  var apnts = fcal.Items._; // ***
+  var acnt = apnts.Count;
+  for(var n = 1; n <= acnt; ++n){
+    win32ole.print(' ' + n + ' : ');
+    /*
+    var apnt = apnts.Item(n);
+    var ptn = apnt.GetRecurrencePattern();
+    var i = ptn.GetOccurrence(new Date(2013, 3, 13, 13, 30, 0));
+    */
+    var i = apnts.Item(n);
+    win32ole.print('DateTime: ( from ');
+    // win32ole.printACP(i.Start); // ***
+    win32ole.print(' to ');
+    // win32ole.printACP(i.End); // ***
+    win32ole.print(' )\n');
+    win32ole.printACP('  Subject: ' + i.Subject);
+    win32ole.print('\n');
+    win32ole.printACP('  Body: ' + i.Body);
+    win32ole.print('\n');
+    win32ole.printACP('  Location: ' + i.Location);
     win32ole.print('\n');
   }
   // ol.Quit();
