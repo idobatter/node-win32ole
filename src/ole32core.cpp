@@ -1,4 +1,4 @@
-﻿/*
+/*
   ole32core.cpp
   This source is independent of node/v8.
 */

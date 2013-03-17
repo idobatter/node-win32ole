@@ -1,4 +1,4 @@
-﻿var win32ole = require('win32ole');
+var win32ole = require('win32ole');
 win32ole.print('outlook_sample\n');
 
 var outlook_sample = function(){
