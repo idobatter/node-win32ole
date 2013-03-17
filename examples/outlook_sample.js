@@ -19,8 +19,10 @@ var outlook_sample = function(){
   var fcal = ns.GetDefaultFolder(9); // olFolderCalendar (schedule)
   if(true){
     var apnt = ol.CreateItem(1); // olAppointmentItem
-    apnt.Start = new Date(2013, 3, 17, 19, 30, 0);
-    apnt.End = new Date(2013, 3, 17, 20, 0, 0);
+    var t = new Date();
+    apnt.Start = t;
+    t.setTime(t.getTime() + 30 * 60 * 1000); // + 30 minutes
+    apnt.End = t;
     apnt.Subject = 'TTEESSTT';
     apnt.Body = 'bodybodybody';
     apnt.Location = 'node';
@@ -37,7 +39,7 @@ var outlook_sample = function(){
     /*
     var apnt = apnts.Item(n);
     var ptn = apnt.GetRecurrencePattern();
-    var i = ptn.GetOccurrence(new Date(2013, 3, 13, 13, 30, 0));
+    var i = ptn.GetOccurrence(new Date(2013, 2, 13, 13, 30, 0)); // month - 1
     */
     var i = apnts.Item(n);
     win32ole.print('DateTime: ( from ');

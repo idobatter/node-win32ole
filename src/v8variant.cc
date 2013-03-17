@@ -121,7 +121,7 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
     double d = v->NumberValue();
     time_t sec = (time_t)(d / 1000.0);
     int msec = (int)(d - sec * 1000.0);
-    struct tm *t = localtime(&sec);
+    struct tm *t = localtime(&sec); // *** must check locale ***
     if(!t){
       std::cerr << "[Date may not be valid]" << std::endl;
       std::cerr.flush();
@@ -129,9 +129,9 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
     }
     SYSTEMTIME syst;
     syst.wYear = t->tm_year + 1900;
-    syst.wMonth = t->tm_mon; // *** may be wrong ***
+    syst.wMonth = t->tm_mon + 1;
     syst.wDay = t->tm_mday;
-    syst.wHour = t->tm_hour; // ***
+    syst.wHour = t->tm_hour;
     syst.wMinute = t->tm_min;
     syst.wSecond = t->tm_sec;
     syst.wMilliseconds = msec;
@@ -258,11 +258,11 @@ Handle<Value> V8Variant::OLEDate(const Arguments& args)
       String::New("OLEDate source type OCVariant is not VT_DATE")));
   SYSTEMTIME syst;
   VariantTimeToSystemTime(ocv->v.date, &syst);
-  struct tm t;
+  struct tm t = {0}; // set t.tm_isdst = 0
   t.tm_year = syst.wYear - 1900;
   t.tm_mon = syst.wMonth - 1;
   t.tm_mday = syst.wDay;
-  t.tm_hour = syst.wHour + 1; // *** may be wrong ***
+  t.tm_hour = syst.wHour;
   t.tm_min = syst.wMinute;
   t.tm_sec = syst.wSecond;
   DISPFUNCOUT();
