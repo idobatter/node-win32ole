@@ -80,6 +80,7 @@ see also [examples/ole_args_test_client.js](https://github.com/idobatter/node-wi
 
 # FEATURES
 
+* fix BUG: date
 * BUG: A few samples in win32ole@0.1.0 needs '._' ideom.
 * When you use unary operator '!' at the place that needs boolean CONDITION (for example 'while(!obj.status){...}') , you must write 'while(!obj.status._){...}' to complete v8::Object::ToBoolean() conversion. (NamedPropertyHandler will not be called because v8::Object::ToBoolean() is called directly for unary operator '!' instead of v8::Object::valueOf() in ParseUnaryExpression() v8/src/parser.cc .) Do you know how to fake it?
 * V8Variant::OLEGetAttr returns a copy of object, so it uses much memory. I want to fix it.
