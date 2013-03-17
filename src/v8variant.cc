@@ -1,4 +1,4 @@
-/*
+﻿/*
   v8variant.cc
 */
 
@@ -42,6 +42,7 @@ void V8Variant::Init(Handle<Object> target)
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt32", OLEInt32);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toInt64", OLEInt64);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toNumber", OLENumber);
+  NODE_SET_PROTOTYPE_METHOD(clazz, "toDate", OLEDate);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toUtf8", OLEUtf8);
   NODE_SET_PROTOTYPE_METHOD(clazz, "toValue", OLEValue);
 //  NODE_SET_PROTOTYPE_METHOD(clazz, "New", New);
@@ -117,9 +118,7 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsDate()){
-    std::cerr << "[Date (bug?)]" << std::endl;
-    std::cerr.flush();
-    return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
+    return new OCVariant((double)v->NumberValue(), true); // date
   }else if(v->IsRegExp()){
     std::cerr << "[RegExp (bug?)]" << std::endl;
     std::cerr.flush();
@@ -230,6 +229,28 @@ Handle<Value> V8Variant::OLENumber(const Arguments& args)
   return scope.Close(Number::New(ocv->v.dblVal));
 }
 
+Handle<Value> V8Variant::OLEDate(const Arguments& args)
+{
+  HandleScope scope;
+  DISPFUNCIN();
+  OCVariant *ocv = castedInternalField<OCVariant>(args.This());
+  CHECK_OCV(ocv);
+  if(ocv->v.vt != VT_DATE)
+    return ThrowException(Exception::TypeError(
+      String::New("OLEDate source type OCVariant is not VT_DATE")));
+  SYSTEMTIME syst;
+  VariantTimeToSystemTime(ocv->v.date, &syst);
+  struct tm t;
+  t.tm_year = syst.wYear - 1900;
+  t.tm_mon = syst.wMonth - 1;
+  t.tm_mday = syst.wDay;
+  t.tm_hour = syst.wHour + 1; // *** may be wrong ***
+  t.tm_min = syst.wMinute;
+  t.tm_sec = syst.wSecond;
+  DISPFUNCOUT();
+  return scope.Close(Date::New(mktime(&t) * 1000LL + syst.wMilliseconds));
+}
+
 Handle<Value> V8Variant::OLEUtf8(const Arguments& args)
 {
   HandleScope scope;
@@ -268,12 +289,10 @@ Handle<Value> V8Variant::OLEValue(const Arguments& args)
   || ocv->v.vt == VT_UI4 || ocv->v.vt == VT_UINT) result = OLEInt32(args);
   else if(ocv->v.vt == VT_I8 || ocv->v.vt == VT_UI8) result = OLEInt64(args);
   else if(ocv->v.vt == VT_R8) result = OLENumber(args);
+  else if(ocv->v.vt == VT_DATE) result = OLEDate(args);
   else if(ocv->v.vt == VT_BSTR) result = OLEUtf8(args);
   else if(ocv->v.vt == VT_ARRAY || ocv->v.vt == VT_SAFEARRAY){
     std::cerr << "[Array (not implemented now)]" << std::endl;
-    std::cerr.flush();
-  }else if(ocv->v.vt == VT_DATE){
-    std::cerr << "[Date (bug?)]" << std::endl;
     std::cerr.flush();
   }else{
     Handle<Value> s = INSTANCE_CALL(thisObject, "vtName", 0, NULL);
@@ -541,7 +560,8 @@ Handle<Value> V8Variant::OLEGetAttr(
   if(std::string("set") != *u8name
   && std::string("toBoolean") != *u8name
   && std::string("toInt32") != *u8name && std::string("toInt64") != *u8name
-  && std::string("toNumber") != *u8name && std::string("toUtf8") != *u8name
+  && std::string("toNumber") != *u8name && std::string("toDate") != *u8name
+  && std::string("toUtf8") != *u8name
   && std::string("inspect") != *u8name && std::string("constructor") != *u8name
   && std::string("valueOf") != *u8name && std::string("toString") != *u8name
   && std::string("toLocaleString") != *u8name
@@ -563,7 +583,8 @@ Handle<Value> V8Variant::OLEGetAttr(
     {0, "isA", OLEIsA}, {0, "vtName", OLEVTName}, // {"vt_names", ???},
     {!0, "toBoolean", OLEValue},
     {!0, "toInt32", OLEValue}, {!0, "toInt64", OLEValue},
-    {!0, "toNumber", OLEValue}, {!0, "toUtf8", OLEValue},
+    {!0, "toNumber", OLEValue}, {!0, "toDate", OLEValue},
+    {!0, "toUtf8", OLEValue},
     {0, "toValue", OLEValue},
     {0, "inspect", NULL}, {0, "constructor", NULL}, {0, "valueOf", OLEValue},
     {0, "toString", OLEValue}, {0, "toLocaleString", OLEValue},

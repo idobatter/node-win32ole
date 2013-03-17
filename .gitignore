@@ -7,6 +7,7 @@ out
 .deps
 .ref
 test/tmp
+*.*~
 *.py[co]
 *.dylib
 *.so

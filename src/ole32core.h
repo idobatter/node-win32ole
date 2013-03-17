@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 
 namespace ole32core {
 
@@ -82,6 +83,7 @@ public:
   OCVariant(bool c_boolVal); // VT_BOOL
   OCVariant(long lVal); // VT_I4
   OCVariant(double dblVal); // VT_R8
+  OCVariant(double date, bool isdate); // VT_DATE
   OCVariant(BSTR bstrVal); // VT_BSTR (previous allocated)
   OCVariant(std::string str); // allocate and convert to VT_BSTR
   virtual ~OCVariant();

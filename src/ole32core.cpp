@@ -1,4 +1,4 @@
-/*
+﻿/*
   ole32core.cpp
   This source is independent of node/v8.
 */
@@ -238,6 +238,16 @@ OCVariant::OCVariant(double dblVal) : next(NULL)
   VariantInit(&v);
   v.vt = VT_R8;
   v.dblVal = dblVal;
+  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCOUT();
+}
+
+OCVariant::OCVariant(double date, bool isdate) : next(NULL)
+{
+  DISPFUNCIN();
+  VariantInit(&v);
+  v.vt = VT_DATE;
+  v.date = date;
   DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
