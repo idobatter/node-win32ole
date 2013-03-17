@@ -118,7 +118,25 @@ OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
 // if(v->ToInteger()) =64 is failed ? double : OCVariant((longlong)VT_I8)
     return new OCVariant((double)v->NumberValue()); // double
   }else if(v->IsDate()){
-    return new OCVariant((double)v->NumberValue(), true); // date
+    double d = v->NumberValue();
+    time_t sec = (time_t)(d / 1000.0);
+    int msec = (int)(d - sec * 1000.0);
+    struct tm *t = localtime(&sec);
+    if(!t){
+      std::cerr << "[Date may not be valid]" << std::endl;
+      std::cerr.flush();
+      return NULL;
+    }
+    SYSTEMTIME syst;
+    syst.wYear = t->tm_year + 1900;
+    syst.wMonth = t->tm_mon; // *** may be wrong ***
+    syst.wDay = t->tm_mday;
+    syst.wHour = t->tm_hour; // ***
+    syst.wMinute = t->tm_min;
+    syst.wSecond = t->tm_sec;
+    syst.wMilliseconds = msec;
+    SystemTimeToVariantTime(&syst, &d);
+    return new OCVariant(d, true); // date
   }else if(v->IsRegExp()){
     std::cerr << "[RegExp (bug?)]" << std::endl;
     std::cerr.flush();

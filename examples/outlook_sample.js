@@ -17,6 +17,18 @@ var outlook_sample = function(){
   }
   win32ole.print('schedule:\n');
   var fcal = ns.GetDefaultFolder(9); // olFolderCalendar (schedule)
+  if(true){
+    var apnt = ol.CreateItem(1); // olAppointmentItem
+    apnt.Start = new Date(2013, 3, 17, 19, 30, 0);
+    apnt.End = new Date(2013, 3, 17, 20, 0, 0);
+    apnt.Subject = 'TTEESSTT';
+    apnt.Body = 'bodybodybody';
+    apnt.Location = 'node';
+    apnt.Sensitivity = 0; // olNormal
+    apnt.ReminderSet = true;
+    apnt.ReminderMinutesBeforeStart = 120; // minutes
+    apnt.Save();
+  }
   // var apnts = fcal.Items._; // ***
   var apnts = fcal.Items.restrict('[Start] >= "26/02/2013 09:30"');
   var acnt = apnts.Count;
