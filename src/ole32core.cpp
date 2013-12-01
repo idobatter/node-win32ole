@@ -383,13 +383,23 @@ HRESULT OCVariant::AutoWrap(int autoType, VARIANT *pvResult,
     dp.cNamedArgs = 1;
     dp.rgdispidNamedArgs = &dispidNamed;
   }
+  EXCEPINFO exceptInfo;
   // Make the call!
   hr = v.pdispVal->Invoke(dispID, IID_NULL,
-    LOCALE_USER_DEFAULT, autoType, &dp, pvResult, NULL, NULL); // or _SYSTEM_ ?
+    LOCALE_USER_DEFAULT, autoType, &dp, pvResult, &exceptInfo, NULL); // or _SYSTEM_ ?
   delete [] pArgs;
   if(FAILED(hr)){
-    ostringstream oss;
-    oss << hr << " [" << szName << "] = [" << dispID << "] ";
+
+	// Convert down to ANSI (for error message only)
+	char szErrSource[256];
+	WideCharToMultiByte(CP_ACP, 0, exceptInfo.bstrSource, -1, szErrSource, sizeof(szErrSource), NULL, NULL);
+	char szErrDescription[256];
+	WideCharToMultiByte(CP_ACP, 0, exceptInfo.bstrDescription, -1, szErrDescription, sizeof(szErrDescription), NULL, NULL);
+
+	ostringstream oss;
+    oss << hr << " [" << szName << "] = [" << dispID << "]\r\n";
+	oss << szErrSource << ": ";
+	oss << szErrDescription << "\r\n";
     oss << "(It always seems to be appeared at that time you mistake calling ";
     oss << "'obj.get { ocv->getProp() }' <-> 'obj.call { ocv->invoke() }'.) ";
     oss << "IDispatch::Invoke AutoWrap";

@@ -88,9 +88,12 @@ std::string V8Variant::CreateStdStringMBCSfromUTF8(Handle<Value> v)
 
 OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
 {
+  if (v->IsNull()){
+		return new OCVariant();
+  }
+
   BEVERIFY(done, !v.IsEmpty());
   BEVERIFY(done, !v->IsUndefined());
-  BEVERIFY(done, !v->IsNull());
   BEVERIFY(done, !v->IsExternal());
   BEVERIFY(done, !v->IsNativeError());
   BEVERIFY(done, !v->IsFunction());
