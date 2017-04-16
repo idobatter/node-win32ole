@@ -17,9 +17,9 @@
 
 namespace ole32core {
 
-#define BDISPFUNCIN() do{std::cerr<<"-IN "<<__FUNCTION__<<std::endl;}while(0)
-#define BDISPFUNCOUT() do{std::cerr<<"-OUT "<<__FUNCTION__<<std::endl;}while(0)
-#define BDISPFUNCDAT(f, a, t) do{fprintf(stderr, (f), (a), (t));}while(0)
+#define BDISPFUNCIN() do {std::cerr<<"-IN " << __FUNCTION__ << std::endl;} while(0)
+#define BDISPFUNCOUT() do {std::cerr<<"-OUT " << __FUNCTION__ << std::endl;} while(0)
+#define BDISPFUNCDAT(f, a, t) do {fprintf(stderr, (f), (a), (t));} while(0)
 #if defined(_DEBUG) || defined(DEBUG)
 #define DISPFUNCIN() BDISPFUNCIN()
 #define DISPFUNCOUT() BDISPFUNCOUT()
@@ -30,7 +30,7 @@ namespace ole32core {
 #define DISPFUNCDAT(f, a, t) // BDISPFUNCDAT((f), (a), (t))
 #endif
 
-#define BASSERT(x) chkerr((BOOL)(x), __FILE__, __LINE__, __FUNCTION__, #x)
+#define BASSERT(x) (chkerr((bool)(x), __FILE__, __LINE__, __FUNCTION__, #x))
 #define BVERIFY(x) BASSERT(x)
 #if defined(_DEBUG) || defined(DEBUG)
 #define DASSERT(x) BASSERT(x)
@@ -39,7 +39,8 @@ namespace ole32core {
 #define DASSERT(x)
 #define DVERIFY(x) (x)
 #endif
-extern BOOL chkerr(BOOL b, char *m, int n, char *f, char *e);
+
+extern bool chkerr(bool b, char *m, int n, char *f, char *e);
 #define BEVERIFY(y, x) if(!BVERIFY(x)){ goto y; }
 #define DEVERIFY(y, x) if(!DVERIFY(x)){ goto y; }
 
@@ -66,49 +67,49 @@ extern std::string BSTR2MBCS(BSTR bstr);
 
 class OLE32coreException {
 protected:
-  std::string rmsg;
+    std::string rmsg;
 public:
-  OLE32coreException(std::string rm) : rmsg(rm) {}
-  virtual ~OLE32coreException() {}
-  std::string errorMessage(char *m=NULL);
+    OLE32coreException(std::string rm) : rmsg(rm) {}
+    virtual ~OLE32coreException() {}
+    std::string errorMessage(char *m = NULL);
 };
 
 class OCVariant {
 public:
-  VARIANT v;
-  OCVariant *next;
+    VARIANT v;
+    OCVariant *next;
 public:
-  OCVariant(); // result
-  OCVariant(const OCVariant &s); // copy
-  OCVariant(bool c_boolVal); // VT_BOOL
-  OCVariant(long lVal); // VT_I4
-  OCVariant(double dblVal); // VT_R8
-  OCVariant(double date, bool isdate); // VT_DATE
-  OCVariant(BSTR bstrVal); // VT_BSTR (previous allocated)
-  OCVariant(std::string str); // allocate and convert to VT_BSTR
-  virtual ~OCVariant();
-  OCVariant *push(OCVariant *p); // push to chain top
-  unsigned int size(); // length of chain (count next and self)
-  void checkOLEresult(std::string msg);
+    OCVariant(); // result
+    OCVariant(const OCVariant &s); // copy
+    OCVariant(bool c_boolVal); // VT_BOOL
+    OCVariant(long lVal); // VT_I4
+    OCVariant(double dblVal); // VT_R8
+    OCVariant(double date, bool isdate); // VT_DATE
+    OCVariant(BSTR bstrVal); // VT_BSTR (previous allocated)
+    OCVariant(std::string str); // allocate and convert to VT_BSTR
+    virtual ~OCVariant();
+    OCVariant *push(OCVariant *p); // push to chain top
+    unsigned int size(); // length of chain (count next and self)
+    void checkOLEresult(std::string msg);
 protected:
-  HRESULT AutoWrap(int autoType, VARIANT *pvResult,
-    LPOLESTR ptName, OCVariant *argchain=NULL);
+    HRESULT AutoWrap(int autoType, VARIANT *pvResult,
+        LPOLESTR ptName, OCVariant *argchain = NULL);
 public:
-  OCVariant *getProp(LPOLESTR prop, OCVariant *argchain=NULL);
-  OCVariant *putProp(LPOLESTR prop, OCVariant *argchain=NULL);
-  OCVariant *invoke(LPOLESTR method, OCVariant *argchain=NULL, bool re=false);
+    OCVariant *getProp(LPOLESTR prop, OCVariant *argchain = NULL);
+    OCVariant *putProp(LPOLESTR prop, OCVariant *argchain = NULL);
+    OCVariant *invoke(LPOLESTR method, OCVariant *argchain = NULL, bool re = false);
 };
 
 class OLE32core {
 protected:
-  bool finalized;
-  std::string oldlocale;
+    bool finalized;
+    std::string oldlocale;
 public:
-  OLE32core() : finalized(true) {}
-  virtual ~OLE32core() { if(!finalized) disconnect(); }
-  void checkOLEresult(std::string msg);
-  bool connect(std::string locale);
-  bool disconnect(void);
+    OLE32core() : finalized(true) {}
+    virtual ~OLE32core() { if (!finalized) disconnect(); }
+    void checkOLEresult(std::string msg);
+    bool connect(std::string locale);
+    bool disconnect(void);
 };
 
 } // namespace ole32core

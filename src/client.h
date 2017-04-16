@@ -11,14 +11,14 @@ class Client : public node::ObjectWrap {
 public:
   static Persistent<FunctionTemplate> clazz;
   static void Init(Handle<Object> target);
-  static Handle<Value> New(const Arguments& args);
-  static Handle<Value> Dispatch(const Arguments& args);
-  static Handle<Value> Finalize(const Arguments& args);
+  static void New(const FunctionCallbackInfo<Value>& args);
+  static void Dispatch(const FunctionCallbackInfo<Value>& args);
+  static void Finalize(const FunctionCallbackInfo<Value>& args);
 public:
   Client() : node::ObjectWrap(), finalized(false) {}
   ~Client() { if(!finalized) Finalize(); }
 protected:
-  static void Dispose(Persistent<Value> handle, void *param);
+  static void Dispose(Isolate* isolate, Persistent<Value> handle, void *param);
   void Finalize();
 protected:
   bool finalized;

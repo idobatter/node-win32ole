@@ -14,44 +14,44 @@ using namespace v8;
 
 namespace node_win32ole {
 
-Persistent<Object> module_target;
+    Persistent<Object> module_target;
 
-Handle<Value> Method_version(const Arguments& args)
-{
-  HandleScope scope;
-  if(args.Length() >= 0){
-    //
-  }
+    void Method_version(const FunctionCallbackInfo<Value>& args)
+    {
+        Isolate* isolate = args.GetIsolate();
+        if (args.Length() >= 0) {
+            //
+        }
 #ifdef DEBUG
-  node::node_module_struct *nms = node::get_builtin_module("Array");
-  if(!nms) return scope.Close(String::NewSymbol("not found"));
-  return scope.Close(String::New(nms->modname));
+        node::node_module *nms = 0;// node::get_builtin_module("Array");
+        const char *info = nms ? nms->nm_modname : "not found";
 #else
-  return scope.Close(module_target->Get(String::NewSymbol("VERSION")));
+        const char *info ="VERSION";
 #endif
-}
+        args.GetReturnValue().Set(String::NewFromUtf8(isolate, info));
+    }
 
-Handle<Value> Method_printACP(const Arguments& args) // UTF-8 to MBCS (.ACP)
-{
-  HandleScope scope;
-  if(args.Length() >= 1){
-    String::Utf8Value s(args[0]);
-    char *cs = *s;
-    printf(UTF82MBCS(std::string(cs)).c_str());
-  }
-  return scope.Close(Boolean::New(true));
-}
+    void Method_printACP(const FunctionCallbackInfo<Value>& args) // UTF-8 to MBCS (.ACP)
+    {
+        Isolate* isolate = args.GetIsolate();
+        if (args.Length() >= 1) {
+            String::Utf8Value s(args[0]);
+            char *cs = *s;
+            printf(UTF82MBCS(std::string(cs)).c_str());
+        }
+        args.GetReturnValue().Set(Boolean::New(isolate, true));
+    }
 
-Handle<Value> Method_print(const Arguments& args) // through (as ASCII)
-{
-  HandleScope scope;
-  if(args.Length() >= 1){
-    String::Utf8Value s(args[0]);
-    char *cs = *s;
-    printf(cs); // printf("%s\n", cs);
-  }
-  return scope.Close(Boolean::New(true));
-}
+    void Method_print(const FunctionCallbackInfo<Value>& args) // through (as ASCII)
+    {
+        Isolate* isolate = args.GetIsolate();
+        if (args.Length() >= 1) {
+            String::Utf8Value s(args[0]);
+            char *cs = *s;
+            printf(cs); // printf("%s\n", cs);
+        }
+        args.GetReturnValue().Set(Boolean::New(isolate, true));
+    }
 
 } // namespace node_win32ole
 
@@ -59,35 +59,26 @@ using namespace node_win32ole;
 
 namespace {
 
-void init(Handle<Object> target)
-{
-  module_target = Persistent<Object>::New(target);
-  V8Variant::Init(target);
-  Client::Init(target);
-  target->Set(String::NewSymbol("VERSION"),
-    String::New("0.0.0 (will be set later)"),
-    static_cast<PropertyAttribute>(DontDelete));
-  target->Set(String::NewSymbol("MODULEDIRNAME"),
-    String::New("/tmp"),
-    static_cast<PropertyAttribute>(DontDelete));
-  target->Set(String::NewSymbol("SOURCE_TIMESTAMP"),
-    String::NewSymbol(__FILE__ " " __DATE__ " " __TIME__),
-    static_cast<PropertyAttribute>(ReadOnly | DontDelete));
-  target->Set(String::NewSymbol("version"),
-    FunctionTemplate::New(Method_version)->GetFunction());
-  target->Set(String::NewSymbol("printACP"),
-    FunctionTemplate::New(Method_printACP)->GetFunction());
-  target->Set(String::NewSymbol("print"),
-    FunctionTemplate::New(Method_print)->GetFunction());
-  target->Set(String::NewSymbol("gettimeofday"),
-    FunctionTemplate::New(Method_gettimeofday)->GetFunction());
-  target->Set(String::NewSymbol("sleep"),
-    FunctionTemplate::New(Method_sleep)->GetFunction());
-  target->Set(String::NewSymbol("force_gc_extension"),
-    FunctionTemplate::New(Method_force_gc_extension)->GetFunction());
-  target->Set(String::NewSymbol("force_gc_internal"),
-    FunctionTemplate::New(Method_force_gc_internal)->GetFunction());
-}
+    void init(Handle<Object> target)
+    {
+        Isolate* isolate = target->GetIsolate();
+
+        module_target.Reset(isolate, target);
+        V8Variant::Init(target);
+        Client::Init(target);
+
+        NODE_DEFINE_PROP(target, "VERSION", "0.0.0");       // replaced from package.json
+        NODE_DEFINE_PROP(target, "MODULEDIRNAME", "/tmp");  // replaced for actual path
+        NODE_DEFINE_PROP_READONLY(target, "SOURCE_TIMESTAMP", __DATE__ " " __TIME__);
+
+        NODE_SET_METHOD(target, "version", Method_version);
+        NODE_SET_METHOD(target, "printACP", Method_printACP);
+        NODE_SET_METHOD(target, "print", Method_print);
+        NODE_SET_METHOD(target, "gettimeofday", Method_gettimeofday);
+        NODE_SET_METHOD(target, "sleep", Method_sleep);
+        NODE_SET_METHOD(target, "force_gc_extension", Method_force_gc_extension);
+        NODE_SET_METHOD(target, "force_gc_internal", Method_force_gc_internal);
+    }
 
 } // namespace
 

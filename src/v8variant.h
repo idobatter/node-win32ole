@@ -12,46 +12,46 @@ namespace node_win32ole {
 typedef struct _fundamental_attr {
   bool obsoleted;
   const char *name;
-  Handle<Value> (*func)(const Arguments& args);
+  void (*func)(const FunctionCallbackInfo<Value>& args);
 } fundamental_attr;
 
 class V8Variant : public node::ObjectWrap {
 public:
-  static Persistent<FunctionTemplate> clazz;
-  static void Init(Handle<Object> target);
-  static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v); // *** p.
-  static OCVariant *CreateOCVariant(Handle<Value> v); // *** private
-  static Handle<Value> OLEIsA(const Arguments& args);
-  static Handle<Value> OLEVTName(const Arguments& args);
-  static Handle<Value> OLEBoolean(const Arguments& args); // *** p.
-  static Handle<Value> OLEInt32(const Arguments& args); // *** p.
-  static Handle<Value> OLEInt64(const Arguments& args); // *** p.
-  static Handle<Value> OLENumber(const Arguments& args); // *** p.
-  static Handle<Value> OLEDate(const Arguments& args); // *** p.
-  static Handle<Value> OLEUtf8(const Arguments& args); // *** p.
-  static Handle<Value> OLEValue(const Arguments& args);
-  static Handle<Object> CreateUndefined(void); // *** private
-  static Handle<Value> New(const Arguments& args);
-  static Handle<Value> OLEFlushCarryOver(Handle<Value> v); // *** p.
-  static Handle<Value> OLEInvoke(bool isCall, const Arguments& args); // *** p.
-  static Handle<Value> OLECall(const Arguments& args);
-  static Handle<Value> OLEGet(const Arguments& args);
-  static Handle<Value> OLESet(const Arguments& args);
-  static Handle<Value> OLECallComplete(const Arguments& args); // *** p.
-  static Handle<Value> OLEGetAttr(
-    Local<String> name, const AccessorInfo& info); // *** p.
-  static Handle<Value> OLESetAttr(
-    Local<String> name, Local<Value> val, const AccessorInfo& info); // *** p.
-  static Handle<Value> Finalize(const Arguments& args);
+	static Persistent<FunctionTemplate> clazz;
+	static void Init(Handle<Object> target);
+	static void New(const FunctionCallbackInfo<Value>& args);
+
+	static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v); // *** p.
+	static OCVariant *CreateOCVariant(Handle<Value> v); // *** private
+	static void CreateUndefined(Isolate* isolate, Local<Object> &instance); // *** private
+	static void OLEIsA(const FunctionCallbackInfo<Value>& args);
+	static void OLEVTName(const FunctionCallbackInfo<Value>& args);
+	static void OLEBoolean(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLEInt32(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLEInt64(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLENumber(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLEDate(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLEUtf8(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLEValue(const FunctionCallbackInfo<Value>& args);
+	static void OLEFlushCarryOver(Isolate* isolate, Handle<Value> v, Handle<Value> &result); // *** p.
+	static void OLEInvoke(bool isCall, const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLECall(const FunctionCallbackInfo<Value>& args);
+	static void OLEGet(const FunctionCallbackInfo<Value>& args);
+	static void OLESet(const FunctionCallbackInfo<Value>& args);
+	static void OLECallComplete(const FunctionCallbackInfo<Value>& args); // *** p.
+	static void OLEGetAttr(Local<String> name, const PropertyCallbackInfo<Value>& args); // *** p.
+	static void OLESetAttr(Local<String> name, Local<Value> val, const PropertyCallbackInfo<Value>& args); // *** p.
+	static void Finalize(const FunctionCallbackInfo<Value>& args);
 public:
-  V8Variant() : node::ObjectWrap(), finalized(false), property_carryover() {}
-  ~V8Variant() { if(!finalized) Finalize(); }
+	V8Variant() : node::ObjectWrap(), finalized(false), property_carryover() {}
+	~V8Variant() { if(!finalized) Finalize(); }
 protected:
-  static void Dispose(Persistent<Value> handle, void *param);
-  void Finalize();
+	static void Dispose(Isolate* isolate, Persistent<Object> handle, void *param);
+	void Finalize();
 protected:
-  bool finalized;
-  std::string property_carryover;
+	bool finalized;
+	static Persistent<Function> constructor;
+	std::string property_carryover;
 };
 
 } // namespace node_win32ole
