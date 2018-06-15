@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/idobatter/node-win32ole.git"
+    "url": "git://github.com/durs/node-win32ole.git"
   },
   "dependencies": {
     "assert": ">= 0.4.9",
