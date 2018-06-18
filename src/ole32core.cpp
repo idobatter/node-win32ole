@@ -9,7 +9,7 @@ using namespace std;
 
 namespace ole32core {
 
-BOOL chkerr(BOOL b, char *m, int n, char *f, char *e)
+bool chkerr(bool b, char *m, int n, char *f, char *e)
 {
   if(b) return b;
   DWORD code = GetLastError();
@@ -199,7 +199,7 @@ OCVariant::OCVariant() : next(NULL)
 {
   DISPFUNCIN();
   VariantInit(&v);
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -208,7 +208,7 @@ OCVariant::OCVariant(const OCVariant &s) : next(NULL)
   DISPFUNCIN();
   VariantInit(&v); // It will be free before copy.
   VariantCopy(&v, (VARIANT *)&s.v);
-  DISPFUNCDAT("--copy construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--copy construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -218,7 +218,7 @@ OCVariant::OCVariant(bool c_boolVal) : next(NULL)
   VariantInit(&v);
   v.vt = VT_BOOL;
   v.boolVal = c_boolVal ? VARIANT_TRUE : VARIANT_FALSE;
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -228,7 +228,7 @@ OCVariant::OCVariant(long lVal) : next(NULL)
   VariantInit(&v);
   v.vt = VT_I4;
   v.lVal = lVal;
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -238,7 +238,7 @@ OCVariant::OCVariant(double dblVal) : next(NULL)
   VariantInit(&v);
   v.vt = VT_R8;
   v.dblVal = dblVal;
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -248,7 +248,7 @@ OCVariant::OCVariant(double date, bool isdate) : next(NULL)
   VariantInit(&v);
   v.vt = VT_DATE;
   v.date = date;
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -258,7 +258,7 @@ OCVariant::OCVariant(BSTR bstrVal) : next(NULL)
   VariantInit(&v);
   v.vt = VT_BSTR;
   v.bstrVal = bstrVal;
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
@@ -268,14 +268,14 @@ OCVariant::OCVariant(string str) : next(NULL)
   VariantInit(&v);
   v.vt = VT_BSTR;
   v.bstrVal = MBCS2BSTR(str);
-  DISPFUNCDAT("--construction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--construction-- %p %08lx\n", &v, v.vt);
   DISPFUNCOUT();
 }
 
 OCVariant::~OCVariant()
 {
   DISPFUNCIN();
-  DISPFUNCDAT("--destruction-- %08lx %08lx\n", &v, v.vt);
+  DISPFUNCDAT("--destruction-- %p %08lx\n", &v, v.vt);
   DISPFUNCDAT("---(first step in)%d%d", 0, 0);
 #if(0) // recursive (use stack)
   if(next){
